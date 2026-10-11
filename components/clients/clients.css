@@ -1,0 +1,341 @@
+/* ── Worked with (§9.3) ─────────────────────────────────────────
+   Night scene, raw: halftone portraits in torn orange frames, on VHS sleeves. */
+.clients {
+  position: relative;
+  padding: var(--section-y) 0 calc(var(--section-y) * 0.8);
+  overflow-x: clip;
+}
+.clients__head {
+  position: relative;
+  display: grid;
+  gap: var(--space-4);
+  margin-bottom: var(--space-12);
+}
+.clients__osd {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  color: var(--fg-muted);
+  font-family: var(--font-osd);
+  font-size: var(--text-osd-lg);
+  letter-spacing: 0.08em;
+}
+.clients__rec {
+  color: var(--orange-500);
+  animation: blink var(--dur-blink) steps(1) infinite;
+}
+.clients__title {
+  color: var(--fg);
+}
+.clients__title em {
+  color: var(--orange-500);
+  font-style: normal;
+}
+.clients__lede {
+  max-width: 44ch;
+  color: var(--fg-muted);
+}
+.clients__pause {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+}
+@media (max-width: 767px) {
+  .clients__pause {
+    position: static;
+    justify-self: start;
+  }
+}
+
+/* The reel: generous padding so tilted sleeves and torn frames never clip. */
+.clients__reel {
+  padding-block: var(--space-8) var(--space-12);
+}
+.clients__reel .marquee__copy,
+.clients__reel--static {
+  align-items: stretch;
+  gap: clamp(var(--space-6), 3vw, var(--space-12));
+  padding-inline: clamp(var(--space-3), 1.5vw, var(--space-6));
+}
+.clients__reel--static {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* ── One sleeve ── */
+.tape-card {
+  --tilt: -1.5deg;
+  position: relative;
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  width: clamp(250px, 72vw, 300px);
+  padding: var(--space-4);
+  border: 1px solid color-mix(in srgb, var(--white) 12%, transparent);
+  border-radius: var(--radius-sm);
+  background:
+    repeating-linear-gradient(90deg, color-mix(in srgb, var(--white) 3%, transparent) 0 1px, transparent 1px 6px),
+    var(--gray-900);
+  color: var(--white);
+  rotate: var(--tilt);
+  transition: rotate var(--dur-base) var(--ease-object), translate var(--dur-base) var(--ease-object);
+}
+.tape-card[data-tilt="right"] {
+  --tilt: 1.5deg;
+}
+@media (hover: hover) {
+  .tape-card:hover {
+    rotate: 0deg;
+    translate: 0 -6px;
+  }
+}
+.tape-card__osd {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-4);
+  font-family: var(--font-osd);
+  font-size: var(--text-osd);
+  letter-spacing: 0.08em;
+  color: var(--gray-400);
+}
+.tape-card__osd > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+}
+.tape-card__rec[data-live] {
+  color: var(--orange-500);
+}
+.tape-card__rec[data-live] .icon {
+  animation: blink var(--dur-blink) steps(1) infinite;
+}
+
+/* Halftone portrait in a torn orange frame. */
+.tape-card__photo {
+  position: relative;
+  aspect-ratio: 1;
+  margin: var(--space-2) var(--space-3) var(--space-6);
+}
+.tape-card__tear {
+  position: absolute;
+  inset: -9%;
+  background: var(--orange-500);
+  clip-path: polygon(3% 6%, 18% 0, 34% 4%, 52% 1%, 71% 5%, 88% 0, 100% 9%, 96% 27%, 100% 46%, 95% 63%, 100% 84%, 93% 100%, 74% 95%, 55% 100%, 37% 94%, 19% 100%, 0 92%, 5% 74%, 0 55%, 4% 36%, 0 18%);
+  rotate: calc(var(--tilt) * -2.5);
+}
+.tape-card__frame {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: clip;
+  background: var(--gray-600);
+  clip-path: polygon(0 2%, 30% 0, 62% 3%, 100% 0, 98% 40%, 100% 78%, 97% 100%, 60% 97%, 26% 100%, 0 98%, 2% 60%);
+}
+.tape-card__frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.35) brightness(1.05);
+}
+/* The print's dot screen, over photo and initials alike. */
+.tape-card__frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, transparent 42%, color-mix(in srgb, var(--black) 55%, transparent) 46%) 0 0 / 4px 4px;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+.tape-card__initials {
+  color: var(--white);
+  font-family: var(--font-display);
+  font-size: 6rem;
+  line-height: 1;
+}
+
+/* The label: a cream sticker, as on a home-recorded tape. */
+.tape-card__label {
+  display: grid;
+  flex: 1;
+  align-content: start;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-radius: var(--radius-xs);
+  background: var(--cream-200);
+  color: var(--black);
+}
+.tape-card__name {
+  font-family: var(--font-display);
+  font-size: var(--text-label);
+  font-weight: 400;
+  line-height: 0.95;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+.tape-card__role {
+  margin-top: calc(var(--space-1) * -1);
+  color: var(--red-600);
+  font-family: var(--font-osd);
+  font-size: var(--text-osd);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.tape-card__subs {
+  justify-self: start;
+  padding: 2px 8px;
+  border-radius: var(--radius-xs);
+  background: var(--black);
+  color: var(--orange-500);
+  font-family: var(--font-osd);
+  font-size: var(--text-osd);
+  letter-spacing: 0.06em;
+}
+.tape-card__log {
+  display: grid;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px dashed color-mix(in srgb, var(--black) 35%, transparent);
+}
+.tape-card__log dt {
+  color: var(--red-600);
+  font-family: var(--font-osd);
+  font-size: var(--text-osd);
+  letter-spacing: 0.08em;
+  line-height: 1;
+}
+.tape-card__log dd {
+  font-size: var(--text-small);
+  font-weight: 500;
+  line-height: 1.4;
+}
+.tape-card__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  justify-self: start;
+  min-height: 44px;
+  margin-top: var(--space-1);
+  color: var(--black);
+  font-family: var(--font-osd);
+  font-size: var(--text-osd);
+  letter-spacing: 0.06em;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.tape-card__link:focus-visible {
+  outline: 2px solid var(--orange-500);
+  outline-offset: 2px;
+}
+
+/* ── The section break: BTS draws in from the sides as it ends, leaving black margins that stop
+   where this section starts. Scroll-driven; without support BTS simply stays full-bleed. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .bts {
+      animation: bts-frame linear both;
+      animation-timeline: view();
+      animation-range: exit 0% exit 45%;
+    }
+  }
+}
+@keyframes bts-frame {
+  from {
+    clip-path: inset(0 0 0 0 round 0 0 0 0);
+  }
+  to {
+    clip-path: inset(0 var(--gutter) 0 var(--gutter) round 0 0 var(--radius-lg) var(--radius-lg));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .clients__rec,
+  .tape-card__rec[data-live] .icon {
+    animation: none;
+  }
+  .tape-card {
+    transition: none;
+  }
+}
+
+/* A mirror ball over the heading — desktop only, pure CSS: a sphere of tiles (two conic /
+   linear grids, masked round), a highlight, slowly turning. Never drawn on phones or touch. */
+.clients__disco {
+  display: none;
+}
+@media (min-width: 1024px) and (pointer: fine) {
+  /* Its own column beside the heading, so it can never cover the title at any width. */
+  .clients__head {
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: clamp(var(--space-8), 6vw, var(--space-24));
+  }
+  .clients__head > :not(.clients__disco, .clients__pause) {
+    grid-column: 1;
+  }
+  /* One line beside the ball: "WORKED WITH" is ≈ 4.3 em wide, so the size is capped by the
+     column it has left (content width − the ball's column − the gap). */
+  .clients__head .clients__title {
+    font-size: min(var(--text-section), calc((min(100vw - 2 * var(--gutter), var(--content-max)) - 21vw - 8px) / 4.3));
+    white-space: nowrap;
+  }
+  .clients__disco {
+    position: relative;
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    align-self: start;
+    margin-top: calc(var(--space-12) * -1);
+    margin-right: clamp(0px, 4vw, var(--space-16));
+    display: block;
+    width: clamp(120px, 11vw, 180px);
+    aspect-ratio: 1;
+    pointer-events: none;
+    transform-origin: 50% calc(-1 * (var(--section-y) - var(--space-12)));
+    animation: disco-sway var(--dur-prop) var(--ease-in-out) infinite alternate;
+  }
+  .clients__disco::before {
+    content: "";
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    width: 1px;
+    height: calc(var(--section-y) - var(--space-12)); /* hangs from the section's top edge */
+    background: var(--gray-600);
+  }
+  .clients__disco-ball {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 34% 30%, var(--white) 0, transparent 22%),
+      repeating-linear-gradient(90deg, transparent 0 7px, color-mix(in srgb, var(--black) 55%, transparent) 7px 8px),
+      repeating-linear-gradient(0deg, transparent 0 7px, color-mix(in srgb, var(--black) 55%, transparent) 7px 8px),
+      conic-gradient(from 0deg, var(--gray-400), var(--white), var(--gray-600), var(--gray-400), var(--white), var(--gray-600), var(--gray-400));
+    background-size: 100% 100%, 16px 100%, 100% 16px, 100% 100%;
+    box-shadow:
+      inset -18px -22px 40px color-mix(in srgb, var(--black) 75%, transparent),
+      0 0 60px -10px color-mix(in srgb, var(--orange-500) 45%, transparent);
+    animation: disco-spin var(--dur-tv-sun) linear infinite;
+  }
+}
+@keyframes disco-spin {
+  to {
+    background-position: 0 0, 16px 0, 0 0, 0 0;
+  }
+}
+@keyframes disco-sway {
+  from {
+    rotate: -4deg;
+  }
+  to {
+    rotate: 4deg;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .clients__disco,
+  .clients__disco-ball {
+    animation: none;
+  }
+}

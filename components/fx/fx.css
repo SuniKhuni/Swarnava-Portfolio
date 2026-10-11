@@ -1,0 +1,83 @@
+/* §6.5 Texture and effects — chrome and props only, never on the work. */
+
+.fx-scanlines {
+  background: repeating-linear-gradient(0deg, var(--fx-scanline) 0 1px, transparent 1px 3px);
+}
+
+/* A 12%-tall lighter band travelling top to bottom. */
+.fx-scanbar::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 12%;
+  background: var(--fx-scanbar);
+  animation: fx-scanbar var(--dur-scan) linear infinite;
+}
+@keyframes fx-scanbar {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(834%);
+  }
+}
+
+.fx-static {
+  background-image: url("/fx/noise.png");
+  background-size: 128px 128px;
+  animation: fx-static var(--dur-static) steps(6) infinite;
+}
+@keyframes fx-static {
+  to {
+    background-position: 384px 264px;
+  }
+}
+
+.fx-rgb {
+  text-shadow:
+    -1px 0 var(--fx-split-red),
+    1px 0 var(--fx-split-cyan);
+}
+
+/* Glitch: 3 frames — x −4 px, +3 px, 0 — each with a horizontal slice, plus RGB split.
+   180 ms, two flips at most (WCAG 2.3.1). */
+.fx-glitch-once {
+  display: inline-block;
+  animation: fx-glitch var(--dur-fast) steps(1, end) both;
+}
+.fx-glitch-flash {
+  display: inline-block;
+  animation: fx-glitch var(--dur-flash) steps(1, end) both;
+}
+@keyframes fx-glitch {
+  0% {
+    transform: translateX(-4px);
+    clip-path: inset(8% 0 46% 0);
+    text-shadow:
+      -2px 0 var(--fx-split-red),
+      2px 0 var(--fx-split-cyan);
+  }
+  33% {
+    transform: translateX(3px);
+    clip-path: inset(48% 0 6% 0);
+    text-shadow:
+      -1px 0 var(--fx-split-red),
+      1px 0 var(--fx-split-cyan);
+  }
+  66%,
+  100% {
+    transform: none;
+    clip-path: inset(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-scanbar::before,
+  .fx-static,
+  .fx-glitch-once,
+  .fx-glitch-flash {
+    animation: none;
+  }
+}

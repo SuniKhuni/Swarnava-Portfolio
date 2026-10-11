@@ -1,0 +1,15 @@
+# Never in the image: secrets, local builds, dependencies (installed fresh), references.
+.env*
+!.env.example
+node_modules
+.next
+out
+build
+*.tsbuildinfo
+temp
+prompt.md
+# Local admin uploads stay local; production keeps its own on the /data disk.
+content/media/*.webp
+Dockerfile
+.dockerignore
+fly.toml

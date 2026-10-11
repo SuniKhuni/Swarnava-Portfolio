@@ -1,0 +1,428 @@
+@import "tailwindcss";
+
+@import "../components/ui/ui.css";
+@import "../components/fx/fx.css";
+@import "../components/chrome/chrome.css";
+@import "../components/hero/hero.css";
+@import "../components/bts/bts.css";
+@import "../components/clients/clients.css";
+@import "../components/work/work.css";
+@import "../components/contact/contact.css";
+
+/* ─────────────────────────────────────────────────────────────
+   §6.1 Colour
+   ───────────────────────────────────────────────────────────── */
+:root {
+  /* primitives — brand board */
+  --black: #000000; /* Primary */
+  --gray-900: #333333; /* Dark Gray */
+  --gray-600: #646464; /* Gray */
+  --gray-400: #a7a7a7; /* Light Gray */
+  --white: #f9f9f9; /* White */
+  --orange-500: #e85002; /* Branding Orange */
+  --orange-400: #f16001; /* gradient stop 3 */
+  --red-600: #c10801; /* gradient stop 2 */
+  --sand-300: #d9c3ab; /* gradient stop 4 */
+  --gradient-brand: linear-gradient(90deg, #000000 0%, #c10801 33%, #f16001 66%, #d9c3ab 100%);
+
+  /* primitives — sampled from the art */
+  --cream-200: #efd5bc; /* hero wall, top-centre (measured #F0D5BB at y 40) */
+  --cream-100: #ffe2c4; /* monitor screen in the BTS mock */
+
+  /* tape-label stripes — eyedropped from the three book spines in scene.png */
+  --stripe-mustard: #f0af1a; /* Artificial Intelligence */
+  --stripe-pink: #e85d67; /* Creativity */
+  --stripe-blue: #026a97; /* Design */
+
+  /* effect recipes (§6.5) — the only translucent colours; components use these or color-mix() */
+  --fx-scanline: rgb(0 0 0 / 0.18);
+  --fx-scanbar: rgb(255 255 255 / 0.06);
+  --fx-split-red: rgb(255 42 42 / 0.6);
+  --fx-split-cyan: rgb(25 227 255 / 0.6);
+  --debug: rgb(255 0 255 / 0.5);
+
+  /* TV pictures (components/hero/TvPictures.tsx): 75% SMPTE bars and a synthwave sunset. */
+  --tv-bar-grey: #c0c0c0;
+  --tv-bar-yellow: #c0c000;
+  --tv-bar-cyan: #00c0c0;
+  --tv-bar-green: #00c000;
+  --tv-bar-magenta: #c000c0;
+  --tv-bar-red: #c00000;
+  --tv-bar-blue: #0000c0;
+  --tv-bar-black: #131313;
+  --tv-sky-1: #1b0638;
+  --tv-sky-2: #6a1b9a;
+  --tv-sky-3: #e0407a;
+  --tv-sky-4: #ff8a50;
+  --tv-sun-1: #ffe45c;
+  --tv-sun-2: #ff8a3d;
+  --tv-sun-3: #ff2e7e;
+  --tv-sea-1: #3a0f5c;
+  --tv-sea-2: #12052a;
+  --tv-palm: #10031e;
+}
+
+/* Scenes. Tokens live on [data-scene]; the painted ground lives on .scene, so other
+   elements (the HUD) can borrow a scene's tokens without its background. */
+:root,
+[data-scene="night"] {
+  --bg: var(--black);
+  --fg: var(--white);
+  --fg-muted: var(--gray-400);
+  --fg-display: var(--white);
+  --accent: var(--orange-500);
+  --surface: var(--gray-900);
+  --on-surface: var(--white);
+  --line: rgb(249 249 249 / 0.14);
+  --focus: var(--orange-500);
+  --scene-bg: var(--black);
+}
+[data-scene="cream"] {
+  --bg: var(--cream-200);
+  --fg: var(--black);
+  --fg-muted: var(--gray-900);
+  --fg-display: var(--orange-500);
+  --accent: var(--red-600);
+  --surface: var(--white);
+  --on-surface: var(--black);
+  --line: rgb(0 0 0 / 0.14);
+  --focus: var(--black);
+  --scene-bg: var(--cream-200);
+}
+[data-scene="signal"] {
+  --bg: var(--orange-500);
+  --fg: var(--black);
+  --fg-muted: var(--black);
+  --fg-display: var(--white);
+  --accent: var(--black);
+  --surface: var(--black);
+  --on-surface: var(--white);
+  --line: rgb(0 0 0 / 0.22);
+  --focus: var(--black);
+  /* Both glows are fully transparent along the top edge: the Dive ends on flat orange. */
+  --scene-bg:
+    radial-gradient(60% 45% at 30% 60%, var(--orange-400) 0%, transparent 70%),
+    radial-gradient(70% 55% at 100% 100%, var(--red-600) 0%, transparent 70%), var(--orange-500);
+}
+.scene {
+  background: var(--scene-bg);
+  color: var(--fg);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   §6.2 Type · §6.3 Space, shape, layers · §6.4 Motion
+   ───────────────────────────────────────────────────────────── */
+:root {
+  --font-display: var(--font-bebas), Impact, "Arial Narrow", sans-serif;
+  --font-osd: var(--font-vt323), ui-monospace, monospace;
+  --font-body: var(--font-archivo), system-ui, sans-serif;
+
+  --text-mega: clamp(9rem, 32vw, 30rem);
+  --text-section: clamp(5rem, 15vw, 16rem);
+  --text-title: clamp(3rem, 7vw, 6.5rem);
+  --text-label: clamp(1.75rem, 3vw, 2.75rem);
+  --text-lead: clamp(1.125rem, 1.5vw, 1.375rem);
+  --text-body: 1rem;
+  --text-small: 0.875rem;
+  --text-osd-lg: clamp(1.25rem, 1.6vw, 1.75rem);
+  --text-osd: 1.125rem;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-24: 96px;
+  --space-32: 128px;
+  --gutter: clamp(16px, 4vw, 64px);
+  --section-y: clamp(72px, 10vw, 160px);
+  --content-max: 1320px;
+
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 28px;
+  --radius-pill: 999px;
+  --shadow-prop: 0 24px 40px -18px rgb(0 0 0 / 0.45); /* objects on cream and orange */
+  --shadow-lift: 0 18px 30px -12px rgb(0 0 0 / 0.6); /* hover on night */
+
+  --z-sticky: 20;
+  --z-remote: 50;
+  --z-hud: 60;
+  --z-cursor: 70;
+  --z-overlay: 80;
+  --z-skip: 100;
+
+  --dur-flash: 90ms;
+  --dur-fast: 180ms;
+  --dur-base: 320ms;
+  --dur-slow: 600ms;
+  --dur-scene: 900ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  /* spring.object (stiffness 220, damping 24) sampled over 600 ms — for CSS-driven objects. */
+  --ease-object: linear(0, 0.056 4.2%, 0.184 8.3%, 0.337 12.5%, 0.489 16.7%, 0.624 20.8%, 0.737 25%, 0.826 29.2%, 0.893 33.3%, 0.94 37.5%, 0.972 41.7%, 0.993 45.8%, 1.005 50%, 1.011 54.2%, 1.013 58.3%, 1.013 62.5%, 1.012 66.7%, 1.01 70.8%, 1.008 75%, 1.006 79.2%, 1.004 83.3%, 1.003 87.5%, 1.002 91.7%, 1.001 95.8%, 1);
+
+  /* Named timings from the handoff specs, so components never write a raw duration. */
+  --dur-reduced: 150ms; /* reduced-motion crossfades */
+  --dur-crossfade: 200ms; /* slider image swap */
+  --dur-eject: 350ms; /* cassette tape ejects */
+  --dur-tape-close: 260ms; /* route transition: bars close (timing.transition.close) */
+  --dur-envelope-flap: 500ms;
+  /* First-visit intro (timing.intro in lib/motion.ts): paint in, hold, fly to the hero, reveal. */
+  --intro-delay: 120ms;
+  --intro-paint: 650ms;
+  --intro-hold: 750ms;
+  --intro-move: 850ms;
+  --intro-fade: 320ms;
+  --intro-failsafe: 6s; /* if the page never hydrates, the overlay still gets out of the way */
+  --dur-blink: 1s; /* REC dot, chip blink */
+  --dur-reel: 1.2s; /* one reel turn */
+  --dur-static: 0.5s; /* noise steps(6) */
+  --dur-tracking: 900ms; /* TRACKING… ellipsis */
+  --dur-scan: 6s; /* scan bar */
+  --dur-glint: 40s; /* one disco-glint turn (30–50 s by index) */
+  --dur-glint-pulse: 3.2s; /* a glint's opacity 0 → .5 → 0 */
+  --dur-tv-track: 4.2s; /* colour bars: one tracking slip per loop */
+  --dur-tv-sun: 9s; /* the sunset's sun drifting down */
+  --dur-wm-glitch: 7.5s; /* the hero name: one tracking snap, then a long clean hold */
+  --dur-dock-float: 4.5s; /* the hero's round buttons bobbing */
+  --dur-prop: 9s; /* the contact section's 3D props drifting */
+  --dur-tv-sea: 3s; /* the sea's shimmer lines */
+  --dur-name-delay: 300ms; /* name line starts after the wordmark */
+  --dur-type-char: 28ms; /* name line types on */
+  --stagger-letters: 40ms;
+  --stagger-items: 70ms;
+  --stagger-bts: 60ms;
+  --dur-reveal: 500ms; /* about lines */
+}
+
+/* Tailwind reads the semantic tokens only. The default palette is removed on purpose. */
+@theme inline {
+  --color-*: initial;
+  --color-bg: var(--bg);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-display: var(--fg-display);
+  --color-accent: var(--accent);
+  --color-surface: var(--surface);
+  --color-on-surface: var(--on-surface);
+  --color-line: var(--line);
+  --color-black: var(--black);
+  --color-white: var(--white);
+  --color-orange: var(--orange-500);
+  --color-cream: var(--cream-200);
+
+  --font-display: var(--font-bebas), Impact, "Arial Narrow", sans-serif;
+  --font-osd: var(--font-vt323), ui-monospace, monospace;
+  --font-body: var(--font-archivo), system-ui, sans-serif;
+
+  --breakpoint-sm: 480px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Base
+   ───────────────────────────────────────────────────────────── */
+html {
+  -webkit-text-size-adjust: 100%;
+  background: var(--black);
+}
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+body {
+  min-height: 100svh;
+  background: var(--black);
+  color: var(--white);
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+/* The film strip and the Monitor bleed sideways; clip here, never with overflow: hidden. */
+main {
+  overflow-x: clip;
+}
+:where(a, button, input, textarea, select, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+::selection {
+  background: var(--orange-500);
+  color: var(--black);
+}
+button {
+  cursor: pointer;
+}
+[hidden] {
+  display: none !important;
+}
+
+.wrap {
+  width: 100%;
+  max-width: calc(var(--content-max) + 2 * var(--gutter));
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+.grid-12 {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 24px;
+}
+
+/* Type roles (§6.2) */
+.t-mega,
+.t-section,
+.t-title,
+.t-label {
+  font-family: var(--font-display);
+  font-weight: 400;
+  text-transform: uppercase;
+}
+.t-mega {
+  font-size: var(--text-mega);
+  line-height: 0.8;
+}
+.t-section {
+  font-size: var(--text-section);
+  line-height: 0.82;
+}
+.t-title {
+  font-size: var(--text-title);
+  line-height: 0.9;
+}
+.t-label {
+  font-size: var(--text-label);
+  line-height: 1;
+}
+.t-lead {
+  font-size: var(--text-lead);
+  font-weight: 500;
+  line-height: 1.5;
+  max-width: 46ch;
+}
+.t-body {
+  font-size: var(--text-body);
+  line-height: 1.6;
+  max-width: 68ch;
+}
+.t-small {
+  font-size: var(--text-small);
+  font-weight: 500;
+  line-height: 1.5;
+}
+.t-osd-lg,
+.t-osd {
+  font-family: var(--font-osd);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  line-height: 1.1;
+}
+.t-osd-lg {
+  font-size: var(--text-osd-lg);
+}
+.t-osd {
+  font-size: var(--text-osd);
+}
+
+/* Letters rising out of a clipped line (BTS., PROJECTS, band titles) — see Rise.tsx. */
+.rise {
+  display: inline-block;
+  clip-path: inset(-0.3em -0.2em 0 -0.2em); /* clip below the line only */
+  white-space: nowrap;
+}
+.rise > span {
+  display: inline-block;
+}
+html.js .rise > span {
+  transition: transform var(--dur-slow) var(--ease-out);
+  transition-delay: calc(var(--i, 0) * var(--rise-stagger, var(--stagger-letters)));
+}
+html.js .rise[data-in="false"] > span {
+  transform: translateY(105%);
+}
+
+/* Line-by-line reveal — see LineReveal.tsx. */
+.line-reveal__w {
+  display: inline-block;
+}
+html.js .line-reveal__w {
+  transition:
+    transform var(--dur-reveal) var(--ease-out),
+    opacity var(--dur-reveal) var(--ease-out),
+    clip-path var(--dur-reveal) var(--ease-out);
+  transition-delay: calc(var(--line, 0) * var(--stagger-items));
+}
+html.js .line-reveal[data-in="false"] .line-reveal__w {
+  opacity: 0;
+  transform: translateY(12px);
+  clip-path: inset(0 0 100% 0);
+}
+@media (prefers-reduced-motion: reduce) {
+  html.js .rise[data-in="false"] > span,
+  html.js .line-reveal[data-in="false"] .line-reveal__w {
+    transform: none;
+    opacity: 1;
+    clip-path: none;
+  }
+}
+
+/* Skip link — first focusable element. */
+.skip-link {
+  position: fixed;
+  left: var(--space-4);
+  top: var(--space-4);
+  z-index: var(--z-skip);
+  padding: var(--space-3) var(--space-4);
+  background: var(--orange-500);
+  color: var(--black);
+  font-family: var(--font-osd);
+  font-size: var(--text-osd-lg);
+  text-transform: uppercase;
+  border-radius: var(--radius-pill);
+  transform: translateY(-200%);
+}
+.skip-link:focus-visible {
+  transform: none;
+  outline-color: var(--black);
+}
+
+/* Reduced motion: routes fade in over 150 ms instead of the tape transition (§11). */
+@media (prefers-reduced-motion: reduce) {
+  .route-fade {
+    animation: route-fade var(--dur-reduced) linear both;
+  }
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+  }
+}
+@keyframes route-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+/* ?debug=screens — development only; draws every scene-map rect as 50% magenta. */
+html[data-debug="screens"] .crt::after,
+html[data-debug="screens"] .glints__debug {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 99;
+  background: var(--debug);
+  border-radius: inherit;
+  pointer-events: none;
+}

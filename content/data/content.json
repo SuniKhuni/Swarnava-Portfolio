@@ -1,0 +1,917 @@
+{
+  "site": {
+    "role": "[ROLE LINE]",
+    "about": [
+      "[ABOUT — PARAGRAPH 1]",
+      "[ABOUT — PARAGRAPH 2]"
+    ],
+    "pillars": [
+      "AI",
+      "DESIGN",
+      "CREATIVITY"
+    ],
+    "contactLine": "[CONTACT LINE]",
+    "email": "[EMAIL]",
+    "socials": [
+      {
+        "label": "INSTAGRAM",
+        "href": "#contact",
+        "kind": "instagram"
+      },
+      {
+        "label": "LINKEDIN",
+        "href": "#contact",
+        "kind": "linkedin"
+      }
+    ],
+    "heroNiches": [
+      "CONTENT",
+      "PODCAST",
+      "CRYPTO",
+      "GAMING",
+      "WEB3",
+      "DEVELOPER"
+    ],
+    "btsPhotos": [
+      {
+        "src": "/placeholder/bts/bts-01-4x5.webp",
+        "alt": "[BTS PHOTO 01 — ALT TEXT]",
+        "caption": "[CAPTION 01]"
+      },
+      {
+        "src": "/placeholder/bts/bts-02-4x5.webp",
+        "alt": "[BTS PHOTO 02 — ALT TEXT]",
+        "caption": "[CAPTION 02]"
+      },
+      {
+        "src": "/placeholder/bts/bts-03-4x5.webp",
+        "alt": "[BTS PHOTO 03 — ALT TEXT]",
+        "caption": "[CAPTION 03]"
+      },
+      {
+        "src": "/placeholder/bts/bts-04-4x5.webp",
+        "alt": "[BTS PHOTO 04 — ALT TEXT]",
+        "caption": "[CAPTION 04]"
+      },
+      {
+        "src": "/placeholder/bts/bts-05-4x5.webp",
+        "alt": "[BTS PHOTO 05 — ALT TEXT]",
+        "caption": "[CAPTION 05]"
+      },
+      {
+        "src": "/placeholder/bts/bts-06-4x5.webp",
+        "alt": "[BTS PHOTO 06 — ALT TEXT]",
+        "caption": "[CAPTION 06]"
+      },
+      {
+        "src": "/placeholder/bts/bts-07-4x5.webp",
+        "alt": "[BTS PHOTO 07 — ALT TEXT]",
+        "caption": "[CAPTION 07]"
+      },
+      {
+        "src": "/placeholder/bts/bts-08-4x5.webp",
+        "alt": "[BTS PHOTO 08 — ALT TEXT]",
+        "caption": "[CAPTION 08]"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "name": "[CLIENT NAME 01]",
+      "meta": "[SUBS]",
+      "role": "[ROLE 01]",
+      "work": "[WORK DELIVERED 01]",
+      "result": "[RESULT 01]"
+    },
+    {
+      "name": "[CLIENT NAME 02]",
+      "meta": "[SUBS]",
+      "role": "[ROLE 02]",
+      "work": "[WORK DELIVERED 02]",
+      "result": "[RESULT 02]"
+    },
+    {
+      "name": "[CLIENT NAME 03]",
+      "meta": "[SUBS]",
+      "role": "[ROLE 03]",
+      "work": "[WORK DELIVERED 03]",
+      "result": "[RESULT 03]"
+    },
+    {
+      "name": "[CLIENT NAME 04]",
+      "meta": "[SUBS]",
+      "role": "[ROLE 04]",
+      "work": "[WORK DELIVERED 04]",
+      "result": "[RESULT 04]"
+    },
+    {
+      "name": "[CLIENT NAME 05]",
+      "meta": "[SUBS]",
+      "role": "[ROLE 05]",
+      "work": "[WORK DELIVERED 05]",
+      "result": "[RESULT 05]"
+    },
+    {
+      "name": "[CLIENT NAME 06]",
+      "meta": "[SUBS]",
+      "role": "[ROLE 06]",
+      "work": "[WORK DELIVERED 06]",
+      "result": "[RESULT 06]"
+    }
+  ],
+  "categories": [
+    {
+      "id": "gaming",
+      "label": "GAMING",
+      "niche": "GAMING",
+      "stripe": "orange",
+      "cover": {
+        "src": "/placeholder/work/gaming-cover-16x9.webp",
+        "width": 1280,
+        "height": 720
+      },
+      "items": [
+        {
+          "slug": "gaming-01",
+          "title": "[GAMING 01 — TITLE]",
+          "alt": "[GAMING 01 — ALT TEXT]",
+          "client": "[CLIENT NAME]",
+          "after": {
+            "src": "/placeholder/work/gaming-01-after-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "before": {
+            "src": "/placeholder/work/gaming-01-before-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "aspect": "16 / 9",
+          "featured": true
+        },
+        {
+          "slug": "gaming-02",
+          "title": "[GAMING 02 — TITLE]",
+          "alt": "[GAMING 02 — ALT TEXT]",
+          "client": "[CLIENT NAME]",
+          "after": {
+            "src": "/placeholder/work/gaming-02-after-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "before": {
+            "src": "/placeholder/work/gaming-02-before-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "aspect": "16 / 9",
+          "featured": false
+        },
+        {
+          "slug": "gaming-03",
+          "title": "[GAMING 03 — TITLE]",
+          "alt": "[GAMING 03 — ALT TEXT]",
+          "client": "[CLIENT NAME]",
+          "after": {
+            "src": "/placeholder/work/gaming-03-after-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "before": {
+            "src": "/placeholder/work/gaming-03-before-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "aspect": "16 / 9",
+          "featured": false
+        },
+        {
+          "slug": "gaming-04",
+          "title": "[GAMING 04 — TITLE]",
+          "alt": "[GAMING 04 — ALT TEXT]",
+          "client": "[CLIENT NAME]",
+          "after": {
+            "src": "/placeholder/work/gaming-04-after-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "before": {
+            "src": "/placeholder/work/gaming-04-before-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "aspect": "16 / 9",
+          "featured": false
+        },
+        {
+          "slug": "gaming-05",
+          "title": "[GAMING 05 — TITLE]",
+          "alt": "[GAMING 05 — ALT TEXT]",
+          "client": "[CLIENT NAME]",
+          "after": {
+            "src": "/placeholder/work/gaming-05-after-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "before": {
+            "src": "/placeholder/work/gaming-05-before-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "aspect": "16 / 9",
+          "featured": false
+        },
+        {
+          "slug": "gaming-06",
+          "title": "[GAMING 06 — TITLE]",
+          "alt": "[GAMING 06 — ALT TEXT]",
+          "client": "[CLIENT NAME]",
+          "after": {
+            "src": "/placeholder/work/gaming-06-after-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "before": {
+            "src": "/placeholder/work/gaming-06-before-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "aspect": "16 / 9",
+          "featured": false
+        },
+        {
+          "slug": "gaming-07",
+          "title": "[GAMING 07 — TITLE]",
+          "alt": "[GAMING 07 — ALT TEXT]",
+          "client": "[CLIENT NAME]",
+          "after": {
+            "src": "/placeholder/work/gaming-07-after-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "before": {
+            "src": "/placeholder/work/gaming-07-before-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "aspect": "16 / 9",
+          "featured": false
+        },
+        {
+          "slug": "gaming-08",
+          "title": "[GAMING 08 — TITLE]",
+          "alt": "[GAMING 08 — ALT TEXT]",
+          "client": "[CLIENT NAME]",
+          "after": {
+            "src": "/placeholder/work/gaming-08-after-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "before": {
+            "src": "/placeholder/work/gaming-08-before-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "aspect": "16 / 9",
+          "featured": false
+        }
+      ]
+    },
+    {
+      "id": "podcast",
+      "label": "PODCAST",
+      "niche": "PODCAST",
+      "stripe": "mustard",
+      "cover": {
+        "src": "/placeholder/work/podcast-cover-16x9.webp",
+        "width": 1280,
+        "height": 720
+      },
+      "items": [
+        {
+          "slug": "podcast-01",
+          "title": "[PODCAST 01 — TITLE]",
+          "alt": "[PODCAST 01 — ALT TEXT]",
+          "client": "[CLIENT NAME]",
+          "after": {
+            "src": "/placeholder/work/podcast-01-after-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "before": {
+            "src": "/placeholder/work/podcast-01-before-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "aspect": "16 / 9",
+          "featured": true
+        },
+        {
+          "slug": "podcast-02",
+          "title": "[PODCAST 02 — TITLE]",
+          "alt": "[PODCAST 02 — ALT TEXT]",
+          "client": "[CLIENT NAME]",
+          "after": {
+            "src": "/placeholder/work/podcast-02-after-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "before": {
+            "src": "/placeholder/work/podcast-02-before-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "aspect": "16 / 9",
+          "featured": false
+        },
+        {
+          "slug": "podcast-03",
+          "title": "[PODCAST 03 — TITLE]",
+          "alt": "[PODCAST 03 — ALT TEXT]",
+          "client": "[CLIENT NAME]",
+          "after": {
+            "src": "/placeholder/work/podcast-03-after-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "before": {
+            "src": "/placeholder/work/podcast-03-before-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "aspect": "16 / 9",
+          "featured": false
+        },
+        {
+          "slug": "podcast-04",
+          "title": "[PODCAST 04 — TITLE]",
+          "alt": "[PODCAST 04 — ALT TEXT]",
+          "client": "[CLIENT NAME]",
+          "after": {
+            "src": "/placeholder/work/podcast-04-after-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "before": {
+            "src": "/placeholder/work/podcast-04-before-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "aspect": "16 / 9",
+          "featured": false
+        },
+        {
+          "slug": "podcast-05",
+          "title": "[PODCAST 05 — TITLE]",
+          "alt": "[PODCAST 05 — ALT TEXT]",
+          "client": "[CLIENT NAME]",
+          "after": {
+            "src": "/placeholder/work/podcast-05-after-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "before": {
+            "src": "/placeholder/work/podcast-05-before-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "aspect": "16 / 9",
+          "featured": false
+        },
+        {
+          "slug": "podcast-06",
+          "title": "[PODCAST 06 — TITLE]",
+          "alt": "[PODCAST 06 — ALT TEXT]",
+          "client": "[CLIENT NAME]",
+          "after": {
+            "src": "/placeholder/work/podcast-06-after-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "before": {
+            "src": "/placeholder/work/podcast-06-before-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "aspect": "16 / 9",
+          "featured": false
+        },
+        {
+          "slug": "podcast-07",
+          "title": "[PODCAST 07 — TITLE]",
+          "alt": "[PODCAST 07 — ALT TEXT]",
+          "client": "[CLIENT NAME]",
+          "after": {
+            "src": "/placeholder/work/podcast-07-after-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "before": {
+            "src": "/placeholder/work/podcast-07-before-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "aspect": "16 / 9",
+          "featured": false
+        },
+        {
+          "slug": "podcast-08",
+          "title": "[PODCAST 08 — TITLE]",
+          "alt": "[PODCAST 08 — ALT TEXT]",
+          "client": "[CLIENT NAME]",
+          "after": {
+            "src": "/placeholder/work/podcast-08-after-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "before": {
+            "src": "/placeholder/work/podcast-08-before-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "aspect": "16 / 9",
+          "featured": false
+        }
+      ]
+    },
+    {
+      "id": "crypto",
+      "label": "CRYPTO",
+      "niche": "CRYPTO",
+      "stripe": "blue",
+      "cover": {
+        "src": "/placeholder/work/crypto-cover-16x9.webp",
+        "width": 1280,
+        "height": 720
+      },
+      "items": [
+        {
+          "slug": "crypto-01",
+          "title": "[CRYPTO 01 — TITLE]",
+          "alt": "[CRYPTO 01 — ALT TEXT]",
+          "client": "[CLIENT NAME]",
+          "after": {
+            "src": "/placeholder/work/crypto-01-after-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "before": {
+            "src": "/placeholder/work/crypto-01-before-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "aspect": "16 / 9",
+          "featured": false
+        },
+        {
+          "slug": "crypto-02",
+          "title": "[CRYPTO 02 — TITLE]",
+          "alt": "[CRYPTO 02 — ALT TEXT]",
+          "client": "[CLIENT NAME]",
+          "after": {
+            "src": "/placeholder/work/crypto-02-after-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "before": {
+            "src": "/placeholder/work/crypto-02-before-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "aspect": "16 / 9",
+          "featured": false
+        },
+        {
+          "slug": "crypto-03",
+          "title": "[CRYPTO 03 — TITLE]",
+          "alt": "[CRYPTO 03 — ALT TEXT]",
+          "client": "[CLIENT NAME]",
+          "after": {
+            "src": "/placeholder/work/crypto-03-after-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "before": {
+            "src": "/placeholder/work/crypto-03-before-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "aspect": "16 / 9",
+          "featured": false
+        },
+        {
+          "slug": "crypto-04",
+          "title": "[CRYPTO 04 — TITLE]",
+          "alt": "[CRYPTO 04 — ALT TEXT]",
+          "client": "[CLIENT NAME]",
+          "after": {
+            "src": "/placeholder/work/crypto-04-after-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "before": {
+            "src": "/placeholder/work/crypto-04-before-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "aspect": "16 / 9",
+          "featured": false
+        },
+        {
+          "slug": "crypto-05",
+          "title": "[CRYPTO 05 — TITLE]",
+          "alt": "[CRYPTO 05 — ALT TEXT]",
+          "client": "[CLIENT NAME]",
+          "after": {
+            "src": "/placeholder/work/crypto-05-after-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "before": {
+            "src": "/placeholder/work/crypto-05-before-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "aspect": "16 / 9",
+          "featured": false
+        },
+        {
+          "slug": "crypto-06",
+          "title": "[CRYPTO 06 — TITLE]",
+          "alt": "[CRYPTO 06 — ALT TEXT]",
+          "client": "[CLIENT NAME]",
+          "after": {
+            "src": "/placeholder/work/crypto-06-after-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "before": {
+            "src": "/placeholder/work/crypto-06-before-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "aspect": "16 / 9",
+          "featured": false
+        },
+        {
+          "slug": "crypto-07",
+          "title": "[CRYPTO 07 — TITLE]",
+          "alt": "[CRYPTO 07 — ALT TEXT]",
+          "client": "[CLIENT NAME]",
+          "after": {
+            "src": "/placeholder/work/crypto-07-after-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "before": {
+            "src": "/placeholder/work/crypto-07-before-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "aspect": "16 / 9",
+          "featured": false
+        },
+        {
+          "slug": "crypto-08",
+          "title": "[CRYPTO 08 — TITLE]",
+          "alt": "[CRYPTO 08 — ALT TEXT]",
+          "client": "[CLIENT NAME]",
+          "after": {
+            "src": "/placeholder/work/crypto-08-after-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "before": {
+            "src": "/placeholder/work/crypto-08-before-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "aspect": "16 / 9",
+          "featured": false
+        }
+      ]
+    },
+    {
+      "id": "social-media",
+      "label": "SOCIAL MEDIA",
+      "niche": "SOCIAL",
+      "stripe": "pink",
+      "cover": {
+        "src": "/placeholder/work/social-media-cover-16x9.webp",
+        "width": 1280,
+        "height": 720
+      },
+      "items": [
+        {
+          "slug": "social-media-01",
+          "title": "[SOCIAL MEDIA 01 — TITLE]",
+          "alt": "[SOCIAL MEDIA 01 — ALT TEXT]",
+          "client": "[CLIENT NAME]",
+          "after": {
+            "src": "/placeholder/work/social-media-01-after-9x16.webp",
+            "width": 1080,
+            "height": 1920
+          },
+          "before": {
+            "src": "/placeholder/work/social-media-01-before-9x16.webp",
+            "width": 1080,
+            "height": 1920
+          },
+          "aspect": "9 / 16",
+          "featured": false
+        },
+        {
+          "slug": "social-media-02",
+          "title": "[SOCIAL MEDIA 02 — TITLE]",
+          "alt": "[SOCIAL MEDIA 02 — ALT TEXT]",
+          "client": "[CLIENT NAME]",
+          "after": {
+            "src": "/placeholder/work/social-media-02-after-4x5.webp",
+            "width": 1080,
+            "height": 1350
+          },
+          "before": {
+            "src": "/placeholder/work/social-media-02-before-4x5.webp",
+            "width": 1080,
+            "height": 1350
+          },
+          "aspect": "4 / 5",
+          "featured": false
+        },
+        {
+          "slug": "social-media-03",
+          "title": "[SOCIAL MEDIA 03 — TITLE]",
+          "alt": "[SOCIAL MEDIA 03 — ALT TEXT]",
+          "client": "[CLIENT NAME]",
+          "after": {
+            "src": "/placeholder/work/social-media-03-after-1x1.webp",
+            "width": 1080,
+            "height": 1080
+          },
+          "before": {
+            "src": "/placeholder/work/social-media-03-before-1x1.webp",
+            "width": 1080,
+            "height": 1080
+          },
+          "aspect": "1 / 1",
+          "featured": false
+        },
+        {
+          "slug": "social-media-04",
+          "title": "[SOCIAL MEDIA 04 — TITLE]",
+          "alt": "[SOCIAL MEDIA 04 — ALT TEXT]",
+          "client": "[CLIENT NAME]",
+          "after": {
+            "src": "/placeholder/work/social-media-04-after-9x16.webp",
+            "width": 1080,
+            "height": 1920
+          },
+          "before": {
+            "src": "/placeholder/work/social-media-04-before-9x16.webp",
+            "width": 1080,
+            "height": 1920
+          },
+          "aspect": "9 / 16",
+          "featured": false
+        },
+        {
+          "slug": "social-media-05",
+          "title": "[SOCIAL MEDIA 05 — TITLE]",
+          "alt": "[SOCIAL MEDIA 05 — ALT TEXT]",
+          "client": "[CLIENT NAME]",
+          "after": {
+            "src": "/placeholder/work/social-media-05-after-4x5.webp",
+            "width": 1080,
+            "height": 1350
+          },
+          "before": {
+            "src": "/placeholder/work/social-media-05-before-4x5.webp",
+            "width": 1080,
+            "height": 1350
+          },
+          "aspect": "4 / 5",
+          "featured": false
+        },
+        {
+          "slug": "social-media-06",
+          "title": "[SOCIAL MEDIA 06 — TITLE]",
+          "alt": "[SOCIAL MEDIA 06 — ALT TEXT]",
+          "client": "[CLIENT NAME]",
+          "after": {
+            "src": "/placeholder/work/social-media-06-after-1x1.webp",
+            "width": 1080,
+            "height": 1080
+          },
+          "before": {
+            "src": "/placeholder/work/social-media-06-before-1x1.webp",
+            "width": 1080,
+            "height": 1080
+          },
+          "aspect": "1 / 1",
+          "featured": false
+        },
+        {
+          "slug": "social-media-07",
+          "title": "[SOCIAL MEDIA 07 — TITLE]",
+          "alt": "[SOCIAL MEDIA 07 — ALT TEXT]",
+          "client": "[CLIENT NAME]",
+          "after": {
+            "src": "/placeholder/work/social-media-07-after-4x5.webp",
+            "width": 1080,
+            "height": 1350
+          },
+          "before": {
+            "src": "/placeholder/work/social-media-07-before-4x5.webp",
+            "width": 1080,
+            "height": 1350
+          },
+          "aspect": "4 / 5",
+          "featured": false
+        },
+        {
+          "slug": "social-media-08",
+          "title": "[SOCIAL MEDIA 08 — TITLE]",
+          "alt": "[SOCIAL MEDIA 08 — ALT TEXT]",
+          "client": "[CLIENT NAME]",
+          "after": {
+            "src": "/placeholder/work/social-media-08-after-9x16.webp",
+            "width": 1080,
+            "height": 1920
+          },
+          "aspect": "9 / 16",
+          "featured": false
+        }
+      ]
+    },
+    {
+      "id": "web3",
+      "label": "WEB3",
+      "niche": "WEB3",
+      "stripe": "blue",
+      "cover": {
+        "src": "/placeholder/work/web3-cover-16x9.webp",
+        "width": 1280,
+        "height": 720
+      },
+      "items": [
+        {
+          "slug": "web3-01",
+          "title": "[WEB3 01 — TITLE]",
+          "alt": "[WEB3 01 — ALT TEXT]",
+          "client": "[CLIENT NAME]",
+          "after": {
+            "src": "/placeholder/work/web3-01-after-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "before": {
+            "src": "/placeholder/work/web3-01-before-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "aspect": "16 / 9",
+          "featured": false
+        },
+        {
+          "slug": "web3-02",
+          "title": "[WEB3 02 — TITLE]",
+          "alt": "[WEB3 02 — ALT TEXT]",
+          "client": "[CLIENT NAME]",
+          "after": {
+            "src": "/placeholder/work/web3-02-after-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "before": {
+            "src": "/placeholder/work/web3-02-before-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "aspect": "16 / 9",
+          "featured": false
+        },
+        {
+          "slug": "web3-03",
+          "title": "[WEB3 03 — TITLE]",
+          "alt": "[WEB3 03 — ALT TEXT]",
+          "client": "[CLIENT NAME]",
+          "after": {
+            "src": "/placeholder/work/web3-03-after-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "before": {
+            "src": "/placeholder/work/web3-03-before-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "aspect": "16 / 9",
+          "featured": false
+        },
+        {
+          "slug": "web3-04",
+          "title": "[WEB3 04 — TITLE]",
+          "alt": "[WEB3 04 — ALT TEXT]",
+          "client": "[CLIENT NAME]",
+          "after": {
+            "src": "/placeholder/work/web3-04-after-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "before": {
+            "src": "/placeholder/work/web3-04-before-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "aspect": "16 / 9",
+          "featured": false
+        }
+      ]
+    },
+    {
+      "id": "developer",
+      "label": "DEVELOPER",
+      "niche": "DEVELOPER",
+      "stripe": "mustard",
+      "cover": {
+        "src": "/placeholder/work/developer-cover-16x9.webp",
+        "width": 1280,
+        "height": 720
+      },
+      "items": [
+        {
+          "slug": "developer-01",
+          "title": "[DEVELOPER 01 — TITLE]",
+          "alt": "[DEVELOPER 01 — ALT TEXT]",
+          "client": "[CLIENT NAME]",
+          "after": {
+            "src": "/placeholder/work/developer-01-after-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "before": {
+            "src": "/placeholder/work/developer-01-before-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "aspect": "16 / 9",
+          "featured": false
+        },
+        {
+          "slug": "developer-02",
+          "title": "[DEVELOPER 02 — TITLE]",
+          "alt": "[DEVELOPER 02 — ALT TEXT]",
+          "client": "[CLIENT NAME]",
+          "after": {
+            "src": "/placeholder/work/developer-02-after-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "before": {
+            "src": "/placeholder/work/developer-02-before-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "aspect": "16 / 9",
+          "featured": false
+        },
+        {
+          "slug": "developer-03",
+          "title": "[DEVELOPER 03 — TITLE]",
+          "alt": "[DEVELOPER 03 — ALT TEXT]",
+          "client": "[CLIENT NAME]",
+          "after": {
+            "src": "/placeholder/work/developer-03-after-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "before": {
+            "src": "/placeholder/work/developer-03-before-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "aspect": "16 / 9",
+          "featured": false
+        },
+        {
+          "slug": "developer-04",
+          "title": "[DEVELOPER 04 — TITLE]",
+          "alt": "[DEVELOPER 04 — ALT TEXT]",
+          "client": "[CLIENT NAME]",
+          "after": {
+            "src": "/placeholder/work/developer-04-after-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "before": {
+            "src": "/placeholder/work/developer-04-before-16x9.webp",
+            "width": 1280,
+            "height": 720
+          },
+          "aspect": "16 / 9",
+          "featured": false
+        }
+      ]
+    }
+  ]
+}

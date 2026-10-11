@@ -1,0 +1,991 @@
+/* ── Hero (§9.1) ──────────────────────────────────────────────
+   Two compositions. portrait is the default (mobile-first: phones and portrait tablets);
+   cinema overrides it on wide, landscape-shaped screens (≥ 1024 px and at least square)
+   or on short landscape screens. */
+
+.hero {
+  position: relative;
+}
+/* The Dive needs the section to be taller than the viewport. Mirrors QUERIES.dive. */
+@media (min-height: 480px) and (prefers-reduced-motion: no-preference) {
+  html.js .hero {
+    height: 240svh;
+  }
+  /* BTS rises out of the orange as soon as the Dive has filled the page (DIVE.done = 0.8 in
+     useDive.ts): it overlaps the last (1 − 0.8) × 140svh of the pinned scroll. Both are flat
+     orange where they meet, so there is no seam and no empty orange screen to scroll through. */
+  html.js .hero + .bts {
+    margin-top: -28svh;
+  }
+}
+
+.hero__sticky {
+  position: sticky;
+  top: 0;
+  display: grid;
+  place-items: center;
+  height: 100svh;
+  overflow: clip;
+}
+/* Portrait phones: centre the composition in the space between the HUD line and the
+   Remote bar (and the safe areas), not in the raw screen height. */
+@media (max-width: 767px) {
+  .hero__sticky {
+    padding-top: calc(40px + env(safe-area-inset-top));
+    padding-bottom: calc(100px + env(safe-area-inset-bottom));
+  }
+}
+/* Tall portrait screens: a scroll cue in the space above the Remote. It fades out as the
+   Dive starts (useDive.ts), and it is decorative — the lower TV is the real control. */
+.hero__cue {
+  position: absolute;
+  left: 50%;
+  bottom: var(--space-8);
+  z-index: 7;
+  display: none;
+  align-items: center;
+  gap: 0.4em;
+  margin: 0;
+  translate: -50% 0;
+  color: var(--fg-muted);
+  font-family: var(--font-osd);
+  font-size: var(--text-osd);
+  line-height: 1;
+  letter-spacing: 0.12em;
+  pointer-events: none;
+}
+@media (max-aspect-ratio: 1/1) and (min-height: 700px) {
+  .hero__cue {
+    display: inline-flex;
+  }
+}
+@media (max-width: 767px) {
+  .hero__cue {
+    bottom: calc(112px + env(safe-area-inset-bottom));
+  }
+}
+
+/* The Dive's last stretch (useDive.ts): flat orange, clipped to the TV's screen and grown to
+   the viewport. Outside the zoomed frame, so it stays one cheap rectangle. */
+.dive-screen {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  background: var(--orange-500);
+  visibility: hidden;
+  pointer-events: none;
+}
+/* Layout wrapper around the frame (it used to carry the power-on scale). */
+.hero__power {
+  display: grid;
+  place-items: center;
+  width: 100%;
+}
+.hero__frame {
+  position: relative;
+  width: 100%;
+}
+
+/* The stage is the container for cqw sizes; it may be a stacking context.
+   Portrait (phones and portrait tablets) — plate x is measured from _assets-src/scene.png:
+     phones   show the subject and the TV stack he sits on (x 450–1198); the side sets fade out
+              (see .plate__scene), so the subject can be large: plate ≈ 2 × the screen's width.
+     tablets  also show both side TV sets (x 350–1325); the disco ball, the books and the film
+              reel fade out. The far side (501 px from the subject's centre) sits inside 47vw.
+   The plate's top sits low enough that the brush's upper strokes stay inside the stage once
+   the letters are placed (see .wordmark). */
+.stage {
+  --plate-h: min(50svh, 118vw);
+  --plate-w: calc(var(--plate-h) * 1672 / 941);
+  --lw: min(80cqw, var(--plate-w) * 0.66);
+  --plate-top: max(0.5cqw, calc(var(--lw) * 0.0589 - var(--plate-h) * 0.06 + 0.5cqw));
+  position: relative;
+  width: 100%;
+  height: calc(var(--plate-top) + var(--plate-h));
+  container-type: inline-size;
+  overflow: clip;
+}
+@media (min-width: 768px) {
+  .stage {
+    --plate-h: min(58svh, 88vw);
+  }
+}
+/* Hidden until scene, wordmark and cutout are decoded (Hero.tsx useImagesReady), then faded
+   in whole — a large image arriving over a slow link otherwise paints in horizontal bands. */
+html.js .stage {
+  transition: opacity var(--dur-base) var(--ease-out);
+}
+html.js .stage:not([data-ready]) {
+  opacity: 0;
+}
+html.js .stage:not([data-ready]) .wordmark img {
+  animation-play-state: paused;
+}
+
+/* The plate must never become a stacking context: no transform, opacity, filter,
+   will-change or z-index here, or the wordmark can't sit between scene and subject. */
+.plate {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: var(--plate-w);
+  height: var(--plate-h);
+  margin-left: calc(var(--plate-w) * -0.493); /* subject centre on the viewport centre */
+}
+.plate__img {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  user-select: none;
+}
+/* Feather the scene into the ground. Cinema: the top 9% and the outer 5% each side. */
+.plate__scene {
+  --feather: 9%;
+  z-index: 1;
+  -webkit-mask-image:
+    linear-gradient(to bottom, transparent 0, var(--black) var(--feather)),
+    linear-gradient(to right, transparent 0, var(--black) 5%, var(--black) 95%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to bottom, transparent 0, var(--black) var(--feather)),
+    linear-gradient(to right, transparent 0, var(--black) 5%, var(--black) 95%, transparent 100%);
+  mask-composite: intersect;
+}
+/* Phones: only the subject and the TV stack he sits on (x 670–1012). Everything either side
+   fades out (x 560 → 650 and 1030 → 1120), side TV sets included; the subject is the cutout,
+   above this mask, so he stays whole. The top feathers over 22%: the plate's top edge sits
+   mid-screen here. */
+@media (max-width: 767px) {
+  .plate__scene {
+    --feather: 22%;
+    -webkit-mask-image:
+      linear-gradient(to bottom, transparent 0, var(--black) var(--feather)),
+      linear-gradient(to right, transparent 33.5%, var(--black) 38.9%, var(--black) 61.6%, transparent 67%);
+    mask-image:
+      linear-gradient(to bottom, transparent 0, var(--black) var(--feather)),
+      linear-gradient(to right, transparent 33.5%, var(--black) 38.9%, var(--black) 61.6%, transparent 67%);
+  }
+  .crt[data-screen="left"],
+  .crt[data-screen="right"],
+  .glints {
+    display: none;
+  }
+}
+/* Tablets: the tablet scene (scene-tablet.png, see PlatePicture.tsx) — the owner's TV trio,
+   no disco ball, books or reel. Mirrors TABLET there; cinema undoes it below. */
+@media (min-width: 768px) {
+  .plate .crt {
+    left: var(--tx, var(--x));
+    top: var(--ty, var(--y));
+    width: var(--tw, var(--w));
+    height: var(--th, var(--h));
+    border-radius: var(--tr, var(--r));
+  }
+}
+/* Tablets: their own scene has nothing to hide — the top feathers over 22% (the plate's top edge
+   sits mid-screen), the sides 5%. */
+@media (min-width: 768px) {
+  .plate__scene {
+    --feather: 22%;
+  }
+  .glints {
+    display: none;
+  }
+}
+.plate__cutout {
+  z-index: 5;
+}
+
+/* Wordmark — the owner's red brushed artwork (lib/wordmark.ts). The brush overhangs the
+   letters, so the image is placed by its letters' box: --lw is the letters' width, --lt the
+   letters' top; --lx0/--lx1/--ly0/--ar (inline) say where the letters sit inside the image. */
+.wordmark {
+  /* Portrait: letters 80% of the width (--lw, on .stage), so the brush overhang (≈ 1.21 × the
+     letters) still fits inside the screen. As on cinema, their top sits just above the subject's
+     crown (6% down the plate; the crown is at 7.4%), so the name runs behind his head and
+     shoulders. The brush rises 0.0589 × the letters' width above them (--plate-top makes room). */
+  --lt: calc(var(--plate-top) + var(--plate-h) * 0.06);
+  --iw: calc(var(--lw) / (var(--lx1) - var(--lx0)));
+  position: absolute;
+  z-index: 2;
+  left: calc(50% - var(--iw) * (var(--lx0) + var(--lx1)) / 2);
+  top: calc(var(--lt) - var(--iw) * var(--ar) * var(--ly0));
+  width: var(--iw);
+  pointer-events: none;
+  user-select: none;
+}
+.wordmark img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+/* First visit: hidden until the intro's copy lands on it. Repeat visits: brushed on. */
+html.js:not(.powered):not(.intro-landed) .wordmark {
+  visibility: hidden;
+}
+/* Every few seconds the name catches a tracking error: two slices jump sideways, then a
+   chunk snaps out and back from one side — a few frames, then it holds clean and readable.
+   `translate`, not `transform`: the pointer parallax owns the transform. */
+html.js .wordmark {
+  animation: wm-glitch var(--dur-wm-glitch) steps(1, end) var(--dur-slow) infinite;
+}
+@keyframes wm-glitch {
+  0%,
+  88% {
+    clip-path: none;
+    translate: 0 0;
+  }
+  89% {
+    clip-path: inset(22% 0 50% 0);
+    translate: -1.6% 0;
+  }
+  90% {
+    clip-path: inset(58% 0 14% 0);
+    translate: 1.2% 0;
+  }
+  91% {
+    clip-path: none;
+    translate: 0 0;
+  }
+  95% {
+    clip-path: inset(0 0 0 41%);
+    translate: 0.6% 0;
+  }
+  96% {
+    clip-path: inset(0 0 0 64%);
+    translate: 0 0;
+  }
+  97%,
+  100% {
+    clip-path: none;
+    translate: 0 0;
+  }
+}
+html.repeat .wordmark img {
+  animation: wm-brush var(--intro-paint) var(--ease-out) both;
+}
+@keyframes wm-brush {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0);
+  }
+}
+
+/* Name block — the page's real heading. */
+.hero__name {
+  position: relative;
+  z-index: 7;
+  margin-top: clamp(var(--space-4), 3vw, var(--space-8));
+  padding-inline: var(--gutter);
+  text-align: center;
+}
+.hero__h1 {
+  color: var(--fg);
+  font-family: var(--font-osd);
+  font-size: clamp(1.25rem, 5.4vw, 2.25rem);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: 0.06em;
+  animation: hero-type calc(var(--chars) * var(--dur-type-char)) steps(var(--chars)) var(--dur-name-delay) both;
+}
+html.js:not(.powered):not(.intro-landed) .hero__h1 {
+  animation-play-state: paused;
+}
+@keyframes hero-type {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0);
+  }
+}
+.hero__role {
+  display: -webkit-box;
+  max-width: 32ch;
+  margin: var(--space-1) auto 0;
+  overflow: hidden;
+  color: var(--fg-muted);
+  font-size: clamp(0.875rem, 3.7vw, 1.125rem);
+  font-weight: 500;
+  line-height: 1.5;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+/* Round buttons under the name: Instagram, LinkedIn, contact. They float gently, out of
+   step with each other. */
+.hero__dock {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-3);
+  margin-top: clamp(var(--space-3), 3vw, var(--space-6));
+}
+.hero__dock > li:nth-child(2) .hero__dock-btn {
+  animation-delay: calc(var(--dur-dock-float) / -3);
+}
+.hero__dock > li:nth-child(3) .hero__dock-btn {
+  animation-delay: calc(var(--dur-dock-float) / -1.5);
+}
+.hero__dock-btn {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border: 1px solid color-mix(in srgb, var(--white) 14%, transparent);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--black) 86%, transparent);
+  color: var(--white);
+  box-shadow: var(--shadow-prop);
+  animation: dock-float var(--dur-dock-float) var(--ease-in-out) infinite;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+.hero__dock-btn--contact {
+  background: var(--orange-500);
+  color: var(--black);
+}
+@media (hover: hover) {
+  .hero__dock-btn:hover {
+    background: var(--orange-500);
+    color: var(--black);
+  }
+  .hero__dock-btn--contact:hover {
+    background: var(--black);
+    color: var(--white);
+  }
+}
+.hero__dock-btn:focus-visible {
+  outline: 2px solid var(--black);
+  outline-offset: 3px;
+}
+@keyframes dock-float {
+  50% {
+    translate: 0 -4px;
+  }
+}
+
+/* Portrait only: the top TV's niche, readable and tappable — styled like the Remote. */
+.hero__now {
+  display: flex;
+  justify-content: center;
+  margin-top: clamp(var(--space-4), 4.5vw, var(--space-8));
+}
+.hero__now-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 44px;
+  padding: 5px var(--space-4) 5px 5px;
+  border: 1px solid color-mix(in srgb, var(--white) 14%, transparent);
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--black) 86%, transparent);
+  color: var(--white);
+  font-family: var(--font-osd);
+  font-size: clamp(1.125rem, 4.6vw, 1.5rem);
+  line-height: 1;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.hero__now-link:focus-visible {
+  outline: 2px solid var(--black);
+  outline-offset: 3px;
+}
+.hero__now-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  align-self: stretch;
+  padding: 0 0.7em;
+  border-radius: var(--radius-pill);
+  background: var(--orange-500);
+  color: var(--black);
+  font-size: 0.8em;
+}
+.hero__now-word {
+  min-width: 9ch; /* DEVELOPER, the longest niche: the pill keeps its width as words cycle */ /* CONTENT, the longest niche: the pill keeps its width as words cycle */
+  padding-top: 0.08em;
+  text-align: left;
+}
+@media (hover: hover) {
+  .hero__now-link:hover .hero__now-word {
+    color: var(--orange-500);
+  }
+}
+
+/* ── cinema ── */
+@media (min-width: 1024px) and (min-aspect-ratio: 1/1), (orientation: landscape) and (max-height: 520px) {
+  .hero__frame {
+    width: min(100%, calc(100svh * 1672 / 1028));
+  }
+  .stage {
+    height: auto;
+    aspect-ratio: 1672 / 1028;
+    overflow: visible;
+  }
+  .plate {
+    left: 0;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1672 / 941;
+    margin-left: 0;
+  }
+  /* Letters' top at 14.4% of the stage height (as measured on ref-hero.jpg), 74% wide: the
+     owner's lettering is tall (≈ 3.56 : 1), so this keeps its arched baseline near 49% and the
+     brush inside the stage. 14.4% × 1028 / 1672 = 8.854cqw. */
+  .wordmark {
+    --lw: 74cqw;
+    --lt: 8.854cqw;
+  }
+  .plate__scene {
+    --feather: 9%;
+    -webkit-mask-image:
+      linear-gradient(to bottom, transparent 0, var(--black) var(--feather)),
+      linear-gradient(to right, transparent 0, var(--black) 5%, var(--black) 95%, transparent 100%);
+    -webkit-mask-composite: source-in;
+    mask-image:
+      linear-gradient(to bottom, transparent 0, var(--black) var(--feather)),
+      linear-gradient(to right, transparent 0, var(--black) 5%, var(--black) 95%, transparent 100%);
+    mask-composite: intersect;
+  }
+  .glints {
+    display: block;
+  }
+  .plate .crt {
+    left: var(--x);
+    top: var(--y);
+    width: var(--w);
+    height: var(--h);
+    border-radius: var(--r);
+  }
+  .hero__name {
+    position: absolute;
+    left: 6.2%;
+    top: 54.5%; /* below the wordmark's brush tail, clear of the left set (x ≥ 21%) */
+    margin: 0;
+    padding: 0;
+    text-align: left;
+  }
+  .hero__h1 {
+    font-size: var(--text-osd-lg);
+  }
+  .hero__role {
+    margin-inline: 0;
+    font-size: var(--text-small);
+  }
+  .hero__now {
+    display: none;
+  }
+  .hero__dock {
+    justify-content: flex-start;
+  }
+}
+
+/* ── CrtScreen (§7.4) ───────────────────────────────────────── */
+/* Placed from the scene map (CrtScreen sets the vars); tablets use the tablet scene's rects. */
+.crt {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--w);
+  height: var(--h);
+  border-radius: var(--r);
+  z-index: 3;
+  display: block;
+  padding: 0;
+  border: 0;
+  overflow: clip;
+  color: var(--white);
+  text-decoration: none;
+  container-type: size;
+  -webkit-tap-highlight-color: transparent;
+}
+.crt[data-variant="cover"] {
+  background: var(--black);
+}
+.crt__hit {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  padding: 0;
+  border: 0;
+  border-radius: inherit;
+  background: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.crt__hit:focus-visible {
+  outline: none; /* drawn on the screen itself: its own outline is not cut by its overflow clip */
+}
+.crt:has(> .crt__hit:focus-visible) {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+.crt__layer,
+.crt__content {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.crt__content {
+  display: block;
+  font-family: var(--font-osd);
+  line-height: 1;
+  text-transform: uppercase;
+}
+.crt__vignette {
+  background: radial-gradient(ellipse farthest-corner at 50% 50%, transparent 45%, color-mix(in srgb, var(--black) 35%, transparent) 100%);
+}
+.crt__glass {
+  background: radial-gradient(90% 70% at 18% 8%, var(--white), transparent 60%);
+  opacity: 0.06;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+.crt:has(> .crt__hit:is(:hover, :focus-visible)) .crt__glass {
+  opacity: 0.14;
+}
+.crt__flicker {
+  background: var(--white);
+  opacity: 0;
+  animation: crt-flicker var(--dur-scan) steps(1) infinite;
+}
+@keyframes crt-flicker {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  47% {
+    opacity: 0.05;
+  }
+  49% {
+    opacity: 0;
+  }
+  83% {
+    opacity: 0.03;
+  }
+  85% {
+    opacity: 0;
+  }
+}
+.crt__fill {
+  background: var(--orange-500);
+  transform: scaleY(0); /* the Dive opens it like a CRT warming up: a line, then the screen */
+}
+
+/* OSD positions measured from the art's own PLAY / SP / 00:00:00. */
+.crt__osd {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2em;
+  font-size: 15cqh;
+  letter-spacing: 0.04em;
+  text-shadow:
+    -1px 0 var(--fx-split-red),
+    1px 0 var(--fx-split-cyan);
+}
+.crt__osd--tl {
+  left: 6%;
+  top: 9%;
+}
+.crt__osd--bl {
+  left: 6%;
+  bottom: 9%;
+}
+.crt__osd--br {
+  right: 5%;
+  bottom: 9%;
+  font-variant-numeric: tabular-nums;
+}
+/* Cycling words. VT323 advances 0.4 em: CONTENT at 27.7cqw (3.5 cqw of the stage) is
+   78% of the top screen; CREATIVITY at 21cqw is 84% of the lower one. */
+.crt__word {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  white-space: nowrap;
+}
+/* Sized for CONTENT (7 letters); longer words (DEVELOPER) shrink to fit the glass. */
+.crt__word--top {
+  font-size: min(27.7cqw, calc(190cqw / var(--len, 7)));
+}
+.crt__word--bottom,
+.crt__word--side {
+  font-size: 21cqw;
+}
+.crt__word--side {
+  padding-top: 8%; /* clear of the PLAY OSD on the small set */
+}
+.crt__blink {
+  animation: blink var(--dur-blink) steps(1) infinite;
+}
+.crt__static {
+  position: absolute;
+  inset: 0;
+  opacity: 0.32;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+.crt__static[data-bright] {
+  opacity: 0.42; /* static brightens 10% on hover */
+}
+.crt__burst {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  animation: crt-burst var(--dur-fast) steps(3) both;
+}
+@keyframes crt-burst {
+  from {
+    opacity: 0.75;
+  }
+  to {
+    opacity: 0;
+  }
+}
+.crt__chip {
+  position: absolute;
+  left: 50%;
+  bottom: 7%;
+  translate: -50% 0;
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-out);
+  pointer-events: none;
+}
+.crt:has(> .crt__hit:is(:hover, :focus-visible)) .crt__chip {
+  opacity: 1;
+}
+.crt:has(> .crt__hit:is(:hover, :focus-visible)) .crt__osd--bl,
+.crt:has(> .crt__hit:is(:hover, :focus-visible)) .crt__osd--br {
+  opacity: 0;
+}
+
+/* ── DiscoGlints ────────────────────────────────────────────── */
+.glints {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  overflow: clip;
+  mix-blend-mode: soft-light;
+  pointer-events: none;
+}
+.glints__move {
+  position: absolute;
+  inset: 0;
+}
+.glints__arm {
+  position: absolute;
+  height: 0;
+  transform-origin: 0 0;
+  animation: glint-spin calc(var(--dur-glint) * var(--k)) linear infinite;
+}
+.glints__arm[data-reverse] {
+  animation-direction: reverse;
+}
+@keyframes glint-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.glints__dot {
+  position: absolute;
+  right: 0;
+  top: 0;
+  aspect-ratio: 1;
+  translate: 50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--white) 0%, transparent 70%);
+  opacity: 0;
+  animation: glint-pulse var(--dur-glint-pulse) ease-in-out infinite;
+}
+@keyframes glint-pulse {
+  50% {
+    opacity: 0.5;
+  }
+}
+.glints__debug {
+  position: absolute;
+  z-index: 9;
+  border-radius: 50%;
+  pointer-events: none;
+}
+@media (max-width: 1023px) {
+  .glints__arm:nth-child(n + 5) {
+    display: none; /* 4 glints on portrait */
+  }
+}
+
+/* Every loop pauses offscreen or with the tab hidden. */
+.hero[data-loops="off"] :is(.crt, .glints) *,
+.hero[data-loops="off"] :is(.crt, .glints) *::before,
+.hero[data-loops="off"] :is(.wordmark, .hero__dock-btn) {
+  animation-play-state: paused !important;
+}
+
+/* ── TV pictures (TvPictures.tsx) ──────────────────────────── */
+.tv-bars {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-rows: 1fr 0.2fr;
+  opacity: 0.5;
+  animation: tv-track var(--dur-tv-track) steps(1) infinite;
+}
+.tv-bars__main,
+.tv-bars__strip {
+  display: flex;
+}
+.tv-bars span span {
+  flex: 1;
+}
+[data-bar="1"] { background: var(--tv-bar-grey); }
+[data-bar="2"] { background: var(--tv-bar-yellow); }
+[data-bar="3"] { background: var(--tv-bar-cyan); }
+[data-bar="4"] { background: var(--tv-bar-green); }
+[data-bar="5"] { background: var(--tv-bar-magenta); }
+[data-bar="6"] { background: var(--tv-bar-red); }
+[data-bar="7"] { background: var(--tv-bar-blue); }
+[data-strip="1"], [data-strip="5"] { background: var(--tv-bar-blue); }
+[data-strip="2"], [data-strip="4"], [data-strip="6"] { background: var(--tv-bar-black); }
+[data-strip="3"] { background: var(--tv-bar-magenta); }
+[data-strip="7"] { background: var(--tv-bar-grey); }
+/* One tracking slip per loop: two frames, then back (§6.4 glitch discipline). */
+@keyframes tv-track {
+  0%,
+  100% {
+    transform: none;
+  }
+  62% {
+    transform: translateX(-7%);
+  }
+  64% {
+    transform: translateX(4%);
+  }
+  66% {
+    transform: none;
+  }
+}
+
+.tv-sunset {
+  position: absolute;
+  inset: 0;
+  overflow: clip;
+}
+.tv-sunset__sky {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, var(--tv-sky-1) 0%, var(--tv-sky-2) 34%, var(--tv-sky-3) 54%, var(--tv-sky-4) 63%);
+}
+.tv-sunset__sun {
+  position: absolute;
+  left: 50%;
+  top: 22%;
+  width: 46%;
+  aspect-ratio: 1;
+  translate: -50% 0;
+  border-radius: 50%;
+  background: linear-gradient(to bottom, var(--tv-sun-1) 0%, var(--tv-sun-2) 55%, var(--tv-sun-3) 100%);
+  /* Solid top half, striped lower half: the classic sun. */
+  -webkit-mask-image:
+    linear-gradient(to bottom, var(--black) 48%, transparent 48%),
+    repeating-linear-gradient(to bottom, var(--black) 0 6%, transparent 6% 9.5%);
+  mask-image:
+    linear-gradient(to bottom, var(--black) 48%, transparent 48%),
+    repeating-linear-gradient(to bottom, var(--black) 0 6%, transparent 6% 9.5%);
+  animation: tv-sun var(--dur-tv-sun) var(--ease-in-out) infinite alternate;
+}
+@keyframes tv-sun {
+  to {
+    transform: translateY(14%);
+  }
+}
+.tv-sunset__sea {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 37%;
+  background:
+    radial-gradient(28% 70% at 50% 0%, color-mix(in srgb, var(--tv-sun-2) 70%, transparent) 0%, transparent 70%),
+    repeating-linear-gradient(to bottom, color-mix(in srgb, var(--tv-sun-1) 35%, transparent) 0 1.5px, transparent 1.5px 12%),
+    linear-gradient(to bottom, var(--tv-sea-1), var(--tv-sea-2));
+  background-size:
+    100% 100%,
+    100% 200%,
+    100% 100%;
+  animation: tv-sea var(--dur-tv-sea) linear infinite;
+}
+@keyframes tv-sea {
+  to {
+    background-position:
+      0 0,
+      0 -100%,
+      0 0;
+  }
+}
+.tv-sunset__palms {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  fill: var(--tv-palm);
+}
+
+/* ── Intro: the red brushed name on black, then into the hero (Intro.tsx) ── */
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  display: none;
+  cursor: pointer;
+}
+html.js:not(.powered) .intro {
+  display: block;
+  animation: intro-done 0s linear var(--intro-failsafe) forwards; /* never strands the page */
+}
+.intro__half {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50.5%;
+  background: var(--black);
+}
+.intro__half--top {
+  top: 0;
+}
+.intro__half--bottom {
+  bottom: 0;
+}
+.intro__word {
+  --iw: min(92vw, 170svh);
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--iw);
+  margin-left: calc(var(--iw) / -2);
+  margin-top: calc(var(--iw) * var(--ar) / -2);
+  transform-origin: 0 0;
+}
+.intro__word img {
+  display: block;
+  width: 100%;
+  height: auto;
+  animation:
+    intro-paint var(--intro-paint) var(--ease-out) var(--intro-delay) both,
+    intro-glitch var(--dur-fast) steps(1, end) calc(var(--intro-delay) + var(--intro-paint) + var(--intro-hold) / 2) none;
+}
+/* The brush drags the paint on from the left. */
+@keyframes intro-paint {
+  from {
+    clip-path: inset(0 100% 0 0);
+    transform: scale(1.04);
+  }
+  to {
+    clip-path: inset(0);
+    transform: none;
+  }
+}
+/* One VHS tracking glitch during the hold: two slices, then clean. */
+@keyframes intro-glitch {
+  0% {
+    transform: translateX(-1.2%);
+    clip-path: inset(18% 0 52% 0);
+  }
+  33% {
+    transform: translateX(0.9%);
+    clip-path: inset(56% 0 12% 0);
+  }
+  66%,
+  100% {
+    transform: none;
+    clip-path: inset(0);
+  }
+}
+/* Hold on black until the hero's images are decoded; the failsafe waits too. */
+.intro:not([data-ready]):not([data-skip]),
+.intro:not([data-ready]):not([data-skip]) .intro__word img {
+  animation-play-state: paused;
+}
+/* Flight: the word moves onto the hero's wordmark while the black splits away. */
+.intro[data-go] {
+  animation: intro-done 0s linear calc(var(--intro-move) + var(--intro-fade)) forwards;
+}
+.intro[data-go] .intro__word {
+  animation:
+    intro-move var(--intro-move) var(--ease-in-out) both,
+    intro-land 0s linear var(--intro-move) both,
+    intro-reveal var(--intro-fade) var(--ease-out) var(--intro-move) forwards;
+}
+.intro[data-go] .intro__half--top {
+  animation: intro-split-up var(--intro-move) var(--ease-in-out) both;
+}
+.intro[data-go] .intro__half--bottom {
+  animation: intro-split-down var(--intro-move) var(--ease-in-out) both;
+}
+@keyframes intro-move {
+  to {
+    transform: translate(var(--dx, 0px), var(--dy, 0px)) scale(var(--s, 1));
+  }
+}
+@keyframes intro-land {
+  to {
+    visibility: visible;
+  }
+}
+/* The landed copy fades: the subject is in front of the hero's own wordmark beneath it. */
+@keyframes intro-reveal {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes intro-split-up {
+  to {
+    transform: translateY(-101%);
+  }
+}
+@keyframes intro-split-down {
+  to {
+    transform: translateY(101%);
+  }
+}
+@keyframes intro-done {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+/* A click (or a reload part-way down the page) skips straight to the hero. */
+.intro[data-skip] {
+  animation: intro-done var(--intro-fade) var(--ease-out) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.js:not(.powered) .intro {
+    display: none; /* same specificity as the rule that shows it, and later: no intro */
+  }
+  html.js:not(.powered):not(.intro-landed) .wordmark {
+    visibility: visible;
+  }
+  .wordmark,
+  .wordmark img,
+  .hero__dock-btn,
+  .hero__h1,
+  .crt__blink,
+  .tv-bars,
+  .tv-sunset__sun,
+  .tv-sunset__sea,
+  .crt__flicker,
+  .crt__burst,
+  .glints__arm,
+  .glints__dot {
+    animation: none;
+  }
+  .glints__dot {
+    opacity: 0.3; /* glints are still, not gone */
+  }
+}

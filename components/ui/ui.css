@@ -1,0 +1,313 @@
+/* ── Icon ─────────────────────────────────────────────────── */
+.icon {
+  flex: none;
+  display: inline-block;
+  vertical-align: -0.125em;
+}
+
+/* ── Button (§7.1) ────────────────────────────────────────── */
+.btn {
+  --btn-bg: var(--fg);
+  --btn-fg: var(--bg);
+  --btn-border: transparent;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 48px;
+  min-width: 44px;
+  padding: 0 var(--space-6);
+  border: 1.5px solid var(--btn-border);
+  border-radius: var(--radius-pill);
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  font-family: var(--font-osd);
+  font-size: var(--text-osd);
+  line-height: 1;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+.btn[data-size="lg"] {
+  min-height: 56px;
+  padding: 0 var(--space-8);
+  font-size: var(--text-osd-lg);
+}
+.btn[data-variant="signal"] {
+  --btn-bg: var(--orange-500);
+  --btn-fg: var(--black);
+}
+.btn[data-variant="ghost"] {
+  --btn-bg: transparent;
+  --btn-fg: currentColor;
+  --btn-border: currentColor;
+}
+.btn[data-variant="icon"] {
+  --btn-bg: transparent;
+  --btn-fg: currentColor;
+  --btn-border: currentColor;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+}
+.btn__label {
+  padding-top: 0.08em; /* VT323 sits high in its em box */
+}
+.btn__icon {
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    translate var(--dur-fast) var(--ease-out);
+}
+@media (hover: hover) {
+  .btn:hover {
+    transform: translateY(-2px);
+  }
+  .btn:not([data-variant="icon"]):hover .btn__icon {
+    translate: 3px 0;
+  }
+  .btn[data-icon="arrow-up-right"]:hover .btn__icon {
+    translate: none;
+    transform: rotate(45deg);
+  }
+  .btn[data-variant="ghost"]:hover,
+  .btn[data-variant="icon"]:hover {
+    --btn-bg: var(--fg);
+    --btn-fg: var(--bg);
+    --btn-border: var(--fg);
+  }
+}
+.btn:active {
+  transform: scale(0.97);
+}
+.btn[aria-disabled="true"] {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+.btn[aria-busy="true"] {
+  opacity: 1;
+  cursor: progress;
+}
+.btn__cursor {
+  display: inline-block;
+  width: 0.5em;
+  height: 0.9em;
+  margin-left: 0.2em;
+  vertical-align: -0.1em;
+  background: currentColor;
+  animation: blink var(--dur-blink) steps(1) infinite;
+}
+
+/* ── OsdChip (§7.2) ───────────────────────────────────────── */
+.osd-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  padding: 2px 8px;
+  border-radius: var(--radius-xs);
+  font-family: var(--font-osd);
+  font-size: var(--text-osd);
+  line-height: 1.15;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+.osd-chip[data-tone="ink"] {
+  background: var(--black);
+  color: var(--white);
+}
+.osd-chip[data-tone="paper"] {
+  background: var(--white);
+  color: var(--black);
+}
+.osd-chip[data-tone="signal"] {
+  background: var(--orange-500);
+  color: var(--black);
+}
+.osd-chip[data-tone="bare"] {
+  background: transparent;
+  color: currentColor;
+  padding-inline: 0;
+}
+:is(a, button).osd-chip {
+  min-height: 44px;
+  padding-inline: var(--space-4);
+  border-radius: var(--radius-pill);
+}
+:is(a, button).osd-chip[data-tone="paper"]:is(:hover, :focus-visible) {
+  background: var(--black);
+  color: var(--white);
+  box-shadow: inset 0 0 0 1.5px var(--white);
+}
+:is(a, button).osd-chip[data-tone="ink"]:is(:hover, :focus-visible),
+:is(a, button).osd-chip[data-tone="signal"]:is(:hover, :focus-visible) {
+  background: var(--white);
+  color: var(--black);
+}
+.osd-chip[data-blink] {
+  animation: blink var(--dur-blink) steps(1) infinite;
+}
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* ── Field (§7.3) — lives on the white letter, so it uses fixed paper colours ── */
+.field {
+  --rule: var(--black);
+  --rule-w: 1.5px;
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+.field__label {
+  font-family: var(--font-osd);
+  font-size: var(--text-osd);
+  line-height: 1.2;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gray-900);
+}
+.field__control {
+  width: 100%;
+  min-height: 48px;
+  padding: var(--space-2) 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--black);
+  font-family: var(--font-body);
+  font-size: 16px; /* never below 16 px, or iOS zooms */
+  line-height: 1.5;
+  box-shadow: inset 0 calc(-1 * var(--rule-w)) 0 var(--rule);
+  transition: box-shadow var(--dur-fast) var(--ease-out);
+  appearance: none;
+}
+textarea.field__control {
+  min-height: calc(5 * 32px + var(--space-2));
+  padding-top: 4px;
+  line-height: 32px;
+  resize: vertical;
+  box-shadow: none;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0 calc(32px - var(--rule-w)),
+    color-mix(in srgb, var(--rule) 35%, transparent) calc(32px - var(--rule-w)) 32px
+  );
+  background-attachment: local;
+  background-position: 0 4px;
+  border-bottom: var(--rule-w) solid var(--rule);
+}
+@media (hover: hover) {
+  .field:hover {
+    --rule-w: 2px;
+  }
+}
+.field:focus-within {
+  --rule: var(--orange-500);
+  --rule-w: 2px;
+}
+.field[data-invalid] {
+  --rule: var(--red-600);
+}
+.field__control:read-only {
+  opacity: 0.6;
+}
+.field__control:-webkit-autofill,
+.field__control:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--black);
+  box-shadow:
+    inset 0 calc(-1 * var(--rule-w)) 0 var(--rule),
+    inset 0 0 0 1000px var(--white);
+  caret-color: var(--black);
+}
+.field__meta {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-height: 0;
+}
+.field__error {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--red-600);
+  font-size: var(--text-small);
+  font-weight: 500;
+}
+.field__count {
+  margin-left: auto;
+  font-family: var(--font-osd);
+  font-size: var(--text-osd);
+  color: var(--gray-900);
+}
+
+.field--chips .field__label {
+  margin-bottom: var(--space-2);
+}
+.field__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.field__chip {
+  position: relative;
+  display: inline-flex;
+}
+.field__chip input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  margin: 0;
+  cursor: pointer;
+}
+.field__chip span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  border: 1.5px solid var(--black);
+  border-radius: var(--radius-pill);
+  color: var(--black);
+  font-size: var(--text-small);
+  font-weight: 500;
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+.field__chip input:checked + span {
+  background: var(--black);
+  color: var(--white);
+}
+.field__chip input:focus-visible + span {
+  outline: 2px solid var(--orange-500);
+  outline-offset: 3px;
+}
+@media (hover: hover) {
+  .field__chip input:not(:checked):hover + span {
+    background: color-mix(in srgb, var(--black) 8%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .osd-chip[data-blink],
+  .btn__cursor {
+    animation: none;
+  }
+}

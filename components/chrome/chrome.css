@@ -1,0 +1,363 @@
+/* ── Remote (§8.1) ────────────────────────────────────────── */
+.remote-wrap {
+  position: fixed;
+  z-index: var(--z-remote);
+  left: 50%;
+  top: 20px;
+  translate: -50% 0;
+}
+.remote {
+  position: relative;
+  height: 48px;
+  padding: 6px;
+  border: 1px solid color-mix(in srgb, var(--white) 14%, transparent);
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--black) 86%, transparent);
+}
+.remote__list {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 100%;
+}
+.remote__link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: var(--radius-pill);
+  color: var(--white);
+  font-family: var(--font-osd);
+  font-size: 20px;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+@media (hover: hover) {
+  .remote__link:not([data-active]):hover {
+    color: var(--orange-500);
+  }
+}
+.remote__link[data-active] {
+  color: var(--black);
+}
+.remote__link:focus-visible {
+  outline: 2px solid var(--orange-500);
+  outline-offset: 2px;
+}
+.remote__pill {
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  left: 0;
+  border-radius: var(--radius-pill);
+  background: var(--orange-500);
+  transform-origin: left center;
+  opacity: 0;
+  transition: transform var(--dur-base) var(--ease-object);
+}
+@media (max-width: 767px) {
+  .remote__pill {
+    top: 5px;
+    bottom: 5px;
+  }
+}
+.remote[data-pill] .remote__pill {
+  opacity: 1;
+}
+/* Before the pill is measured (server HTML), the active item paints its own. */
+.remote:not([data-pill]) .remote__link[data-active] {
+  background: var(--orange-500);
+}
+.remote__list > li {
+  position: relative;
+}
+.remote__text {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding-top: 0.08em;
+}
+@media (max-width: 767px) {
+  .remote-wrap {
+    top: auto;
+    bottom: calc(24px + env(safe-area-inset-bottom)); /* clear of the home bar and the screen's curve */
+  }
+  .remote {
+    height: 56px;
+  }
+  .remote__link {
+    height: 44px;
+    padding: 0 11px;
+    font-size: 18px;
+  }
+}
+
+/* ── HUD (§8.2) ───────────────────────────────────────────── */
+.hud {
+  --hud-inset: clamp(12px, 2vw, 28px);
+  position: fixed;
+  top: max(var(--hud-inset), env(safe-area-inset-top));
+  right: max(var(--hud-inset), env(safe-area-inset-right));
+  bottom: max(var(--hud-inset), env(safe-area-inset-bottom));
+  left: max(var(--hud-inset), env(safe-area-inset-left));
+  z-index: var(--z-hud);
+  display: grid;
+  grid-template:
+    "tl . tr" auto
+    ". . ." 1fr
+    "bl . br" auto / auto 1fr auto;
+  pointer-events: none;
+  color: var(--fg);
+  font-family: var(--font-osd);
+  font-size: var(--text-osd-lg);
+  line-height: 1;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+.hud__cell {
+  color: var(--fg);
+  transition: color var(--dur-fast) var(--ease-out);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  white-space: nowrap;
+}
+.hud__transport {
+  grid-area: tl;
+}
+.hud__channel {
+  grid-area: tr;
+  justify-self: end;
+}
+.hud__sp {
+  grid-area: bl;
+  align-self: end;
+}
+.hud__tc {
+  grid-area: br;
+  align-self: end;
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 767px) {
+  .hud {
+    bottom: auto;
+    grid-template: "ch tc" auto / 1fr auto;
+    font-size: var(--text-osd);
+  }
+  .hud__transport,
+  .hud__sp {
+    display: none;
+  }
+  .hud__channel {
+    grid-area: ch;
+    justify-self: start;
+  }
+  .hud__tc {
+    grid-area: tc;
+    align-self: start;
+  }
+}
+
+/* ── TransitionOverlay (§8.3) ─────────────────────────────── */
+.transition {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  pointer-events: none;
+}
+.transition[data-phase="idle"] {
+  visibility: hidden;
+}
+.transition[data-phase="closing"],
+.transition[data-phase="hold"] {
+  pointer-events: auto;
+}
+.transition__bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50.5%;
+  background: var(--black);
+}
+/* Open (idle / opening): bars off-screen, 320 ms ease-out. Closing / hold: shut, 260 ms ease-in.
+   The waits in TransitionOverlay.tsx use the same numbers (timing.transition). */
+.transition__bar {
+  transition: transform var(--dur-base) var(--ease-out);
+}
+.transition__bar--top {
+  top: 0;
+  transform: translateY(-101%);
+}
+.transition__bar--bottom {
+  bottom: 0;
+  transform: translateY(101%);
+}
+.transition:is([data-phase="closing"], [data-phase="hold"]) .transition__bar {
+  transform: none;
+  transition: transform var(--dur-tape-close) var(--ease-in);
+}
+.transition__signal {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  height: 72px;
+  translate: 0 -50%;
+  opacity: 0;
+}
+.transition[data-phase="hold"] .transition__signal {
+  opacity: 1;
+}
+.transition__static {
+  position: absolute;
+  inset: 0;
+  opacity: 0.5;
+}
+.transition__osd {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  color: var(--white);
+  font-family: var(--font-osd);
+  font-size: var(--text-osd-lg);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-shadow:
+    -1px 0 var(--fx-split-red),
+    1px 0 var(--fx-split-cyan);
+}
+
+/* ── CursorChip (§8.4) ────────────────────────────────────── */
+.cursor-chip {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: var(--z-cursor);
+  pointer-events: none;
+}
+.cursor-chip .osd-chip {
+  display: inline-flex;
+  transform: scale(0);
+  transform-origin: 0 0;
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+.cursor-chip .osd-chip[data-on] {
+  transform: scale(1);
+}
+
+/* ── Footer (§8.5) ────────────────────────────────────────── */
+.footer {
+  padding: var(--section-y) 0 calc(var(--space-12) + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--line);
+}
+.footer__end {
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--white);
+  paint-order: stroke fill;
+  white-space: nowrap;
+}
+.footer__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+  margin-top: var(--space-8);
+}
+.footer__row--meta {
+  justify-content: space-between;
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--line);
+  color: var(--fg-muted);
+}
+.footer__socials {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-6);
+}
+.footer__socials a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--fg);
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+@media (max-width: 767px) {
+  .footer {
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  }
+}
+
+/* ── 404 · NO SIGNAL (§9.8) ───────────────────────────────── */
+.no-signal {
+  position: relative;
+  display: grid;
+  align-items: end;
+  min-height: 100svh;
+  overflow: clip;
+}
+.no-signal__bars {
+  position: absolute;
+  inset: 0 0 52% 0;
+  display: flex;
+}
+.no-signal__bars span {
+  flex: 1;
+}
+[data-bar="cream"] { background: var(--cream-200); }
+[data-bar="mustard"] { background: var(--stripe-mustard); }
+[data-bar="blue"] { background: var(--stripe-blue); }
+[data-bar="pink"] { background: var(--stripe-pink); }
+[data-bar="orange"] { background: var(--orange-500); }
+[data-bar="red"] { background: var(--red-600); }
+[data-bar="gray"] { background: var(--gray-900); }
+/* Full-viewport static stays under 12% (§6.4, WCAG 2.3.1). */
+.no-signal__static {
+  position: absolute;
+  inset: 0;
+  opacity: 0.11;
+  pointer-events: none;
+}
+/* Everything readable sits on the black lower half, below the bars. */
+.no-signal__body {
+  position: relative;
+  display: grid;
+  justify-items: start;
+  gap: var(--space-6);
+  min-height: 52svh;
+  align-content: end;
+  padding-top: var(--space-8);
+  padding-bottom: calc(var(--space-12) + 64px);
+}
+.no-signal__body h1 {
+  font-size: min(var(--text-section), 22svh);
+}
+
+/* ── TRACKING… — a slow route (transition strip) or a loading slider ── */
+.tracking__dots::after {
+  content: "...";
+  display: inline-block;
+  width: 3ch;
+  overflow: hidden;
+  vertical-align: bottom;
+  animation: tracking-dots var(--dur-tracking) steps(3, start) infinite;
+}
+@keyframes tracking-dots {
+  from {
+    width: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tracking__dots::after {
+    animation: none;
+  }
+}

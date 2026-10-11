@@ -1,0 +1,779 @@
+/* ── Contact (§9.7) ─────────────────────────────────────────── */
+.contact {
+  padding: var(--section-y) 0;
+}
+.contact__col {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-6);
+  width: min(100% - 2 * var(--gutter), 720px);
+  margin-inline: auto;
+  text-align: center;
+}
+.contact__caption,
+.contact__line {
+  color: var(--fg-muted);
+}
+.contact__line {
+  margin-inline: auto;
+}
+.contact__direct {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2) var(--space-6);
+}
+.contact__direct a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--fg);
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
+/* ── Envelope (§7.12) ─────────────────────────────────────────
+   The letter is in normal flow, so it sets the height; the stage reserves the open
+   height from the start (letter + 55% of the envelope) — opening shifts nothing. */
+.env-stage {
+  --env-w: clamp(300px, 46vw, 640px);
+  --env-h: calc(var(--env-w) * 2 / 3);
+  position: relative;
+  width: var(--env-w);
+  margin-top: var(--space-8);
+  text-align: left;
+}
+html.js .env-stage {
+  transition:
+    transform var(--dur-slow) var(--ease-out),
+    opacity var(--dur-slow) var(--ease-out);
+}
+html.js .env-stage[data-in="false"] {
+  opacity: 0;
+  transform: translateY(40px);
+}
+.env {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: calc(var(--env-h) * 0.55);
+  perspective: 1200px;
+  clip-path: inset(-100vh -100vw 0 -100vw); /* the letter tucks into the pocket, below is clipped */
+}
+.env__back,
+.env__pocket {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--env-h);
+}
+/* The look, shared by every part: airmail stripes (brand orange and black on cream), the
+   band's thickness, and the inside's security-tint lining. */
+.env-stage {
+  --band: max(5px, calc(var(--env-w) * 0.02));
+  --stripes: repeating-linear-gradient(-45deg, var(--orange-500) 0 9px, var(--cream-100) 9px 13px, var(--black) 13px 22px, var(--cream-100) 22px 26px);
+  --lining:
+    repeating-linear-gradient(45deg, color-mix(in srgb, var(--orange-500) 24%, var(--sand-300)) 0 1.5px, transparent 1.5px 9px),
+    repeating-linear-gradient(-45deg, color-mix(in srgb, var(--black) 10%, var(--sand-300)) 0 1px, transparent 1px 9px),
+    var(--sand-300);
+  --seal: calc(var(--env-w) * 0.17); /* everything on the envelope scales with it: same layout at any size */
+}
+/* The inside of the envelope, seen once the flap lifts: a patterned lining in shadow. */
+.env__back {
+  z-index: 0;
+  border-radius: var(--radius-sm);
+  background: var(--lining);
+  box-shadow:
+    var(--shadow-prop),
+    inset 0 calc(var(--env-h) * 0.18) calc(var(--env-h) * 0.16) calc(var(--env-h) * -0.1) color-mix(in srgb, var(--black) 35%, transparent);
+}
+.env__letter {
+  position: relative;
+  z-index: 2;
+  width: 88%;
+  transition: transform var(--dur-slow) var(--ease-out);
+}
+html.js .env-stage[data-open="false"] .env__letter {
+  transform: translateY(calc(100% - var(--env-h) * 0.35));
+}
+html.js .env-stage[data-open="true"] .env__letter {
+  /* starts as the flap passes upright, then settles on the object spring */
+  transition: transform calc(var(--dur-slow) * 1.2) var(--ease-object) calc(var(--dur-envelope-flap) * 0.6);
+}
+/* Front pocket with a V-shaped top edge, drawn by the folds SVG; paper grain and the airmail
+   border on top of that. */
+.env__pocket {
+  z-index: 3;
+  overflow: hidden;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  background: var(--cream-200);
+  clip-path: polygon(0 0, 50% 45%, 100% 0, 100% 100%, 0 100%);
+  pointer-events: none;
+}
+.env__folds {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.env__fold--left {
+  fill: color-mix(in srgb, var(--cream-200) 94%, var(--black));
+}
+.env__fold--right {
+  fill: color-mix(in srgb, var(--cream-200) 91%, var(--black));
+}
+.env__fold--bottom {
+  fill: var(--cream-200);
+  stroke: color-mix(in srgb, var(--black) 10%, transparent);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.env__fold-shadow {
+  fill: var(--black);
+  opacity: 0.1;
+}
+/* The closed flap's shadow on the pocket — gone once the flap is up. */
+.env__flap-shade {
+  fill: var(--black);
+  opacity: 0.2;
+  transition: opacity var(--dur-base) var(--ease-out);
+}
+.env-stage[data-open="true"]:not([data-scrub]) .env__flap-shade {
+  opacity: 0;
+}
+html.js .env-stage[data-scrub] .env__flap-shade {
+  opacity: calc(0.2 * (1 - var(--flap, 0) * 2.5));
+  transition: none;
+}
+.env__paper {
+  position: absolute;
+  inset: 0;
+  background: url(/fx/noise.png) 0 0 / 128px;
+  opacity: 0.07;
+  mix-blend-mode: multiply;
+}
+.env__airmail {
+  position: absolute;
+  inset: 0;
+  background:
+    var(--stripes) left top / var(--band) 100% no-repeat,
+    var(--stripes) right top / var(--band) 100% no-repeat,
+    var(--stripes) left bottom / 100% var(--band) no-repeat;
+}
+
+/* Flap: hinged on the top edge; swaps z-order at 90°. */
+.env__flap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% - var(--env-h));
+  z-index: 4;
+  height: calc(var(--env-h) * 0.55);
+  transform-origin: top;
+  transform-style: preserve-3d;
+  transition:
+    transform var(--dur-envelope-flap) var(--ease-in-out) var(--dur-slow),
+    z-index 0s linear calc(var(--dur-slow) + var(--dur-envelope-flap) / 2);
+}
+.env-stage[data-open="true"] .env__flap,
+html:not(.js) .env__flap {
+  z-index: 1;
+  transform: rotateX(-180deg);
+  transition:
+    transform var(--dur-envelope-flap) var(--ease-in-out),
+    z-index 0s linear calc(var(--dur-envelope-flap) / 2);
+}
+.env__flap-face,
+.env__flap-under {
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  backface-visibility: hidden;
+}
+/* Outside: lit from above, darker toward the point, airmail band along the top edge. */
+.env__flap-face {
+  background:
+    var(--stripes) left top / 100% var(--band) no-repeat,
+    linear-gradient(to bottom, var(--cream-100), var(--cream-200) 55%, color-mix(in srgb, var(--cream-200) 90%, var(--black)));
+}
+.env__flap-face::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url(/fx/noise.png) 0 0 / 128px;
+  opacity: 0.07;
+  mix-blend-mode: multiply;
+}
+/* The inside of the flap: the same lining. Mirrored across Y (not X): the triangle is
+   symmetric, so once the hinge swings 180° it stands point-up above the top edge. */
+.env__flap-under {
+  background:
+    linear-gradient(to top, transparent, color-mix(in srgb, var(--black) 18%, transparent)),
+    var(--lining);
+  transform: rotateY(180deg);
+}
+
+/* The address side: a delivery label, bottom left. */
+.env__label {
+  position: absolute;
+  z-index: 5;
+  left: 8%;
+  bottom: calc(var(--env-h) * 0.1);
+  display: grid;
+  justify-items: start;
+  gap: calc(var(--env-w) * 0.008);
+  margin: 0;
+  pointer-events: none;
+}
+.env__label-to,
+.env__label-line {
+  font-family: var(--font-osd);
+  font-size: calc(var(--env-w) * 0.03);
+  line-height: 1;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+}
+.env__label-to {
+  color: var(--red-600);
+  letter-spacing: 0.06em; /* keeps clear of the seal */
+}
+.env__title {
+  margin: 0;
+  color: var(--black);
+  font-family: var(--font-display);
+  font-size: calc(var(--env-w) * 0.13);
+  font-weight: 400;
+  line-height: 0.9;
+  text-transform: uppercase;
+}
+.env__label-line {
+  padding-top: calc(var(--env-w) * 0.012);
+  border-top: 1.5px dashed color-mix(in srgb, var(--black) 35%, transparent);
+  color: color-mix(in srgb, var(--black) 70%, transparent);
+}
+
+/* OPEN: a wax seal on the flap's point (its centre sits on the point). */
+.env__toggle {
+  position: absolute;
+  z-index: 6;
+  left: 50%;
+  bottom: calc(var(--env-h) * 0.45);
+  width: var(--seal);
+  height: var(--seal);
+  translate: -50% 50%;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+  filter: drop-shadow(0 3px 4px color-mix(in srgb, var(--black) 40%, transparent));
+}
+.env__seal {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at 34% 30%, color-mix(in srgb, var(--orange-400) 65%, var(--white)) 0, var(--orange-500) 24%, var(--red-600) 64%, color-mix(in srgb, var(--red-600) 65%, var(--black)) 100%);
+  /* poured wax: an irregular round edge */
+  clip-path: polygon(50% 0%, 61% 3%, 70% 1%, 78% 8%, 88% 10%, 92% 20%, 99% 30%, 97% 41%, 100% 52%, 95% 62%, 97% 73%, 89% 81%, 85% 91%, 74% 94%, 64% 100%, 53% 96%, 42% 99%, 33% 93%, 22% 95%, 15% 86%, 6% 79%, 5% 67%, 0% 56%, 4% 45%, 1% 34%, 8% 25%, 10% 14%, 20% 9%, 29% 2%, 40% 4%);
+  transition: scale var(--dur-fast) var(--ease-out);
+}
+/* the pressed ring and the stamped glyph, embossed */
+.env__seal::before {
+  content: "";
+  position: absolute;
+  inset: 17%;
+  border-radius: 50%;
+  box-shadow:
+    inset 0 0 0 2px color-mix(in srgb, var(--red-600) 55%, var(--black)),
+    0 1px 0 1px color-mix(in srgb, var(--orange-400) 45%, transparent);
+}
+.env__seal {
+  align-content: center;
+  gap: calc(var(--seal) * 0.03);
+}
+.env__seal-glyph,
+.env__seal-text {
+  position: relative;
+  color: color-mix(in srgb, var(--red-600) 50%, var(--black));
+  filter: drop-shadow(0 1px 0 color-mix(in srgb, var(--orange-400) 75%, transparent));
+}
+.env__seal-glyph {
+  width: calc(var(--seal) * 0.34);
+  height: calc(var(--seal) * 0.34);
+}
+.env__seal-text {
+  font-family: var(--font-osd);
+  font-size: calc(var(--seal) * 0.17);
+  line-height: 1;
+  letter-spacing: 0.1em;
+}
+@media (hover: hover) {
+  .env__toggle:hover .env__seal {
+    scale: 1.06;
+  }
+}
+.env__toggle:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 4px;
+}
+
+/* Stamp and postmark rings, right side, clear of the flap's edge. */
+.env__stamp {
+  position: absolute;
+  right: 7%;
+  top: 46%;
+  display: grid;
+  place-items: center;
+  width: calc(var(--env-w) * 0.12);
+  aspect-ratio: 5 / 6;
+  padding: 5px;
+  background: var(--white);
+  /* perforations: a ring of holes round the edge only */
+  -webkit-mask:
+    radial-gradient(circle, transparent 2.1px, var(--black) 2.6px) -3.5px -3.5px / 7px 7px round,
+    linear-gradient(var(--black), var(--black)) center / calc(100% - 6px) calc(100% - 6px) no-repeat;
+  mask:
+    radial-gradient(circle, transparent 2.1px, var(--black) 2.6px) -3.5px -3.5px / 7px 7px round,
+    linear-gradient(var(--black), var(--black)) center / calc(100% - 6px) calc(100% - 6px) no-repeat;
+  rotate: 4deg;
+  filter: drop-shadow(0 1px 1px color-mix(in srgb, var(--black) 25%, transparent));
+}
+.env__stamp-face {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  background:
+    radial-gradient(circle at 50% 120%, var(--red-600), transparent 70%),
+    var(--orange-500);
+  color: var(--black);
+}
+.env__stamp-glyph {
+  width: 52%;
+  height: 52%;
+}
+.env__stamp-value {
+  position: absolute;
+  top: 3px;
+  right: 4px;
+  font-family: var(--font-osd);
+  font-size: calc(var(--env-w) * 0.022);
+  line-height: 1;
+}
+/* Franking postmark: a dated double ring and wavy lines, struck across the stamp's edge. */
+.env__rings {
+  position: absolute;
+  right: calc(7% + var(--env-w) * 0.054);
+  top: calc(46% + var(--env-w) * 0.05);
+  width: calc(var(--env-w) * 0.28);
+  aspect-ratio: 2;
+  height: auto;
+  color: var(--gray-900);
+  opacity: 0.5;
+  rotate: -8deg;
+}
+.env__postmark {
+  position: absolute;
+  left: 52%;
+  top: 60%;
+  padding: 4px 14px 2px;
+  border: 3px solid var(--red-600);
+  border-radius: 6px;
+  color: var(--red-600);
+  font-family: var(--font-osd);
+  font-size: 32px;
+  letter-spacing: 0.1em;
+  opacity: 0;
+  translate: -50% -50%;
+  transform: scale(1.6);
+}
+
+/* Sent: letter down → flap shut → postmark → envelope leaves right → receipt. */
+.env-stage[data-status="sent"] .env__postmark {
+  animation: env-postmark var(--dur-fast) var(--ease-out) calc(var(--dur-slow) + var(--dur-envelope-flap)) forwards;
+}
+@keyframes env-postmark {
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(-8deg);
+  }
+}
+.env-stage[data-status="sent"] .env {
+  animation: env-leave var(--dur-slow) var(--ease-in) calc(var(--dur-slow) + var(--dur-envelope-flap) + var(--dur-base)) forwards;
+}
+@keyframes env-leave {
+  to {
+    transform: translateX(120vw);
+  }
+}
+.env__receipt {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: var(--space-3);
+  text-align: center;
+}
+.env__receipt:not([hidden]) {
+  animation: env-receipt var(--dur-base) var(--ease-out) calc(2 * var(--dur-slow) + var(--dur-envelope-flap) + var(--dur-base)) both;
+}
+@keyframes env-receipt {
+  from {
+    opacity: 0;
+  }
+}
+.env__receipt-tc {
+  color: var(--fg-muted);
+}
+
+/* ── Letter (the form) ──────────────────────────────────────── */
+.letter {
+  --focus: var(--orange-500);
+  display: grid;
+  gap: var(--space-6);
+  padding: clamp(20px, 4vw, 40px);
+  border-radius: var(--radius-sm);
+  background: var(--white);
+  color: var(--black);
+  box-shadow: var(--shadow-prop);
+}
+.letter__banner {
+  padding: var(--space-3) var(--space-4);
+  border-left: 3px solid var(--red-600);
+  background: color-mix(in srgb, var(--red-600) 7%, var(--white));
+  color: var(--red-600);
+  font-size: var(--text-small);
+  font-weight: 500;
+}
+.letter__banner a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.letter__trap {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+.letter__send {
+  justify-self: start;
+}
+/* The bottom of the letter stays in the pocket: keep that part blank paper so nothing
+   the visitor needs (the SEND button) is ever behind the pocket front. */
+@media (min-width: 768px) {
+  .env__letter .letter {
+    padding-bottom: calc(var(--env-h) * 0.45 + clamp(20px, 4vw, 40px));
+  }
+}
+
+/* Phones: the letter is a full-width card above a shorter pocket graphic (40%). */
+@media (max-width: 767px) {
+  .env-stage {
+    --env-w: calc(100vw - 2 * var(--gutter));
+    width: 100%;
+  }
+  .env {
+    padding-bottom: calc(var(--env-h) * 0.4);
+  }
+  .env__back,
+  .env__pocket {
+    height: calc(var(--env-h) * 0.4);
+  }
+  .env__flap {
+    top: calc(100% - var(--env-h) * 0.4);
+    height: calc(var(--env-h) * 0.3);
+  }
+  .env__letter {
+    width: 100%;
+    transform: none !important;
+  }
+  .env__toggle {
+    display: none;
+  }
+  /* The short pocket (no scroll scene): the label and stamp only. */
+  .env-stage:not([data-scrub]) .env__label {
+    bottom: calc(var(--env-h) * 0.05);
+  }
+  .env-stage:not([data-scrub]) :is(.env__label-to, .env__label-line, .env__rings) {
+    display: none;
+  }
+  .env-stage:not([data-scrub]) .env__stamp {
+    top: 22%;
+  }
+  .letter__send {
+    justify-self: stretch;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.js .env-stage[data-in="false"] {
+    opacity: 1;
+    transform: none;
+  }
+  .env__letter,
+  .env__flap {
+    transition: none;
+  }
+  .env-stage[data-status="sent"] .env {
+    animation: env-fade var(--dur-reduced) linear forwards;
+  }
+  .env-stage[data-status="sent"] .env__postmark {
+    animation: none;
+  }
+  .env__receipt:not([hidden]) {
+    animation: env-receipt var(--dur-reduced) linear var(--dur-reduced) both;
+  }
+}
+@keyframes env-fade {
+  to {
+    opacity: 0;
+  }
+}
+
+/* ── 3D retro props, in the side margins of the held envelope screen (Envelope.tsx) ──
+   Desktop only — never drawn below 1024 px or on touch screens. Each is a few CSS faces in 3D,
+   drifting slowly. --clear (set by JS) is the widest thing in the middle (the big envelope or the
+   letter); the props size themselves to the margin left over and sit centred in it, so they
+   never cover the envelope or the form. Too little margin → none (data-room="no"). */
+.contact {
+  position: relative;
+  overflow-x: clip;
+}
+.env-props {
+  display: none;
+}
+@media (min-width: 1024px) and (pointer: fine) {
+  .env-props {
+    --side: calc((100vw - var(--clear, 760px)) / 2);
+    --u: clamp(96px, calc(var(--side) * 0.62), 230px);
+    position: absolute;
+    top: 0;
+    left: 50%;
+    display: block;
+    width: 100vw;
+    height: 100svh;
+    margin-left: -50vw;
+    pointer-events: none;
+    perspective: 1400px;
+  }
+  .env-props[data-room="no"] {
+    display: none;
+  }
+}
+.prop {
+  --w: var(--u);
+  --h: calc(var(--u) * 0.64);
+  --d: calc(var(--u) * 0.13);
+  position: absolute;
+  width: var(--w);
+  height: var(--h);
+  transform-style: preserve-3d;
+  animation: prop-drift var(--dur-prop) var(--ease-in-out) infinite alternate;
+}
+.prop__face {
+  position: absolute;
+  border-radius: calc(var(--u) * 0.03);
+}
+.prop__front {
+  inset: 0;
+  transform: translateZ(calc(var(--d) / 2));
+}
+.prop__back {
+  inset: 0;
+  background: var(--gray-900);
+  transform: rotateY(180deg) translateZ(calc(var(--d) / 2));
+}
+.prop__top,
+.prop__bottom {
+  left: 0;
+  width: var(--w);
+  height: var(--d);
+  background: var(--gray-900);
+}
+.prop__top {
+  top: calc(var(--d) / -2);
+  transform: rotateX(90deg);
+}
+.prop__bottom {
+  bottom: calc(var(--d) / -2);
+  transform: rotateX(-90deg);
+}
+.prop__left,
+.prop__right {
+  top: 0;
+  width: var(--d);
+  height: var(--h);
+  background: var(--black);
+}
+.prop__left {
+  left: calc(var(--d) / -2);
+  transform: rotateY(-90deg);
+}
+.prop__right {
+  right: calc(var(--d) / -2);
+  transform: rotateY(90deg);
+}
+
+/* A VHS cassette: black shell, cream label, two reels in a window. Sizes follow --w. */
+.prop--tape .prop__front {
+  --hub: calc(var(--w) * 0.035);
+  --reel: calc(var(--w) * 0.075);
+  --rim: calc(var(--w) * 0.095);
+  background:
+    radial-gradient(circle at 30% 62%, var(--white) 0 var(--hub), var(--black) 0 var(--reel), var(--gray-600) 0 var(--rim), transparent 0),
+    radial-gradient(circle at 70% 62%, var(--white) 0 var(--hub), var(--black) 0 var(--reel), var(--gray-600) 0 var(--rim), transparent 0),
+    linear-gradient(var(--gray-900), var(--gray-900)) 50% 64% / 66% 36% no-repeat,
+    linear-gradient(var(--cream-200), var(--cream-200)) 50% 14% / 84% 26% no-repeat,
+    linear-gradient(var(--orange-500), var(--orange-500)) 50% 31% / 84% 5% no-repeat,
+    var(--black);
+}
+/* Left margin, upper third. */
+.prop--tape-a {
+  top: 24%;
+  left: calc(var(--side) / 2 - var(--w) / 2);
+  --rx: 18deg;
+  --ry: 32deg;
+  --rz: -12deg;
+}
+/* Right margin, low. */
+.prop--tape-b {
+  --w: calc(var(--u) * 0.85);
+  --h: calc(var(--u) * 0.54);
+  right: calc(var(--side) / 2 - var(--w) / 2);
+  bottom: 14%;
+  --rx: -14deg;
+  --ry: -38deg;
+  --rz: 9deg;
+  animation-delay: calc(var(--dur-prop) / -2);
+}
+/* A small CRT, right margin, high: a deep box with an orange-glowing screen. */
+.prop--crt {
+  --w: calc(var(--u) * 0.72);
+  --h: calc(var(--u) * 0.58);
+  --d: calc(var(--u) * 0.52);
+  top: 14%;
+  right: calc(var(--side) / 2 - var(--w) / 2);
+  --rx: -10deg;
+  --ry: -28deg;
+  --rz: 4deg;
+  animation-delay: calc(var(--dur-prop) / -3);
+}
+.prop--crt .prop__front {
+  background:
+    radial-gradient(ellipse at 40% 40%, var(--orange-400) 0, var(--orange-500) 45%, var(--red-600) 100%) calc(var(--w) * 0.09) calc(var(--h) * 0.12) / calc(var(--w) * 0.62) calc(var(--h) * 0.74) no-repeat,
+    repeating-linear-gradient(var(--gray-900) 0 3px, var(--black) 3px 6px) calc(var(--w) * 0.76) calc(var(--h) * 0.15) / calc(var(--w) * 0.16) calc(var(--h) * 0.58) no-repeat,
+    var(--gray-900);
+  box-shadow: 0 0 calc(var(--u) * 0.4) calc(var(--u) * -0.06) color-mix(in srgb, var(--orange-500) 60%, transparent);
+}
+@keyframes prop-drift {
+  from {
+    transform: rotateX(var(--rx)) rotateY(var(--ry)) rotateZ(var(--rz)) translateY(0);
+  }
+  to {
+    transform: rotateX(calc(var(--rx) + 8deg)) rotateY(calc(var(--ry) - 14deg)) rotateZ(var(--rz)) translateY(calc(var(--u) * -0.08));
+  }
+}
+.contact__col {
+  position: relative;
+}
+@media (prefers-reduced-motion: reduce) {
+  .prop {
+    animation: none;
+    transform: rotateX(var(--rx)) rotateY(var(--ry)) rotateZ(var(--rz));
+  }
+  .env__full-rec {
+    animation: none;
+  }
+}
+
+/* ── Scroll scene (Envelope.tsx): the screen holds still while the closed envelope — big, in
+   the middle — opens (--flap), shrinks down to its place (--shrink) and the letter pops out of
+   it full size (--rise). Then the page scrolls on to the rest of the form. JS sets the vars. ── */
+/* The hold: a spacer after the pin, so the pin sticks for exactly this much scroll. (Padding
+   would not do — a sticky box stays inside its parent's content box.) */
+html.js .env-scene[data-scrub]::after {
+  content: "";
+  display: block;
+  height: 160svh;
+}
+html.js .env-scene[data-scrub] .env-pin {
+  position: sticky;
+  top: 0;
+  min-height: 100svh;
+  padding-top: 84px; /* the letter lands clear of the Remote bar on top */
+}
+@media (max-width: 767px) {
+  html.js .env-scene[data-scrub] .env-pin {
+    padding-top: calc(var(--space-12) + env(safe-area-inset-top)); /* clear of the HUD line */
+  }
+}
+html.js .env-stage[data-scrub] {
+  --env-w: clamp(240px, 22vw, 340px); /* small at the end: the letter is the thing */
+  --letter-w: min(640px, calc(100vw - 2 * var(--gutter)));
+  width: var(--env-w);
+  margin: 0 auto;
+}
+html.js .env-stage[data-scrub] .env {
+  transform-origin: 50% calc(100% - var(--env-h) / 2);
+  /* middle of the screen → waiting low but on screen → its resting place, as the view follows the letter */
+  transform: translateY(calc(var(--lift-a, 0px) * (1 - var(--shrink, 0)) + var(--lift-b, 0px) * var(--shrink, 0) * (1 - var(--settle, 0))))
+    scale(calc(1 + (var(--big, 1) - 1) * (1 - var(--shrink, 0))));
+}
+html.js .env-stage[data-scrub] .env__flap {
+  z-index: 4;
+  transform: rotateX(calc(var(--flap, 0) * -180deg));
+  transition: none;
+}
+html.js .env-stage[data-scrub][data-flap-past] .env__flap {
+  z-index: 1;
+}
+/* The seal breaks as the flap starts to lift: it swells and fades in the first quarter. */
+html.js .env-stage[data-scrub] .env__toggle {
+  opacity: calc(1 - var(--flap, 0) * 4);
+  scale: calc(1 + var(--flap, 0) * 0.5);
+}
+html.js .env-stage[data-scrub][data-opening] .env__toggle {
+  pointer-events: none;
+}
+/* Phones hide OPEN in the static layout; the scroll scene's closed envelope keeps its seal. */
+@media (max-width: 767px) {
+  html.js .env-stage[data-scrub] .env__toggle {
+    display: block;
+  }
+}
+html.js .env-stage[data-scrub] .env__letter {
+  width: var(--letter-w);
+  flex: none;
+  transform-origin: 50% 100%;
+  transform: translateY(calc((1 - var(--rise, 0)) * (100% - var(--env-h) * 0.35))) scale(calc(var(--lsmall, 1) + (1 - var(--lsmall, 1)) * var(--grow, 0))) !important;
+  transition: none;
+}
+@media (max-width: 767px) {
+  html.js .env-stage[data-scrub] {
+    --env-w: 58vw;
+  }
+  html.js .env-stage[data-scrub] .env {
+    padding-bottom: calc(var(--env-h) * 0.55);
+  }
+  html.js .env-stage[data-scrub] :is(.env__back, .env__pocket) {
+    height: var(--env-h);
+  }
+  html.js .env-stage[data-scrub] .env__flap {
+    top: calc(100% - var(--env-h));
+    height: calc(var(--env-h) * 0.55);
+  }
+  /* The letter's foot stays in the pocket: blank paper there, so SEND is never covered. */
+  html.js .env-stage[data-scrub] .env__letter .letter {
+    padding-bottom: calc(var(--env-h) * 0.45 + 20px);
+  }
+}
+

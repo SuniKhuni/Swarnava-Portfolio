@@ -1,0 +1,337 @@
+/* ── BTS (§9.2) ─────────────────────────────────────────────── */
+.bts {
+  /* One step of scroll per photo while the screen holds still. */
+  --step: 45svh;
+  position: relative;
+  min-height: 100svh;
+  padding: var(--section-y) 0 var(--section-y);
+  overflow-x: clip;
+}
+.bts:focus {
+  outline: none;
+}
+/* Faint vertical stripes, fading in over the top 20% so the Dive's seam stays flat. */
+.bts__texture {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(90deg, color-mix(in srgb, var(--black) 3.5%, transparent) 0 1px, transparent 1px 7.5vw);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, var(--black) 20%);
+  mask-image: linear-gradient(to bottom, transparent 0, var(--black) 20%);
+}
+.bts__grid {
+  position: relative;
+}
+.bts__copy {
+  display: grid;
+  gap: var(--space-8);
+}
+.bts__title {
+  color: var(--fg-display); /* white, 3.6 : 1 — large text only */
+}
+.bts__para + .bts__para {
+  margin-top: var(--space-4);
+}
+.bts__para {
+  color: var(--fg); /* black — paragraphs on orange are never white */
+}
+.line-reveal__after {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-6);
+  margin-top: var(--space-8);
+}
+.bts__pillars {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+html.js .bts__pillars > li {
+  transition:
+    transform var(--dur-base) var(--ease-out),
+    opacity var(--dur-base) var(--ease-out);
+  transition-delay: calc(var(--lines, 0) * var(--stagger-items) + var(--i) * var(--stagger-bts));
+}
+html.js .line-reveal[data-in="false"] .bts__pillars > li {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+/* Phones and tablets: the copy scrolls by, then the Monitor pins (sticky, centred) inside a
+   track one step per photo long, and holds until the last photo is dealt (BtsDeck.tsx). */
+.bts__track {
+  position: relative;
+  margin-top: var(--space-12);
+  padding-inline: var(--gutter);
+}
+.bts__deck {
+  position: relative;
+  width: 100%;
+}
+@media (max-width: 1023px) and (prefers-reduced-motion: no-preference) {
+  html.js .bts__track {
+    height: calc(var(--photos) * var(--step) + 60svh);
+  }
+  html.js .bts__deck {
+    position: sticky;
+    top: max(var(--space-16), calc(50svh - (100vw - 2 * var(--gutter)) * 0.4));
+  }
+}
+@media (min-width: 1024px) {
+  .bts__copy {
+    width: 50%; /* BTS. spans columns 1–6; paragraphs stop at 46ch, inside columns 1–5 */
+  }
+  .bts__track {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    padding: 0;
+    pointer-events: none;
+  }
+  .bts__deck {
+    position: absolute;
+    left: 48%;
+    top: 50%;
+    width: 62vw;
+    translate: 0 -50%;
+    pointer-events: auto;
+  }
+}
+/* Desktop: the whole screen — copy and Monitor — holds still for one step of scroll per photo,
+   then BTS scrolls on. Without JS or with reduced motion it is one ordinary screen. */
+@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+  html.js .bts {
+    height: calc(100svh + var(--photos) * var(--step));
+    padding: 0;
+  }
+  html.js .bts__pin {
+    position: sticky;
+    top: 0;
+    display: grid;
+    align-content: center;
+    height: 100svh;
+    padding-block: var(--section-y);
+    overflow: clip;
+  }
+}
+@media (max-width: 1023px) {
+  .bts__deck {
+    transform: none !important;
+  }
+}
+
+/* ── Monitor (§7.5) ─────────────────────────────────────────── */
+.monitor {
+  --bezel: clamp(18px, 2.4vw, 44px);
+  padding: var(--bezel);
+  border-radius: clamp(var(--radius-lg), 3vw, 44px);
+  background: var(--black);
+  box-shadow:
+    var(--shadow-prop),
+    inset 0 0 0 1px color-mix(in srgb, var(--white) 10%, transparent);
+}
+.monitor__screen {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: clip;
+  border-radius: 12px;
+  background: var(--cream-100);
+  color: var(--black);
+}
+@media (max-width: 767px) {
+  .monitor__screen {
+    aspect-ratio: 1; /* a 4 : 3 phone screen is too short for a 4 : 5 Polaroid */
+  }
+}
+.monitor__osd {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  font-family: var(--font-osd);
+  font-size: var(--text-osd);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.monitor__rec,
+.monitor__battery,
+.monitor__label,
+.monitor__counter {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  line-height: 1;
+}
+.monitor__rec {
+  left: 22px;
+  top: 18px;
+}
+.monitor__dot {
+  color: var(--red-600);
+  animation: blink var(--dur-blink) steps(1) infinite;
+}
+.monitor__battery {
+  right: 22px;
+  top: 14px;
+}
+.monitor__label {
+  left: 22px;
+  bottom: 18px;
+}
+.monitor__counter {
+  right: 22px;
+  bottom: 18px;
+  font-variant-numeric: tabular-nums;
+}
+.monitor__corner {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border: 0 solid var(--black);
+}
+.monitor__corner--tl {
+  left: 10px;
+  top: 10px;
+  border-left-width: 2px;
+  border-top-width: 2px;
+}
+.monitor__corner--tr {
+  right: 10px;
+  top: 10px;
+  border-right-width: 2px;
+  border-top-width: 2px;
+}
+.monitor__corner--bl {
+  left: 10px;
+  bottom: 10px;
+  border-left-width: 2px;
+  border-bottom-width: 2px;
+}
+.monitor__corner--br {
+  right: 10px;
+  bottom: 10px;
+  border-right-width: 2px;
+  border-bottom-width: 2px;
+}
+@media (max-width: 767px) {
+  .monitor__osd {
+    font-size: 16px;
+  }
+  .monitor__rec,
+  .monitor__label {
+    left: 16px;
+  }
+  .monitor__battery,
+  .monitor__counter {
+    right: 16px;
+  }
+}
+.monitor__empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-osd);
+  font-size: var(--text-osd-lg);
+}
+
+/* ── PolaroidStack (§7.6) ───────────────────────────────────── */
+.polaroids {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+.polaroids:focus-visible {
+  outline: 2px solid var(--black);
+  outline-offset: -8px;
+  border-radius: 8px;
+}
+.polaroids__deck {
+  position: relative;
+  display: grid;
+  width: 44%;
+}
+@media (max-width: 767px) {
+  .polaroids__deck {
+    width: 52%;
+  }
+}
+.polaroids__deck > *,
+.polaroids__fade {
+  grid-area: 1 / 1;
+}
+.polaroid-slot {
+  grid-area: 1 / 1;
+}
+.polaroid {
+  margin: 0;
+  padding: 10px 10px 0;
+  background: var(--white);
+  box-shadow: var(--shadow-prop);
+  touch-action: none;
+  user-select: none;
+  cursor: grab;
+  transition: box-shadow var(--dur-fast) var(--ease-out);
+}
+.polaroid[data-lifted] {
+  cursor: grabbing;
+  box-shadow: 0 34px 50px -18px color-mix(in srgb, var(--black) 55%, transparent);
+}
+.polaroid__photo {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: clip;
+  background: var(--gray-400);
+}
+.polaroid__photo img {
+  object-fit: cover;
+  pointer-events: none;
+}
+.polaroid__caption {
+  display: flex;
+  align-items: center;
+  height: 40px;
+  overflow: hidden;
+  color: var(--black);
+  font-family: var(--font-osd);
+  font-size: var(--text-osd);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.polaroid:not(:has(.polaroid__caption)) {
+  padding-bottom: 40px;
+}
+/* Prev / next: visible on focus, always on touch. */
+.polaroids__nav {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-inline: var(--space-4);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+.polaroids__nav .btn {
+  pointer-events: auto;
+  background: var(--cream-100);
+  color: var(--black);
+}
+.polaroids:focus-within .polaroids__nav {
+  opacity: 1;
+}
+@media (hover: none) {
+  .polaroids__nav {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .monitor__dot {
+    animation: none;
+  }
+}
