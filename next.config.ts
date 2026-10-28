@@ -13,6 +13,7 @@ const nextConfig: NextConfig = {
     qualities: [70, 75],
   },
   experimental: {
+    agentUpgrade: "security",
     // /admin uploads images through a server action (up to 15 MB each).
     serverActions: { bodySizeLimit: "16mb" },
   },
