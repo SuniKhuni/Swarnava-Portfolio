@@ -34,7 +34,23 @@ export const viewport: Viewport = {
 
 // Runs before first paint: marks JS as available (closed envelope, Dive height, line reveals)
 // and remembers that the intro has played this session (repeat visits skip it).
-const BOOT = `(function(d){d.classList.add('js');try{if(sessionStorage.getItem('tape-01-intro'))d.classList.add('powered','repeat');else sessionStorage.setItem('tape-01-intro','1')}catch(e){}})(document.documentElement)`;
+// Also cleans any browser-extension injected scripts from <head> to prevent hydration mismatches.
+const BOOT = `(function(d){
+  function clean(){
+    try{
+      var s=document.querySelectorAll('script[src*="-extension:"],script[src*="popups-script"]');
+      for(var i=0;i<s.length;i++)s[i].remove();
+    }catch(e){}
+  }
+  clean();
+  if(typeof MutationObserver!=="undefined"){
+    var o=new MutationObserver(clean);
+    if(document.head)o.observe(document.head,{childList:true});
+    setTimeout(function(){o.disconnect();},3000);
+  }
+  d.classList.add('js');
+  try{if(sessionStorage.getItem('tape-01-intro'))d.classList.add('powered','repeat');else sessionStorage.setItem('tape-01-intro','1')}catch(e){}
+})(document.documentElement);`;
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const site = await getSite();
@@ -48,11 +64,11 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   };
   return (
     <html lang="en" className={`${bebas.variable} ${vt323.variable} ${archivo.variable}`} data-scroll-behavior="smooth" suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: BOOT }} />
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personLd) }} />
+      <head suppressHydrationWarning>
+        <script dangerouslySetInnerHTML={{ __html: BOOT }} suppressHydrationWarning />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personLd) }} suppressHydrationWarning />
       </head>
-      <body>
+      <body suppressHydrationWarning>
         <a className="skip-link" href="#main">
           Skip to content
         </a>

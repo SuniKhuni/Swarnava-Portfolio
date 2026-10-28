@@ -132,15 +132,16 @@ html.js .line-reveal[data-in="false"] .bts__pillars > li {
 }
 .monitor__screen {
   position: relative;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 16 / 10;
   overflow: clip;
   border-radius: 12px;
   background: var(--cream-100);
   color: var(--black);
+  container-type: inline-size;
 }
 @media (max-width: 767px) {
   .monitor__screen {
-    aspect-ratio: 1; /* a 4 : 3 phone screen is too short for a 4 : 5 Polaroid */
+    aspect-ratio: 16 / 11;
   }
 }
 .monitor__osd {
@@ -235,103 +236,383 @@ html.js .line-reveal[data-in="false"] .bts__pillars > li {
   font-size: var(--text-osd-lg);
 }
 
-/* ── PolaroidStack (§7.6) ───────────────────────────────────── */
-.polaroids {
+/* ── Personal Archive / 199X ─────────────────────────────────── */
+.archive {
   position: absolute;
   inset: 0;
-  display: grid;
-  place-items: center;
-}
-.polaroids:focus-visible {
-  outline: 2px solid var(--black);
-  outline-offset: -8px;
-  border-radius: 8px;
-}
-.polaroids__deck {
-  position: relative;
-  display: grid;
-  width: 44%;
-}
-@media (max-width: 767px) {
-  .polaroids__deck {
-    width: 52%;
-  }
-}
-.polaroids__deck > *,
-.polaroids__fade {
-  grid-area: 1 / 1;
-}
-.polaroid-slot {
-  grid-area: 1 / 1;
-}
-.polaroid {
-  margin: 0;
-  padding: 10px 10px 0;
-  background: var(--white);
-  box-shadow: var(--shadow-prop);
-  touch-action: none;
-  user-select: none;
-  cursor: grab;
-  transition: box-shadow var(--dur-fast) var(--ease-out);
-}
-.polaroid[data-lifted] {
-  cursor: grabbing;
-  box-shadow: 0 34px 50px -18px color-mix(in srgb, var(--black) 55%, transparent);
-}
-.polaroid__photo {
-  position: relative;
-  aspect-ratio: 4 / 5;
-  overflow: clip;
-  background: var(--gray-400);
-}
-.polaroid__photo img {
-  object-fit: cover;
-  pointer-events: none;
-}
-.polaroid__caption {
   display: flex;
-  align-items: center;
-  height: 40px;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(10px, 2.4cqi, 18px);
+  user-select: none;
   overflow: hidden;
-  color: var(--black);
   font-family: var(--font-osd);
-  font-size: var(--text-osd);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  color: var(--black);
+  outline: none;
 }
-.polaroid:not(:has(.polaroid__caption)) {
-  padding-bottom: 40px;
+.archive:focus-visible {
+  outline: 2px solid var(--black);
+  outline-offset: -4px;
 }
-/* Prev / next: visible on focus, always on touch. */
-.polaroids__nav {
-  position: absolute;
-  inset: 0;
+
+/* 1. Header */
+.archive-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-inline: var(--space-4);
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity var(--dur-fast) var(--ease-out);
+  width: 100%;
+  line-height: 1;
 }
-.polaroids__nav .btn {
-  pointer-events: auto;
-  background: var(--cream-100);
+.archive-header__left {
+  display: flex;
+  align-items: center;
+  gap: clamp(4px, 1cqi, 8px);
+}
+.archive-corner-tl {
+  display: inline-block;
+  width: clamp(10px, 1.6cqi, 13px);
+  height: clamp(10px, 1.6cqi, 13px);
+  border-top: 2px solid var(--black);
+  border-left: 2px solid var(--black);
+}
+.archive-header__cam {
+  color: var(--black);
+  flex-shrink: 0;
+}
+.archive-header__title {
+  font-family: var(--font-osd);
+  font-size: clamp(10px, 1.6cqi, 14px);
+  font-weight: 700;
+  letter-spacing: 0.08em;
   color: var(--black);
 }
-.polaroids:focus-within .polaroids__nav {
-  opacity: 1;
+.archive-header__right {
+  display: flex;
+  align-items: center;
+  gap: clamp(4px, 0.8cqi, 6px);
+  font-family: var(--font-osd);
+  font-size: clamp(10px, 1.6cqi, 13px);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--black);
 }
-@media (hover: none) {
-  .polaroids__nav {
+.archive-rec-dot {
+  width: clamp(7px, 1.1cqi, 9px);
+  height: clamp(7px, 1.1cqi, 9px);
+  border-radius: var(--radius-pill);
+  background: var(--red-600);
+  animation: blink var(--dur-blink) steps(1) infinite;
+  flex-shrink: 0;
+}
+
+/* 2. Main 16:9 Image Area */
+.archive-main {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  border: 2px solid var(--black);
+  border-radius: var(--radius-xs);
+  overflow: hidden;
+  background: var(--black);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--black) 20%, transparent);
+}
+.archive-main__viewport {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: var(--gray-400);
+  overflow: hidden;
+}
+.archive-main__media {
+  position: absolute;
+  inset: 0;
+}
+.archive-main__img {
+  object-fit: cover;
+  pointer-events: none;
+}
+.archive-dashed-border {
+  position: absolute;
+  inset: clamp(6px, 2.2cqi, 14px);
+  border: 1.5px dashed color-mix(in srgb, var(--black) 45%, transparent);
+  pointer-events: none;
+  border-radius: 2px;
+  z-index: 2;
+}
+.archive-main__placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.archive-main__placeholder-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: clamp(2px, 0.6cqi, 6px);
+  color: var(--black);
+  z-index: 1;
+}
+.archive-main__cam-icon {
+  margin-bottom: 2px;
+}
+.archive-main__add {
+  font-family: var(--font-osd);
+  font-size: clamp(12px, 2.4cqi, 18px);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--black);
+}
+.archive-main__sub {
+  font-family: var(--font-osd);
+  font-size: clamp(8px, 1.3cqi, 11px);
+  letter-spacing: 0.1em;
+  color: color-mix(in srgb, var(--black) 70%, transparent);
+}
+.archive-main__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: clamp(3px, 0.7cqi, 6px) clamp(8px, 1.8cqi, 14px);
+  background: var(--black);
+  color: var(--white);
+  font-family: var(--font-osd);
+  font-size: clamp(9px, 1.4cqi, 12px);
+  letter-spacing: 0.06em;
+  line-height: 1;
+}
+.archive-main__filename,
+.archive-main__timecode {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* 3. Controls & Progress Row */
+.archive-controls {
+  display: flex;
+  align-items: center;
+  gap: clamp(6px, 1.6cqi, 14px);
+  width: 100%;
+}
+.archive-controls__transport {
+  display: flex;
+  align-items: center;
+  gap: clamp(3px, 0.8cqi, 6px);
+  flex-shrink: 0;
+}
+.archive-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--black);
+  cursor: pointer;
+  padding: 2px;
+  line-height: 1;
+  transition: transform var(--dur-fast) var(--ease-out), opacity var(--dur-fast) var(--ease-out);
+}
+.archive-btn:hover {
+  opacity: 0.75;
+  transform: scale(1.08);
+}
+.archive-btn:active {
+  transform: scale(0.95);
+}
+.archive-btn--circle {
+  width: clamp(20px, 3.6cqi, 26px);
+  height: clamp(20px, 3.6cqi, 26px);
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--black);
+  margin-inline: 1px;
+}
+.archive-progress {
+  flex: 1;
+  height: 2px;
+  background: color-mix(in srgb, var(--black) 15%, transparent);
+  position: relative;
+  border-radius: 1px;
+  overflow: hidden;
+}
+.archive-progress__fill {
+  height: 100%;
+  background: var(--black);
+  border-radius: 1px;
+  transition: width var(--dur-flash) linear;
+}
+.archive-counter-caption {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-osd);
+  font-size: clamp(9px, 1.5cqi, 12px);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  flex-shrink: 0;
+  color: var(--black);
+}
+.archive-counter {
+  font-variant-numeric: tabular-nums;
+}
+.archive-sep {
+  color: color-mix(in srgb, var(--black) 50%, transparent);
+}
+.archive-caption {
+  text-transform: uppercase;
+  max-width: 24ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 4. Thumbnail Carousel */
+.archive-carousel {
+  display: flex;
+  align-items: center;
+  gap: clamp(4px, 1cqi, 8px);
+  width: 100%;
+}
+.archive-arrow-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--black);
+  cursor: pointer;
+  padding: 2px;
+  flex-shrink: 0;
+  line-height: 1;
+  transition: transform var(--dur-fast) var(--ease-out), opacity var(--dur-fast) var(--ease-out);
+}
+.archive-arrow-btn:hover {
+  opacity: 0.7;
+  transform: scale(1.15);
+}
+.archive-arrow-btn:active {
+  transform: scale(0.92);
+}
+.archive-thumbs-track {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(4px, 1.2cqi, 8px);
+  overflow: hidden;
+  touch-action: pan-y;
+}
+.archive-thumb-card {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: none;
+  border: 1.5px solid var(--black);
+  border-radius: var(--radius-xs);
+  padding: 0;
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
+}
+.archive-thumb-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px color-mix(in srgb, var(--black) 20%, transparent);
+}
+.archive-thumb-card:focus-visible {
+  outline: 2px solid var(--black);
+  outline-offset: 1px;
+}
+.archive-thumb-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: var(--gray-400);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.archive-thumb-dashed-border {
+  position: absolute;
+  inset: clamp(3px, 6%, 5px);
+  border: 1px dashed color-mix(in srgb, var(--black) 45%, transparent);
+  pointer-events: none;
+  border-radius: 2px;
+  z-index: 2;
+}
+.archive-thumb-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--black);
+}
+.archive-thumb__img {
+  object-fit: cover;
+  pointer-events: none;
+}
+
+/* 5. Footer Note */
+.archive-footer {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+.archive-footer__label {
+  font-family: var(--font-osd);
+  font-size: clamp(8px, 1.3cqi, 11px);
+  letter-spacing: 0.08em;
+  color: var(--black);
+}
+
+@keyframes thumb-slide-left {
+  from {
+    transform: translateX(14px);
+    opacity: 0.8;
+  }
+  to {
+    transform: translateX(0);
     opacity: 1;
   }
 }
+@keyframes thumb-slide-right {
+  from {
+    transform: translateX(-14px);
+    opacity: 0.8;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+@keyframes media-reveal {
+  from {
+    opacity: 0.82;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.archive-main__viewport {
+  animation: media-reveal var(--dur-fast) var(--ease-out);
+}
+.archive-thumbs-track[data-slide-dir="next"] .archive-thumb-card {
+  animation: thumb-slide-left var(--dur-fast) var(--ease-out);
+}
+.archive-thumbs-track[data-slide-dir="prev"] .archive-thumb-card {
+  animation: thumb-slide-right var(--dur-fast) var(--ease-out);
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .monitor__dot {
+  .monitor__dot,
+  .archive-rec-dot {
+    animation: none;
+  }
+  .archive-progress__fill {
+    transition: none;
+  }
+  .archive-thumbs-track .archive-thumb-card,
+  .archive-main__viewport {
     animation: none;
   }
 }

@@ -1,7 +1,6 @@
 "use client";
 
-import { createContext, useContext, useLayoutEffect, useRef, useState } from "react";
-import dynamic from "next/dynamic";
+import { useLayoutEffect, useRef, useState } from "react";
 import { useMotionValueEvent, useTransform } from "motion/react";
 import { useMotionStyle } from "@/lib/motion-style";
 import { useElementProgress, useSpringValue } from "@/lib/scroll";
@@ -9,22 +8,10 @@ import type { BtsPhoto } from "@/content/types";
 import { spring } from "@/lib/motion";
 import { QUERIES, useMediaQuery } from "@/lib/hooks";
 import { Monitor } from "./Monitor";
-import { PolaroidStatic } from "./PolaroidStatic";
-
-const pad = (n: number) => String(n).padStart(2, "0");
-
-/** The Monitor and its Polaroids, sliding in from the right as BTS scrolls in (≥ 1024 px). */
-// Client-only and below the fold, so it stays out of first-load JS. Until it loads — on the
-// server, without JS, and during hydration — the top Polaroid is plain static HTML.
-const FirstPhoto = createContext<BtsPhoto | undefined>(undefined);
-function StaticTop() {
-  return <PolaroidStatic photo={useContext(FirstPhoto)} />;
-}
-const PolaroidStack = dynamic(() => import("./PolaroidStack"), { ssr: false, loading: StaticTop });
+import { PersonalArchive } from "./PersonalArchive";
 
 export function BtsDeck({ photos }: { photos: BtsPhoto[] }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [index, setIndex] = useState(0);
   const wide = useMediaQuery(QUERIES.lg);
 
   // The section (desktop: it pins its screen) — found from the track, which lives inside it.
@@ -49,7 +36,7 @@ export function BtsDeck({ photos }: { photos: BtsPhoto[] }) {
   const trackPin = useElementProgress(ref, "pin");
   const [step, setStep] = useState(0);
   const deal = (p: number) => {
-    const n = photos.length;
+    const n = Math.max(1, photos.length);
     if (n < 2) return;
     const next = Math.min(n - 1, Math.max(0, Math.floor(p * n)));
     if (next !== step) setStep(next);
@@ -57,21 +44,12 @@ export function BtsDeck({ photos }: { photos: BtsPhoto[] }) {
   useMotionValueEvent(sectionPin, "change", (p) => wide && deal(p));
   useMotionValueEvent(trackPin, "change", (p) => !wide && deal(p));
 
-  const counter =
-    photos.length > 1 ? (
-      <span key={index} className="fx-glitch-flash">
-        {pad(index + 1)}/{pad(photos.length)}
-      </span>
-    ) : undefined;
-
   return (
     // The track covers the whole section, so its scroll progress is the section's.
     <div ref={ref} className="bts__track">
       <div ref={deck} className="bts__deck">
-        <Monitor label="BTS" counter={counter} empty={photos.length === 0}>
-          <FirstPhoto.Provider value={photos[0]}>
-            <PolaroidStack photos={photos} onChange={setIndex} step={step} />
-          </FirstPhoto.Provider>
+        <Monitor hideOsd>
+          <PersonalArchive photos={photos} step={step} />
         </Monitor>
       </div>
     </div>
