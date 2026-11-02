@@ -1,6 +1,6 @@
 import { Hero } from "@/components/hero/Hero";
 import { Bts } from "@/components/bts/Bts";
-import { Clients } from "@/components/clients/Clients";
+import { WorkedWith } from "@/components/worked-with/WorkedWith";
 import { Projects } from "@/components/work/Projects";
 import { Contact } from "@/components/contact/Contact";
 import { Footer } from "@/components/chrome/Footer";
@@ -17,7 +17,7 @@ export default async function Home() {
       <main id="main" tabIndex={-1}>
         <Hero name={site.name} role={site.role} niches={niches} pillars={site.pillars} socials={site.socials} />
         <Bts about={site.about} photos={site.btsPhotos} />
-        <Clients clients={clients} />
+        <WorkedWith clients={clients} />
         <Projects categories={categories} />
         <Contact />
       </main>

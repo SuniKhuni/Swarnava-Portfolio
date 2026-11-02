@@ -1,6 +1,6 @@
 import Image from "next/image";
 import type { Client } from "@/content/types";
-import { compactCount, subscriberCounts } from "@/lib/youtube";
+import { compactCount } from "@/lib/youtube";
 import { Icon } from "../ui/Icon";
 import { MarqueeGroup, MarqueePauseButton, MarqueeRow } from "../work/MarqueeRow";
 
@@ -72,16 +72,16 @@ function TapeCard({ client, index, subs }: { client: Client; index: number; subs
   );
 }
 
-/** Worked with — the channels, on an endless reel of VHS sleeves (§9.3). */
-export async function Clients({ clients }: { clients: Client[] }) {
-  if (clients.length === 0) return null;
-  const counts = await subscriberCounts(clients.flatMap((c) => (c.channel ? [c.channel] : [])));
+/**
+ * The current "Worked with" design: the channels on an endless reel of VHS sleeves (§9.3).
+ * Swappable — see WorkedWith.tsx for the contract.
+ */
+export function ClientReel({ clients, counts }: { clients: Client[]; counts: Record<string, number> }) {
   const cards = clients.map((c, i) => <TapeCard key={c.name} client={c} index={i} subs={c.channel ? counts[c.channel] : undefined} />);
   const moving = clients.length >= 4;
 
   return (
-    <section id="clients" className="clients scene" data-scene="night" aria-labelledby="worked-with">
-      <MarqueeGroup>
+    <MarqueeGroup>
         <div className="wrap clients__head">
           <p className="clients__osd" aria-hidden="true">
             <Icon name="rec" size="0.8em" className="clients__rec" /> REC · CLIENT TAPES
@@ -108,7 +108,6 @@ export async function Clients({ clients }: { clients: Client[] }) {
             {cards}
           </div>
         )}
-      </MarqueeGroup>
-    </section>
+    </MarqueeGroup>
   );
 }

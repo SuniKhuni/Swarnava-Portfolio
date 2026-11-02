@@ -12,7 +12,18 @@ export interface ImageRef {
   src: string;
   width: number;
   height: number;
+  /** A tiny blurred copy (data URL), shown while the image loads. Made on upload. */
+  blur?: string;
 }
+
+/** How wide a piece sits in the 6-column work grid (desktop): 1, 2 or 3 per row. */
+export const LAYOUTS = ["full", "half", "third"] as const;
+export type Layout = (typeof LAYOUTS)[number];
+export const LAYOUT_LABELS: Record<Layout, string> = {
+  full: "Full width — 1 per row",
+  half: "Featured — 2 per row",
+  third: "Standard — 3 per row",
+};
 
 export interface WorkItem {
   slug: string;
@@ -20,12 +31,13 @@ export interface WorkItem {
   alt: string; // describes the finished piece
   client?: string;
   after: ImageRef; // the finished piece
-  before?: ImageRef; // raw frame or first draft, same aspect
+  before?: ImageRef; // raw frame or first draft, same size — used only when `slider` is on
   aspect: Aspect;
   views?: string; // as supplied, e.g. "1.2M" — never computed, never invented
   href?: string; // link to the live video or post
   selected?: boolean; // shown in the home page's Selected Works (curated in /admin)
-  featured?: boolean; // shown full-width with the before/after slider at the top of Selected Works (needs a "before")
+  slider?: boolean; // "Enable Before/After slider?" — off: a single static image, whatever else is uploaded
+  layout?: Layout; // grid width; default: full for a slider, third otherwise
 }
 
 export interface Category {
@@ -84,6 +96,12 @@ export interface Content {
   clients: Client[];
   categories: Category[];
 }
+
+/** A before/after slider only when it is switched on and has a Before. */
+export const hasSlider = (item: Pick<WorkItem, "slider" | "before">) => Boolean(item.slider && item.before);
+
+/** The piece's grid width: as set, else full for a slider and third for a single image. */
+export const layoutOf = (item: Pick<WorkItem, "slider" | "before" | "layout">): Layout => item.layout ?? (hasSlider(item) ? "full" : "third");
 
 /** The piece's real shape, from the uploaded image (falls back to the aspect label). */
 export const itemRatio = (item: Pick<WorkItem, "after" | "aspect">) =>

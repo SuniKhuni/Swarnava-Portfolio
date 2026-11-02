@@ -5,7 +5,7 @@
 @import "../components/chrome/chrome.css";
 @import "../components/hero/hero.css";
 @import "../components/bts/bts.css";
-@import "../components/clients/clients.css";
+@import "../components/worked-with/client-reel.css";
 @import "../components/work/work.css";
 @import "../components/contact/contact.css";
 
@@ -192,6 +192,7 @@
   --dur-wm-glitch: 7.5s; /* the hero name: one tracking snap, then a long clean hold */
   --dur-dock-float: 4.5s; /* the hero's round buttons bobbing */
   --dur-prop: 9s; /* the contact section's 3D props drifting */
+  --dur-shimmer: 1.4s; /* loading skeletons in the work grid */
   --dur-tv-sea: 3s; /* the sea's shimmer lines */
   --dur-name-delay: 300ms; /* name line starts after the wordmark */
   --dur-type-char: 28ms; /* name line types on */

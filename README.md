@@ -51,6 +51,20 @@ Uploads are shrunk in the browser to under 4 MB first (Vercel's request limit is
 *Alternative:* `Dockerfile` + `fly.toml` run the same site on any Docker host with a disk at `/data`
 (`CONTENT_DIR`) instead of Supabase.
 
+## The work grid (Behance-style)
+
+Every tape page, `/work` ("All designs" + a tab per tape) and the home page's Selected Works use one grid
+(`components/work/WorkGrid.tsx`): 6 columns; each piece spans 6, 3 or 2 (1, 2 or 3 per row; 2 on tablets, 1 on
+phones), masonry-packed so different shapes never leave holes, in the order set in /admin (drag ⠿ or ▲ ▼).
+Per piece in /admin → Tapes: **Enable Before/After slider?** (off = one static image; on = Before required),
+**Width in the grid**, Show in Selected Works. Cards are the artwork only — no titles, badges or counts.
+Images lazy-load over a skeleton or a blur-up copy made on upload; sliders mount only when scrolled near.
+
+## Worked with
+
+`components/worked-with/WorkedWith.tsx` is the section (data, live subscriber counts, `#clients`);
+`ClientReel.tsx` + `client-reel.css` are its current design — replace those two to drop in a new design.
+
 ## Scripts
 
 | Script | Does |
@@ -71,7 +85,7 @@ components/
   chrome/       Remote, Hud, TapeLink + TransitionOverlay, CursorChip, SceneObserver, Footer
   hero/         Hero, Intro, BrushWordmark, CrtScreen, TvPictures, Cycler, DiscoGlints, PlatePicture, useDive
   bts/          Bts, BtsDeck, Monitor, PolaroidStack (client-only), PolaroidStatic
-  clients/      Clients (VHS-sleeve reel, live YouTube counts via lib/youtube.ts)
+  worked-with/  WorkedWith (the section: data + anchor) and ClientReel (its current, swappable design)
   work/         Projects, Shelf, Cassette, CategoryBand, MarqueeRow, ThumbCard, CompareSlider, ExpandedView
   contact/      Contact, Envelope, LetterForm
   ui/ fx/       Button, OsdChip, Field, Icon · Rise, LineReveal, effect CSS
