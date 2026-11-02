@@ -53,6 +53,7 @@ export const workItemSchema = z.object({
   aspect: z.enum(ASPECTS),
   views: optional(20),
   href: optionalLink,
+  selected: z.boolean().optional(),
   featured: z.boolean().optional(),
 });
 

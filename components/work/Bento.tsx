@@ -4,7 +4,7 @@ import { useState, type CSSProperties } from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import type { Category, CategoryId, WorkItem } from "@/content/types";
-import { ratioOf } from "@/content/types";
+import { cardText, itemRatio } from "@/content/types";
 import { TapeLink } from "../chrome/TapeLink";
 import { OsdChip } from "../ui/OsdChip";
 import { Icon } from "../ui/Icon";
@@ -17,16 +17,23 @@ const CompareSlider = dynamic(() => import("./CompareSlider"), {
 type Entry = { item: WorkItem; category: Pick<Category, "id" | "label"> };
 type Filter = "all" | CategoryId;
 
-/** How many grid pieces each filter shows on the home page (the full tapes live on /work). */
-const GRID_MAX = 10;
+/** Selected Works shows up to 12 ticked pieces (the admin asks for 6–12). */
+const MAX = 12;
 
-function Tile({ entry, index }: { entry: Entry; index: number }) {
+/** One piece at its own shape (16:9, 9:16, 1:1, 4:5 or any other size), never cropped. */
+function Tile({ entry }: { entry: Entry }) {
   const { item, category } = entry;
+  const text = cardText(item, category.label);
   return (
-    <li className="bento__tile" data-shape={index % 5 === 0 ? "hero" : index % 5 < 3 ? "small" : "half"}>
-      <TapeLink href={`/work/${category.id}`} className="bento__link" aria-label={[item.title, item.client, category.label].filter(Boolean).join(", ")}>
+    <li className="bento__tile" style={{ "--r": itemRatio(item) } as CSSProperties}>
+      <TapeLink
+        href={`/work/${category.id}?t=${item.slug}`}
+        osd={category.label}
+        className="bento__link"
+        aria-label={[text.title, text.credit].filter(Boolean).join(", ")}
+      >
         <span className="bento__media">
-          <Image src={item.after.src} alt={item.alt} fill sizes="(min-width: 1024px) 66vw, 100vw" />
+          <Image src={item.after.src} alt={item.alt} fill sizes="(min-width: 1024px) 50vw, 100vw" />
         </span>
         <span className="bento__shade" aria-hidden="true" />
         <span className="bento__meta" aria-hidden="true">
@@ -34,30 +41,47 @@ function Tile({ entry, index }: { entry: Entry; index: number }) {
             <OsdChip tone="signal">{category.label}</OsdChip>
             {item.views ? <OsdChip tone="ink">{item.views} VIEWS</OsdChip> : null}
           </span>
-          <span className="bento__title">{item.title}</span>
-          {item.client ? <span className="bento__client">{item.client}</span> : null}
+          <span className="bento__title">{text.title}</span>
+          {text.credit ? <span className="bento__client">{text.credit}</span> : null}
         </span>
       </TapeLink>
     </li>
   );
 }
 
-/** Selected work: filter pills; the featured before/afters full-width on top, then a bento grid. */
+/** Interleave the tapes (one from each in turn), so no tape sits next to itself. */
+function mix(lists: Entry[][]) {
+  const longest = Math.max(0, ...lists.map((l) => l.length));
+  return Array.from({ length: longest }).flatMap((_, i) => lists.flatMap((l) => (l[i] ? [l[i]] : [])));
+}
+
+/**
+ * Selected Works. Default (ALL): only the pieces ticked "Show in Selected Works" in /admin,
+ * interleaved across tapes, up to 12. Until anything is ticked, one piece from each tape.
+ * A tape's pill shows that tape — its ticked pieces first. Ticked pieces marked for the big
+ * slider (and that have a before) form the top row. Every card opens its piece in its tape.
+ */
 export function Bento({ categories }: { categories: Category[] }) {
   const [filter, setFilter] = useState<Filter>("all");
   const live = categories.filter((c) => c.items.length > 0);
-  // Round-robin across the tapes, so ALL shows every niche near the top.
   const perTape = live.map((c) => c.items.map((item) => ({ item, category: { id: c.id, label: c.label } })));
-  const entries: Entry[] = Array.from({ length: Math.max(0, ...perTape.map((t) => t.length)) }).flatMap((_, i) => perTape.flatMap((t) => (t[i] ? [t[i]] : [])));
-  const shown = filter === "all" ? entries : entries.filter((e) => e.category.id === filter);
-  const featured = shown.filter((e) => e.item.featured && e.item.before);
-  const grid = shown.filter((e) => !featured.includes(e)).slice(0, GRID_MAX);
+  const curated = perTape.some((t) => t.some((e) => e.item.selected));
+
+  let shown: Entry[];
+  if (filter === "all") {
+    shown = curated ? mix(perTape.map((t) => t.filter((e) => e.item.selected))).slice(0, MAX) : mix(perTape.map((t) => t.slice(0, 1)));
+  } else {
+    const tape = perTape.find((t) => t[0]?.category.id === filter) ?? [];
+    shown = [...tape.filter((e) => e.item.selected), ...tape.filter((e) => !e.item.selected)].slice(0, MAX);
+  }
+  const featured = shown.filter((e) => e.item.featured && e.item.before && (e.item.selected || !curated));
+  const grid = shown.filter((e) => !featured.includes(e));
   const filters: { id: Filter; label: string }[] = [{ id: "all", label: "ALL" }, ...live.map((c) => ({ id: c.id, label: c.label }))];
 
   return (
     <div className="bento">
       <div className="wrap bento__head">
-        <p className="t-osd-lg bento__caption">SELECTED WORK</p>
+        <p className="t-osd-lg bento__caption">SELECTED WORKS</p>
         <div className="bento__filters" role="group" aria-label="Filter the work">
           {filters.map((f) => (
             <button key={f.id} type="button" className="bento__filter" aria-pressed={filter === f.id} onClick={() => setFilter(f.id)}>
@@ -69,34 +93,39 @@ export function Bento({ categories }: { categories: Category[] }) {
 
       {featured.length > 0 ? (
         <div className="wrap bento__featured">
-          {featured.map(({ item, category }) => (
-            <article key={item.slug} className="bento__wide">
-              <div className="bento__slider" style={{ "--ratio": ratioOf(item.aspect) } as CSSProperties}>
-                <CompareSlider item={item} teach={false} />
-              </div>
-              <div className="bento__wide-meta">
-                <div>
-                  <p className="bento__wide-title">{item.title}</p>
-                  <div className="bento__chips">
-                    <OsdChip tone="signal">{category.label}</OsdChip>
-                    {item.client ? <OsdChip tone="paper">{item.client}</OsdChip> : null}
-                    {item.views ? <OsdChip tone="ink">{item.views} VIEWS</OsdChip> : null}
-                  </div>
+          {featured.map(({ item, category }) => {
+            const text = cardText(item, category.label);
+            return (
+              <article key={item.slug} className="bento__wide">
+                <div className="bento__slider" style={{ "--ratio": itemRatio(item) } as CSSProperties}>
+                  <CompareSlider item={item} teach={false} />
                 </div>
-                <TapeLink href={`/work/${category.id}`} className="bento__more">
-                  OPEN THE TAPE <Icon name="arrow-up-right" size="1em" />
-                </TapeLink>
-              </div>
-            </article>
-          ))}
+                <div className="bento__wide-meta">
+                  <div>
+                    <p className="bento__wide-title">{text.title}</p>
+                    <div className="bento__chips">
+                      <OsdChip tone="signal">{category.label}</OsdChip>
+                      {item.client && text.credit ? <OsdChip tone="paper">{item.client}</OsdChip> : null}
+                      {item.views ? <OsdChip tone="ink">{item.views} VIEWS</OsdChip> : null}
+                    </div>
+                  </div>
+                  <TapeLink href={`/work/${category.id}?t=${item.slug}`} osd={category.label} className="bento__more">
+                    OPEN THE TAPE <Icon name="arrow-up-right" size="1em" />
+                  </TapeLink>
+                </div>
+              </article>
+            );
+          })}
         </div>
       ) : null}
 
-      <ul className="wrap bento__grid" aria-label="More work">
-        {grid.map((e, i) => (
-          <Tile key={e.item.slug} entry={e} index={i} />
-        ))}
-      </ul>
+      {grid.length > 0 ? (
+        <ul className="wrap bento__grid jrows" aria-label="Selected works">
+          {grid.map((e) => (
+            <Tile key={e.item.slug} entry={e} />
+          ))}
+        </ul>
+      ) : null}
     </div>
   );
 }
