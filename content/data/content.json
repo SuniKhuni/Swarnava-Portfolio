@@ -147,7 +147,8 @@
             "height": 720
           },
           "aspect": "16 / 9",
-          "featured": true
+          "featured": true,
+          "selected": true
         },
         {
           "slug": "gaming-02",
@@ -165,7 +166,8 @@
             "height": 720
           },
           "aspect": "16 / 9",
-          "featured": false
+          "featured": false,
+          "selected": false
         },
         {
           "slug": "gaming-03",
@@ -183,7 +185,8 @@
             "height": 720
           },
           "aspect": "16 / 9",
-          "featured": false
+          "featured": false,
+          "selected": false
         },
         {
           "slug": "gaming-04",
@@ -195,13 +198,9 @@
             "width": 1280,
             "height": 720
           },
-          "before": {
-            "src": "/placeholder/work/gaming-04-before-16x9.webp",
-            "width": 1280,
-            "height": 720
-          },
           "aspect": "16 / 9",
-          "featured": false
+          "featured": false,
+          "selected": true
         },
         {
           "slug": "gaming-05",
@@ -213,13 +212,9 @@
             "width": 1280,
             "height": 720
           },
-          "before": {
-            "src": "/placeholder/work/gaming-05-before-16x9.webp",
-            "width": 1280,
-            "height": 720
-          },
           "aspect": "16 / 9",
-          "featured": false
+          "featured": false,
+          "selected": false
         },
         {
           "slug": "gaming-06",
@@ -231,13 +226,9 @@
             "width": 1280,
             "height": 720
           },
-          "before": {
-            "src": "/placeholder/work/gaming-06-before-16x9.webp",
-            "width": 1280,
-            "height": 720
-          },
           "aspect": "16 / 9",
-          "featured": false
+          "featured": false,
+          "selected": false
         },
         {
           "slug": "gaming-07",
@@ -249,13 +240,9 @@
             "width": 1280,
             "height": 720
           },
-          "before": {
-            "src": "/placeholder/work/gaming-07-before-16x9.webp",
-            "width": 1280,
-            "height": 720
-          },
           "aspect": "16 / 9",
-          "featured": false
+          "featured": false,
+          "selected": false
         },
         {
           "slug": "gaming-08",
@@ -267,13 +254,9 @@
             "width": 1280,
             "height": 720
           },
-          "before": {
-            "src": "/placeholder/work/gaming-08-before-16x9.webp",
-            "width": 1280,
-            "height": 720
-          },
           "aspect": "16 / 9",
-          "featured": false
+          "featured": false,
+          "selected": false
         }
       ]
     },
@@ -304,7 +287,8 @@
             "height": 720
           },
           "aspect": "16 / 9",
-          "featured": true
+          "featured": true,
+          "selected": true
         },
         {
           "slug": "podcast-02",
@@ -322,7 +306,8 @@
             "height": 720
           },
           "aspect": "16 / 9",
-          "featured": false
+          "featured": false,
+          "selected": false
         },
         {
           "slug": "podcast-03",
@@ -340,7 +325,8 @@
             "height": 720
           },
           "aspect": "16 / 9",
-          "featured": false
+          "featured": false,
+          "selected": false
         },
         {
           "slug": "podcast-04",
@@ -352,13 +338,9 @@
             "width": 1280,
             "height": 720
           },
-          "before": {
-            "src": "/placeholder/work/podcast-04-before-16x9.webp",
-            "width": 1280,
-            "height": 720
-          },
           "aspect": "16 / 9",
-          "featured": false
+          "featured": false,
+          "selected": true
         },
         {
           "slug": "podcast-05",
@@ -370,13 +352,9 @@
             "width": 1280,
             "height": 720
           },
-          "before": {
-            "src": "/placeholder/work/podcast-05-before-16x9.webp",
-            "width": 1280,
-            "height": 720
-          },
           "aspect": "16 / 9",
-          "featured": false
+          "featured": false,
+          "selected": false
         },
         {
           "slug": "podcast-06",
@@ -388,13 +366,9 @@
             "width": 1280,
             "height": 720
           },
-          "before": {
-            "src": "/placeholder/work/podcast-06-before-16x9.webp",
-            "width": 1280,
-            "height": 720
-          },
           "aspect": "16 / 9",
-          "featured": false
+          "featured": false,
+          "selected": false
         },
         {
           "slug": "podcast-07",
@@ -406,13 +380,9 @@
             "width": 1280,
             "height": 720
           },
-          "before": {
-            "src": "/placeholder/work/podcast-07-before-16x9.webp",
-            "width": 1280,
-            "height": 720
-          },
           "aspect": "16 / 9",
-          "featured": false
+          "featured": false,
+          "selected": false
         },
         {
           "slug": "podcast-08",
@@ -424,13 +394,9 @@
             "width": 1280,
             "height": 720
           },
-          "before": {
-            "src": "/placeholder/work/podcast-08-before-16x9.webp",
-            "width": 1280,
-            "height": 720
-          },
           "aspect": "16 / 9",
-          "featured": false
+          "featured": false,
+          "selected": false
         }
       ]
     },
@@ -461,7 +427,8 @@
             "height": 720
           },
           "aspect": "16 / 9",
-          "featured": false
+          "featured": false,
+          "selected": true
         },
         {
           "slug": "crypto-02",
@@ -479,7 +446,8 @@
             "height": 720
           },
           "aspect": "16 / 9",
-          "featured": false
+          "featured": false,
+          "selected": false
         },
         {
           "slug": "crypto-03",
@@ -497,7 +465,8 @@
             "height": 720
           },
           "aspect": "16 / 9",
-          "featured": false
+          "featured": false,
+          "selected": false
         },
         {
           "slug": "crypto-04",
@@ -509,13 +478,9 @@
             "width": 1280,
             "height": 720
           },
-          "before": {
-            "src": "/placeholder/work/crypto-04-before-16x9.webp",
-            "width": 1280,
-            "height": 720
-          },
           "aspect": "16 / 9",
-          "featured": false
+          "featured": false,
+          "selected": true
         },
         {
           "slug": "crypto-05",
@@ -527,13 +492,9 @@
             "width": 1280,
             "height": 720
           },
-          "before": {
-            "src": "/placeholder/work/crypto-05-before-16x9.webp",
-            "width": 1280,
-            "height": 720
-          },
           "aspect": "16 / 9",
-          "featured": false
+          "featured": false,
+          "selected": false
         },
         {
           "slug": "crypto-06",
@@ -545,13 +506,9 @@
             "width": 1280,
             "height": 720
           },
-          "before": {
-            "src": "/placeholder/work/crypto-06-before-16x9.webp",
-            "width": 1280,
-            "height": 720
-          },
           "aspect": "16 / 9",
-          "featured": false
+          "featured": false,
+          "selected": false
         },
         {
           "slug": "crypto-07",
@@ -563,13 +520,9 @@
             "width": 1280,
             "height": 720
           },
-          "before": {
-            "src": "/placeholder/work/crypto-07-before-16x9.webp",
-            "width": 1280,
-            "height": 720
-          },
           "aspect": "16 / 9",
-          "featured": false
+          "featured": false,
+          "selected": false
         },
         {
           "slug": "crypto-08",
@@ -581,13 +534,9 @@
             "width": 1280,
             "height": 720
           },
-          "before": {
-            "src": "/placeholder/work/crypto-08-before-16x9.webp",
-            "width": 1280,
-            "height": 720
-          },
           "aspect": "16 / 9",
-          "featured": false
+          "featured": false,
+          "selected": false
         }
       ]
     },
@@ -618,7 +567,8 @@
             "height": 1920
           },
           "aspect": "9 / 16",
-          "featured": false
+          "featured": false,
+          "selected": true
         },
         {
           "slug": "social-media-02",
@@ -636,7 +586,8 @@
             "height": 1350
           },
           "aspect": "4 / 5",
-          "featured": false
+          "featured": false,
+          "selected": false
         },
         {
           "slug": "social-media-03",
@@ -654,7 +605,8 @@
             "height": 1080
           },
           "aspect": "1 / 1",
-          "featured": false
+          "featured": false,
+          "selected": false
         },
         {
           "slug": "social-media-04",
@@ -666,13 +618,9 @@
             "width": 1080,
             "height": 1920
           },
-          "before": {
-            "src": "/placeholder/work/social-media-04-before-9x16.webp",
-            "width": 1080,
-            "height": 1920
-          },
           "aspect": "9 / 16",
-          "featured": false
+          "featured": false,
+          "selected": true
         },
         {
           "slug": "social-media-05",
@@ -684,13 +632,9 @@
             "width": 1080,
             "height": 1350
           },
-          "before": {
-            "src": "/placeholder/work/social-media-05-before-4x5.webp",
-            "width": 1080,
-            "height": 1350
-          },
           "aspect": "4 / 5",
-          "featured": false
+          "featured": false,
+          "selected": false
         },
         {
           "slug": "social-media-06",
@@ -702,13 +646,9 @@
             "width": 1080,
             "height": 1080
           },
-          "before": {
-            "src": "/placeholder/work/social-media-06-before-1x1.webp",
-            "width": 1080,
-            "height": 1080
-          },
           "aspect": "1 / 1",
-          "featured": false
+          "featured": false,
+          "selected": false
         },
         {
           "slug": "social-media-07",
@@ -720,13 +660,9 @@
             "width": 1080,
             "height": 1350
           },
-          "before": {
-            "src": "/placeholder/work/social-media-07-before-4x5.webp",
-            "width": 1080,
-            "height": 1350
-          },
           "aspect": "4 / 5",
-          "featured": false
+          "featured": false,
+          "selected": false
         },
         {
           "slug": "social-media-08",
@@ -739,7 +675,8 @@
             "height": 1920
           },
           "aspect": "9 / 16",
-          "featured": false
+          "featured": false,
+          "selected": false
         }
       ]
     },
@@ -770,7 +707,8 @@
             "height": 720
           },
           "aspect": "16 / 9",
-          "featured": false
+          "featured": false,
+          "selected": true
         },
         {
           "slug": "web3-02",
@@ -788,7 +726,8 @@
             "height": 720
           },
           "aspect": "16 / 9",
-          "featured": false
+          "featured": false,
+          "selected": false
         },
         {
           "slug": "web3-03",
@@ -806,7 +745,8 @@
             "height": 720
           },
           "aspect": "16 / 9",
-          "featured": false
+          "featured": false,
+          "selected": false
         },
         {
           "slug": "web3-04",
@@ -818,13 +758,9 @@
             "width": 1280,
             "height": 720
           },
-          "before": {
-            "src": "/placeholder/work/web3-04-before-16x9.webp",
-            "width": 1280,
-            "height": 720
-          },
           "aspect": "16 / 9",
-          "featured": false
+          "featured": false,
+          "selected": false
         }
       ]
     },
@@ -855,7 +791,8 @@
             "height": 720
           },
           "aspect": "16 / 9",
-          "featured": false
+          "featured": false,
+          "selected": true
         },
         {
           "slug": "developer-02",
@@ -873,7 +810,8 @@
             "height": 720
           },
           "aspect": "16 / 9",
-          "featured": false
+          "featured": false,
+          "selected": false
         },
         {
           "slug": "developer-03",
@@ -891,7 +829,8 @@
             "height": 720
           },
           "aspect": "16 / 9",
-          "featured": false
+          "featured": false,
+          "selected": false
         },
         {
           "slug": "developer-04",
@@ -903,13 +842,9 @@
             "width": 1280,
             "height": 720
           },
-          "before": {
-            "src": "/placeholder/work/developer-04-before-16x9.webp",
-            "width": 1280,
-            "height": 720
-          },
           "aspect": "16 / 9",
-          "featured": false
+          "featured": false,
+          "selected": false
         }
       ]
     }

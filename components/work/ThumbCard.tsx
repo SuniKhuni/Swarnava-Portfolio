@@ -3,7 +3,7 @@
 import { useState, type CSSProperties } from "react";
 import Image from "next/image";
 import type { WorkItem } from "@/content/types";
-import { ratioOf } from "@/content/types";
+import { cardText, displayTitle, itemAspect, itemRatio } from "@/content/types";
 import { TapeLink } from "../chrome/TapeLink";
 import { OsdChip } from "../ui/OsdChip";
 
@@ -15,17 +15,20 @@ type ThumbCardProps = {
   /** Expanded view: a button that loads the item into the slider. */
   onSelect?: () => void;
   selected?: boolean;
+  /** The tape's name: tidies the title ("Gaming 01" → "Client – Gaming"). */
+  label?: string;
 };
 
 // Rows are at most 216 px tall; request at most that height × the item's own ratio.
-const sizesFor = (item: WorkItem) => `${Math.ceil(216 * ratioOf(item.aspect))}px`;
+const sizesFor = (item: WorkItem) => `${Math.ceil(216 * itemRatio(item))}px`;
 
 /** One piece of work in a row. Height from the row, width from the item's aspect (§7.10). */
-export function ThumbCard({ item, href, osd, onSelect, selected = false }: ThumbCardProps) {
+export function ThumbCard({ item, href, osd, onSelect, selected = false, label }: ThumbCardProps) {
   const [failed, setFailed] = useState(false);
   const [loaded, setLoaded] = useState(false);
-  const name = [item.title, item.client].filter(Boolean).join(", ");
-  const style = { aspectRatio: item.aspect } as CSSProperties;
+  const text = label ? cardText(item, label) : { title: displayTitle(item.title), credit: item.client ?? null };
+  const name = [text.title, text.credit].filter(Boolean).join(", ");
+  const style = { aspectRatio: itemAspect(item) } as CSSProperties;
 
   const body = (
     <>
@@ -55,7 +58,7 @@ export function ThumbCard({ item, href, osd, onSelect, selected = false }: Thumb
         </OsdChip>
       ) : null}
       <span className="thumb__caption" aria-hidden="true">
-        {item.title}
+        {text.title}
       </span>
     </>
   );

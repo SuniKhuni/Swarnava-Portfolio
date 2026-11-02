@@ -313,6 +313,16 @@ function newItem(cat: Category): WorkItem {
   return { slug: `${cat.id}-${pad(n)}`, title: "", alt: "", aspect: cat.items[0]?.aspect ?? "16 / 9", after: undefined as unknown as ImageRef };
 }
 
+/** The preset aspect closest to an uploaded image (used as a label; the real size wins). */
+function nearestAspect(img: ImageRef) {
+  const r = img.width / img.height;
+  return ASPECTS.reduce((best, a) => {
+    const [w, h] = a.split("/").map((n) => Number(n.trim()));
+    const [bw, bh] = best.split("/").map((n) => Number(n.trim()));
+    return Math.abs(Math.log(r / (w / h))) < Math.abs(Math.log(r / (bw / bh))) ? a : best;
+  });
+}
+
 function TapesTab({ doc, edit }: { doc: Content; edit: Edit }) {
   const [sel, setSel] = useState(0);
   const ci = Math.min(sel, doc.categories.length - 1);
@@ -324,6 +334,12 @@ function TapesTab({ doc, edit }: { doc: Content; edit: Edit }) {
     <div className="admin-tapes">
       <nav className="admin-card admin-tapes__list" aria-label="Tapes">
         <h2 className="admin-h">TAPES</h2>
+        <p className="admin-count" data-ok={(() => {
+          const n = doc.categories.reduce((k, c) => k + c.items.filter((it) => it.selected).length, 0);
+          return n >= 6 && n <= 12 ? "yes" : "no";
+        })()}>
+          SELECTED WORKS: {pad(doc.categories.reduce((k, c) => k + c.items.filter((it) => it.selected).length, 0))} / 6–12
+        </p>
         {doc.categories.map((c, i) => (
           <button key={i} type="button" className="admin-tape" aria-current={i === ci || undefined} onClick={() => setSel(i)}>
             <span>{c.label || "(new tape)"}</span>
@@ -386,29 +402,59 @@ function TapesTab({ doc, edit }: { doc: Content; edit: Edit }) {
                   <span className="admin-piece__empty">NO IMAGE</span>
                 )}
                 <span className="admin-piece__title">{it.title || "(untitled)"}</span>
-                {it.featured ? <span className="admin-badge">FEATURED</span> : null}
+                {it.selected ? <span className="admin-badge">SELECTED WORKS</span> : null}
+                {it.featured && it.selected && it.before ? <span className="admin-badge">BIG SLIDER</span> : null}
                 {it.before ? <span className="admin-badge admin-badge--ghost">BEFORE / AFTER</span> : null}
               </summary>
               <div className="admin-item">
                 <div className="admin-stack admin-stack--tight">
-                  <ImageField label="After — the finished piece" kind="work" value={it.after} onChange={(v) => upItem(i, { after: v as ImageRef })} />
-                  <ImageField label="Before — raw frame (same aspect)" kind="work" optional value={it.before} onChange={(v) => upItem(i, { before: v })} />
+                  <ImageField label="After — the finished piece" kind="work" value={it.after} onChange={(v) => upItem(i, { after: v as ImageRef, ...(v ? { aspect: nearestAspect(v) } : {}) })} />
+                  <ImageField
+                    label="Before — optional, same size as the After (adds the slider)"
+                    kind="work"
+                    optional
+                    value={it.before}
+                    onChange={(v) => upItem(i, v ? { before: v } : { before: undefined, featured: false })}
+                  />
+                  {it.before && it.after && Math.abs(Math.log(it.before.width / it.before.height / (it.after.width / it.after.height))) > 0.02 ? (
+                    <p className="admin-error">
+                      This Before ({it.before.width} × {it.before.height}) is a different shape from the After ({it.after.width} × {it.after.height}). It
+                      will show whole but with bars in the slider — use the same size for a clean comparison.
+                    </p>
+                  ) : null}
                 </div>
                 <div className="admin-item__fields">
-                  <Text label="Title" value={it.title} max={60} onChange={(v) => upItem(i, { title: v })} />
+                  <Text
+                    label="Title"
+                    value={it.title}
+                    max={60}
+                    hint="No running numbers needed — a title that is just the tape's name (“Gaming 01”) shows as “Client – Gaming”."
+                    onChange={(v) => upItem(i, { title: v })}
+                  />
                   <Text label="Alt text — describe the finished piece" value={it.alt} max={200} onChange={(v) => upItem(i, { alt: v })} />
                   <div className="admin-row">
                     <Text label="Client" value={it.client} max={60} onChange={(v) => upItem(i, { client: v })} />
-                    <Select label="Aspect" value={it.aspect} options={ASPECTS} onChange={(v) => upItem(i, { aspect: v })} />
                     <Text label="Views (as supplied)" value={it.views} max={20} placeholder="1.2M" onChange={(v) => upItem(i, { views: v })} />
                   </div>
                   <div className="admin-row">
                     <Text label="Link to the video / post" value={it.href} placeholder="https://…" onChange={(v) => upItem(i, { href: v })} />
                     <Text label="Slug" value={it.slug} onChange={(v) => upItem(i, { slug: v.toLowerCase().replace(/[^a-z0-9-]/g, "-") })} />
                   </div>
+                  <small className="admin-hint">
+                    Shape: automatic from the image{it.after?.width ? ` (${it.after.width} × ${it.after.height})` : ""} — 16:9, 9:16, square or any size shows whole.
+                  </small>
                   <label className="admin-check">
-                    <input type="checkbox" checked={Boolean(it.featured)} onChange={(e) => upItem(i, { featured: e.target.checked })} />
-                    Feature full-width at the top of the home grid (needs a Before image)
+                    <input type="checkbox" checked={Boolean(it.selected)} onChange={(e) => upItem(i, { selected: e.target.checked, ...(e.target.checked ? {} : { featured: false }) })} />
+                    Show in Selected Works (home page — tick 6 to 12 across your tapes)
+                  </label>
+                  <label className="admin-check" data-disabled={!it.before || undefined}>
+                    <input
+                      type="checkbox"
+                      disabled={!it.before}
+                      checked={Boolean(it.featured && it.selected && it.before)}
+                      onChange={(e) => upItem(i, { featured: e.target.checked, ...(e.target.checked ? { selected: true } : {}) })}
+                    />
+                    Big before/after slider at the top of Selected Works {it.before ? "" : "(add a Before image first)"}
                   </label>
                 </div>
               </div>

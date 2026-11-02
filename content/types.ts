@@ -24,7 +24,8 @@ export interface WorkItem {
   aspect: Aspect;
   views?: string; // as supplied, e.g. "1.2M" — never computed, never invented
   href?: string; // link to the live video or post
-  featured?: boolean; // shown full-width at the top of the home bento (needs a "before" for the slider)
+  selected?: boolean; // shown in the home page's Selected Works (curated in /admin)
+  featured?: boolean; // shown full-width with the before/after slider at the top of Selected Works (needs a "before")
 }
 
 export interface Category {
@@ -83,6 +84,40 @@ export interface Content {
   clients: Client[];
   categories: Category[];
 }
+
+/** The piece's real shape, from the uploaded image (falls back to the aspect label). */
+export const itemRatio = (item: Pick<WorkItem, "after" | "aspect">) =>
+  item.after?.width && item.after?.height ? item.after.width / item.after.height : ratioOf(item.aspect);
+
+/** For CSS aspect-ratio: "1280 / 720". */
+export const itemAspect = (item: Pick<WorkItem, "after" | "aspect">) =>
+  item.after?.width && item.after?.height ? `${item.after.width} / ${item.after.height}` : item.aspect;
+
+/** Running numbers off card titles: "Gaming 01" → "Gaming", "[GAMING 03 — TITLE]" → "[GAMING — TITLE]".
+ *  Zero-padded numbers (01, 02…) anywhere, and any number straight after the tape's own name
+ *  ("Gaming 1") — real numbers in a title ("GTA 5", "Top 10") stay. */
+export const displayTitle = (title: string, label?: string) => {
+  let t = title.replace(/\s+#?0\d{1,2}(?=\s|$|\]|—|–|-)/g, "").replace(/\s{2,}/g, " ").trim();
+  if (label) {
+    const name = label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    t = t.replace(new RegExp(`^(${name})\\s*#?\\d{1,3}$`, "i"), "$1");
+  }
+  return t;
+};
+
+/** The card's credit line: "Client Name – Gaming", or just the tape's name. */
+export const creditLine = (client: string | undefined, label: string) => {
+  const tape = label.charAt(0) + label.slice(1).toLowerCase();
+  return client ? `${client} – ${tape}` : tape;
+};
+
+/** What a card says. When the title is only the tape's name ("Gaming 01" → "Gaming"), the credit
+ *  takes its place — "Client Name – Gaming" — instead of saying "Gaming" twice. */
+export const cardText = (item: Pick<WorkItem, "title" | "client">, label: string) => {
+  const title = displayTitle(item.title, label);
+  const credit = creditLine(item.client, label);
+  return title.toLowerCase() === label.toLowerCase() ? { title: credit, credit: null } : { title, credit };
+};
 
 /** Numeric width / height for an aspect string. */
 export const ratioOf = (a: Aspect) => {

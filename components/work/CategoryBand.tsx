@@ -16,7 +16,7 @@ export function CategoryBand({ category }: { category: Category }) {
   const rowB = items.filter((_, i) => i % 2 === 1);
   const single = items.length <= 4;
   const thumbs = (list: typeof items) =>
-    list.map((item) => <ThumbCard key={item.slug} item={item} href={`/work/${category.id}?t=${item.slug}`} osd={category.label} />);
+    list.map((item) => <ThumbCard key={item.slug} item={item} label={category.label} href={`/work/${category.id}?t=${item.slug}`} osd={category.label} />);
 
   return (
     <section id={category.id} className="band" aria-labelledby={`${category.id}-title`}>

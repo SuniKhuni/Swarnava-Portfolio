@@ -471,3 +471,26 @@ body:has(.admin) :is(.remote-wrap, .hud, .cursor-chip, .skip-link, .transition) 
   padding-left: var(--space-6);
   list-style: disc;
 }
+
+.admin-hint {
+  color: var(--gray-400);
+}
+.admin-check[data-disabled] {
+  opacity: 0.5;
+}
+.admin-count {
+  margin-bottom: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-xs);
+  font-family: var(--font-osd);
+  font-size: var(--text-osd);
+  letter-spacing: 0.06em;
+}
+.admin-count[data-ok="yes"] {
+  background: color-mix(in srgb, var(--orange-500) 20%, transparent);
+  color: var(--orange-500);
+}
+.admin-count[data-ok="no"] {
+  box-shadow: inset 0 0 0 1px var(--gray-600);
+  color: var(--gray-400);
+}

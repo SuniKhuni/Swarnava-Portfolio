@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { findCategory, getContent } from "@/content/store";
 import { Button } from "@/components/ui/Button";
 import { ExpandedView } from "@/components/work/ExpandedView";
+import { OtherTapes } from "@/components/work/OtherTapes";
 import { Contact } from "@/components/contact/Contact";
 import { Footer } from "@/components/chrome/Footer";
 
@@ -37,7 +38,6 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   const prev = categories[(i - 1 + categories.length) % categories.length];
   const next = categories[(i + 1) % categories.length];
   const slug = Array.isArray(t) ? t[0] : t;
-  const initial = Math.max(0, c.items.findIndex((it) => it.slug === slug)); // unknown slug → first item
 
   return (
     <>
@@ -56,11 +56,12 @@ export default async function CategoryPage({ params, searchParams }: Props) {
             </div>
           </header>
           {c.items.length > 0 ? (
-            <ExpandedView key={c.id} items={c.items} initial={initial} />
+            <ExpandedView key={c.id} items={c.items} label={c.label} initialSlug={slug} />
           ) : (
             <p className="wrap t-osd-lg expanded__empty">NO TAPE — COMING SOON</p>
           )}
         </section>
+        <OtherTapes categories={categories} current={c.id} />
         <Contact />
       </main>
       <Footer />

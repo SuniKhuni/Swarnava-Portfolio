@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import Image from "next/image";
 import { animate, useInView, useMotionValue, useMotionValueEvent, type AnimationPlaybackControls } from "motion/react";
 import type { WorkItem } from "@/content/types";
-import { ratioOf } from "@/content/types";
+import { displayTitle, itemAspect, itemRatio } from "@/content/types";
 import { spring, timing } from "@/lib/motion";
 import { useReducedMotionSafe } from "@/lib/hooks";
 import { Icon } from "../ui/Icon";
@@ -29,10 +29,10 @@ function Pair({ layer, priority, attempt, onReady, onError }: { layer: Layer; pr
         <Image
           key={`b${attempt}`}
           src={item.before.src}
-          alt={`Before: ${item.title}`}
+          alt={`Before: ${displayTitle(item.title)}`}
           fill
           sizes={SIZES}
-          className="compare__img"
+          className="compare__img compare__img--before"
           draggable={false}
           loading={priority ? "eager" : undefined}
           onLoad={loaded}
@@ -43,7 +43,7 @@ function Pair({ layer, priority, attempt, onReady, onError }: { layer: Layer; pr
         <Image
           key={`a${attempt}`}
           src={item.after.src}
-          alt={`After: ${item.title}`}
+          alt={`After: ${displayTitle(item.title)}`}
           fill
           sizes={SIZES}
           className="compare__img"
@@ -127,8 +127,8 @@ export default function CompareSlider({ item, teach = true, priority = false }: 
   };
 
   const frameStyle = {
-    aspectRatio: top.item.aspect,
-    "--ratio": ratioOf(top.item.aspect),
+    aspectRatio: itemAspect(top.item),
+    "--ratio": itemRatio(top.item),
   } as CSSProperties;
 
   return (
@@ -214,7 +214,7 @@ export default function CompareSlider({ item, teach = true, priority = false }: 
             step={2}
             defaultValue={50}
             disabled={!ready}
-            aria-label={`Before and after: ${top.item.title}`}
+            aria-label={`Before and after: ${displayTitle(top.item.title)}`}
             aria-valuetext="50% before, 50% after"
             onKeyDown={(e) => {
               stopSweep();
