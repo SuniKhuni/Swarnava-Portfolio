@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
-import { ASPECTS, STRIPES, type Category, type Client, type Content, type ImageRef, type WorkItem } from "@/content/types";
+import { ASPECTS, LAYOUTS, LAYOUT_LABELS, STRIPES, hasSlider, layoutOf, type Category, type Client, type Content, type ImageRef, type WorkItem } from "@/content/types";
 import { logout, saveContent, uploadImage } from "@/app/admin/actions";
 import "./admin.css";
 
@@ -10,6 +10,12 @@ type Edit = (fn: (d: Content) => void) => void;
 type Issue = { path: string; message: string };
 
 const pad = (n: number) => String(n).padStart(2, "0");
+
+/** Drag-and-drop: take the item at `from` and put it at `to`. */
+function moveTo<T>(list: T[], from: number, to: number) {
+  const [x] = list.splice(from, 1);
+  list.splice(to, 0, x);
+}
 
 function moveIn<T>(list: T[], i: number, d: -1 | 1) {
   const j = i + d;
@@ -325,6 +331,10 @@ function nearestAspect(img: ImageRef) {
 
 function TapesTab({ doc, edit }: { doc: Content; edit: Edit }) {
   const [sel, setSel] = useState(0);
+  // Drag to reorder: the dragged piece lives in a ref (read during the drag), `over` drives the marker.
+  const dragFrom = useRef<number | null>(null);
+  const [drag, setDrag] = useState<number | null>(null);
+  const [over, setOver] = useState<number | null>(null);
   const ci = Math.min(sel, doc.categories.length - 1);
   const cat = doc.categories[ci];
   const upCat = (patch: Partial<Category>) => edit((d) => void Object.assign(d.categories[ci], patch));
@@ -392,9 +402,67 @@ function TapesTab({ doc, edit }: { doc: Content; edit: Edit }) {
             </div>
           </section>
 
+          {cat.items.length > 0 ? (
+            <section className="admin-card">
+              <h3 className="admin-sub">HOW THIS TAPE READS ON THE SITE</h3>
+              <small className="admin-hint">
+                The grid is laid out in this order, row by row: full width = 1 per row, featured = 2, standard = 3 (2 per row on tablets, 1 on phones).
+                Orange = before/after slider. Drag pieces below (⠿) or use ▲ ▼ to reorder.
+              </small>
+              <div className="admin-rhythm" aria-hidden="true">
+                {cat.items.map((it, i) => (
+                  <span key={i} data-span={layoutOf(it)} data-slider={hasSlider(it) || undefined}>
+                    {pad(i + 1)}
+                    {hasSlider(it) ? " ◀▶" : ""}
+                  </span>
+                ))}
+              </div>
+            </section>
+          ) : null}
+
           {cat.items.map((it, i) => (
-            <details key={`${ci}-${i}`} className="admin-card admin-piece" open={!it.after || undefined}>
+            <details
+              key={`${ci}-${i}`}
+              className="admin-card admin-piece"
+              open={!it.after || undefined}
+              data-index={i}
+              data-dragging={drag === i || undefined}
+              data-drop={over === i && drag !== null && drag !== i ? (drag < i ? "after" : "before") : undefined}
+            >
               <summary>
+                <span
+                  className="admin-drag"
+                  title="Drag to reorder"
+                  aria-hidden="true"
+                  onClick={(e) => e.preventDefault() /* don't open / close the piece */}
+                  onPointerDown={(e) => {
+                    e.preventDefault();
+                    e.currentTarget.setPointerCapture(e.pointerId);
+                    dragFrom.current = i;
+                    setDrag(i);
+                  }}
+                  onPointerMove={(e) => {
+                    if (dragFrom.current === null) return;
+                    const card = document.elementFromPoint(e.clientX, e.clientY)?.closest<HTMLElement>(".admin-piece[data-index]");
+                    const to = card ? Number(card.dataset.index) : null;
+                    if (to !== over) setOver(to);
+                  }}
+                  onPointerUp={() => {
+                    const from = dragFrom.current;
+                    if (from !== null && over !== null && from !== over) edit((d) => moveTo(d.categories[ci].items, from, over));
+                    dragFrom.current = null;
+                    setDrag(null);
+                    setOver(null);
+                  }}
+                  onPointerCancel={() => {
+                    dragFrom.current = null;
+                    setDrag(null);
+                    setOver(null);
+                  }}
+                >
+                  ⠿
+                </span>
+                <span className="admin-piece__pos">{pad(i + 1)}</span>
                 {it.after ? (
                   // eslint-disable-next-line @next/next/no-img-element -- admin preview
                   <img src={it.after.src} alt="" />
@@ -402,59 +470,82 @@ function TapesTab({ doc, edit }: { doc: Content; edit: Edit }) {
                   <span className="admin-piece__empty">NO IMAGE</span>
                 )}
                 <span className="admin-piece__title">{it.title || "(untitled)"}</span>
+                <span className="admin-badge admin-badge--ghost">{LAYOUT_LABELS[layoutOf(it)].split(" — ")[0].toUpperCase()}</span>
+                {hasSlider(it) ? <span className="admin-badge">BEFORE / AFTER SLIDER</span> : null}
                 {it.selected ? <span className="admin-badge">SELECTED WORKS</span> : null}
-                {it.featured && it.selected && it.before ? <span className="admin-badge">BIG SLIDER</span> : null}
-                {it.before ? <span className="admin-badge admin-badge--ghost">BEFORE / AFTER</span> : null}
               </summary>
               <div className="admin-item">
                 <div className="admin-stack admin-stack--tight">
-                  <ImageField label="After — the finished piece" kind="work" value={it.after} onChange={(v) => upItem(i, { after: v as ImageRef, ...(v ? { aspect: nearestAspect(v) } : {}) })} />
+                  <label className="admin-check admin-check--big">
+                    <input
+                      type="checkbox"
+                      checked={Boolean(it.slider)}
+                      onChange={(e) =>
+                        upItem(i, e.target.checked ? { slider: true, layout: it.layout && it.layout !== "third" ? it.layout : "full" } : { slider: false })
+                      }
+                    />
+                    Enable Before/After slider?
+                  </label>
+                  <small className="admin-hint">
+                    {it.slider
+                      ? "On: this piece is an interactive before/after slider — upload both images."
+                      : "Off: this piece shows as one clean, static image."}
+                  </small>
                   <ImageField
-                    label="Before — optional, same size as the After (adds the slider)"
+                    label={it.slider ? "After — the finished piece" : "Image — the finished piece"}
                     kind="work"
-                    optional
-                    value={it.before}
-                    onChange={(v) => upItem(i, v ? { before: v } : { before: undefined, featured: false })}
+                    value={it.after}
+                    onChange={(v) => upItem(i, { after: v as ImageRef, ...(v ? { aspect: nearestAspect(v) } : {}) })}
                   />
-                  {it.before && it.after && Math.abs(Math.log(it.before.width / it.before.height / (it.after.width / it.after.height))) > 0.02 ? (
-                    <p className="admin-error">
-                      This Before ({it.before.width} × {it.before.height}) is a different shape from the After ({it.after.width} × {it.after.height}). It
-                      will show whole but with bars in the slider — use the same size for a clean comparison.
-                    </p>
+                  {it.slider ? (
+                    <>
+                      <ImageField label="Before — required for the slider, same size as the After" kind="work" optional value={it.before} onChange={(v) => upItem(i, { before: v })} />
+                      {!it.before ? <p className="admin-error">Upload the Before image (or switch the slider off).</p> : null}
+                      {it.before && it.after && Math.abs(Math.log(it.before.width / it.before.height / (it.after.width / it.after.height))) > 0.02 ? (
+                        <p className="admin-error">
+                          This Before ({it.before.width} × {it.before.height}) is a different shape from the After ({it.after.width} × {it.after.height}). It will
+                          show whole but with bars in the slider — use the same size for a clean comparison.
+                        </p>
+                      ) : null}
+                    </>
                   ) : null}
                 </div>
                 <div className="admin-item__fields">
+                  <fieldset className="admin-layout">
+                    <legend>Width in the grid</legend>
+                    {LAYOUTS.map((l) => (
+                      <label key={l} className="admin-layout__opt" data-on={layoutOf(it) === l || undefined}>
+                        <input type="radio" name={`layout-${ci}-${i}`} checked={layoutOf(it) === l} onChange={() => upItem(i, { layout: l })} />
+                        <span className="admin-layout__icon" data-span={l} aria-hidden="true">
+                          <i />
+                          <i />
+                          <i />
+                        </span>
+                        {LAYOUT_LABELS[l]}
+                      </label>
+                    ))}
+                  </fieldset>
+                  <small className="admin-hint">
+                    Shape: automatic from the image{it.after?.width ? ` (${it.after.width} × ${it.after.height})` : ""} — any size shows whole, nothing is cropped.
+                  </small>
                   <Text
-                    label="Title"
+                    label="Title — for search engines and screen readers (not shown on the cards)"
                     value={it.title}
                     max={60}
-                    hint="No running numbers needed — a title that is just the tape's name (“Gaming 01”) shows as “Client – Gaming”."
                     onChange={(v) => upItem(i, { title: v })}
                   />
                   <Text label="Alt text — describe the finished piece" value={it.alt} max={200} onChange={(v) => upItem(i, { alt: v })} />
                   <div className="admin-row">
-                    <Text label="Client" value={it.client} max={60} onChange={(v) => upItem(i, { client: v })} />
-                    <Text label="Views (as supplied)" value={it.views} max={20} placeholder="1.2M" onChange={(v) => upItem(i, { views: v })} />
+                    <Text label="Client (kept, not shown)" value={it.client} max={60} onChange={(v) => upItem(i, { client: v })} />
+                    <Text label="Views (kept, not shown)" value={it.views} max={20} placeholder="1.2M" onChange={(v) => upItem(i, { views: v })} />
                   </div>
                   <div className="admin-row">
-                    <Text label="Link to the video / post" value={it.href} placeholder="https://…" onChange={(v) => upItem(i, { href: v })} />
+                    <Text label="Link — adds WATCH to the full-size view" value={it.href} placeholder="https://…" onChange={(v) => upItem(i, { href: v })} />
                     <Text label="Slug" value={it.slug} onChange={(v) => upItem(i, { slug: v.toLowerCase().replace(/[^a-z0-9-]/g, "-") })} />
                   </div>
-                  <small className="admin-hint">
-                    Shape: automatic from the image{it.after?.width ? ` (${it.after.width} × ${it.after.height})` : ""} — 16:9, 9:16, square or any size shows whole.
-                  </small>
                   <label className="admin-check">
-                    <input type="checkbox" checked={Boolean(it.selected)} onChange={(e) => upItem(i, { selected: e.target.checked, ...(e.target.checked ? {} : { featured: false }) })} />
+                    <input type="checkbox" checked={Boolean(it.selected)} onChange={(e) => upItem(i, { selected: e.target.checked })} />
                     Show in Selected Works (home page — tick 6 to 12 across your tapes)
-                  </label>
-                  <label className="admin-check" data-disabled={!it.before || undefined}>
-                    <input
-                      type="checkbox"
-                      disabled={!it.before}
-                      checked={Boolean(it.featured && it.selected && it.before)}
-                      onChange={(e) => upItem(i, { featured: e.target.checked, ...(e.target.checked ? { selected: true } : {}) })}
-                    />
-                    Big before/after slider at the top of Selected Works {it.before ? "" : "(add a Before image first)"}
                   </label>
                 </div>
               </div>

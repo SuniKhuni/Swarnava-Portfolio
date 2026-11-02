@@ -616,3 +616,24 @@ html.js .line-reveal[data-in="false"] .bts__pillars > li {
     animation: none;
   }
 }
+
+/* ── The section break: BTS draws in from the sides as it ends, leaving black margins that stop
+   where the next section (Worked with) starts. Scroll-driven; without support BTS simply stays full-bleed. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .bts {
+      animation: bts-frame linear both;
+      animation-timeline: view();
+      animation-range: exit 0% exit 45%;
+    }
+  }
+}
+@keyframes bts-frame {
+  from {
+    clip-path: inset(0 0 0 0 round 0 0 0 0);
+  }
+  to {
+    clip-path: inset(0 var(--gutter) 0 var(--gutter) round 0 0 var(--radius-lg) var(--radius-lg));
+  }
+}
+

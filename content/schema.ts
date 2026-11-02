@@ -1,9 +1,10 @@
 import { z } from "zod";
-import type { Aspect, Content, Stripe } from "./types";
+import type { Aspect, Content, Layout, Stripe } from "./types";
 
 // Repeated here (type-checked against types.ts) so scripts can load this file with plain Node.
 const ASPECTS = ["16 / 9", "1 / 1", "4 / 5", "9 / 16"] as const satisfies readonly Aspect[];
 const STRIPES = ["orange", "mustard", "blue", "pink"] as const satisfies readonly Stripe[];
+const LAYOUTS = ["full", "half", "third"] as const satisfies readonly Layout[];
 
 // Validates content/data/content.json on every admin save (and in check:content).
 // Links only ever go to http(s), mailto, an on-page anchor or a site path — never javascript:.
@@ -34,6 +35,11 @@ const image = z.object(
     .regex(/^\/(media|placeholder|hero|bts|clients|work)\/[\w./-]+$/, "Upload an image"),
   width: z.number().int().positive().max(10000),
   height: z.number().int().positive().max(10000),
+  blur: z
+    .string()
+    .max(4000)
+    .regex(/^data:image\/(webp|png|jpeg);base64,[A-Za-z0-9+/=]+$/)
+    .optional(),
   },
   { error: "Upload an image" },
 );
@@ -54,8 +60,12 @@ export const workItemSchema = z.object({
   views: optional(20),
   href: optionalLink,
   selected: z.boolean().optional(),
-  featured: z.boolean().optional(),
-});
+  slider: z.boolean().optional(),
+  layout: z.enum(LAYOUTS).optional(),
+})
+  // A slider needs its Before; without the slider a Before is not kept.
+  .refine((it) => !it.slider || it.before, { message: "Upload a Before image, or switch the slider off", path: ["before"] })
+  .transform((it) => (it.slider ? it : { ...it, before: undefined }));
 
 export const categorySchema = z.object({
   id: slug,

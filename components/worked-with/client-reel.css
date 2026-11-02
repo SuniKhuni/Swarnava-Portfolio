@@ -1,4 +1,4 @@
-/* ── Worked with (§9.3) ─────────────────────────────────────────
+/* ── Worked with — the current design (ClientReel.tsx; swappable, see WorkedWith.tsx) (§9.3) ─────────────────────────────────────────
    Night scene, raw: halftone portraits in torn orange frames, on VHS sleeves. */
 .clients {
   position: relative;
@@ -229,26 +229,6 @@
 .tape-card__link:focus-visible {
   outline: 2px solid var(--orange-500);
   outline-offset: 2px;
-}
-
-/* ── The section break: BTS draws in from the sides as it ends, leaving black margins that stop
-   where this section starts. Scroll-driven; without support BTS simply stays full-bleed. */
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .bts {
-      animation: bts-frame linear both;
-      animation-timeline: view();
-      animation-range: exit 0% exit 45%;
-    }
-  }
-}
-@keyframes bts-frame {
-  from {
-    clip-path: inset(0 0 0 0 round 0 0 0 0);
-  }
-  to {
-    clip-path: inset(0 var(--gutter) 0 var(--gutter) round 0 0 var(--radius-lg) var(--radius-lg));
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -32,117 +32,6 @@
   }
 }
 
-/* ── ThumbCard (§7.10) ──────────────────────────────────────── */
-.band__row {
-  --row-h: clamp(132px, 15vw, 216px);
-}
-.band__row .marquee__copy {
-  gap: 16px;
-  padding-right: 16px; /* the gap between copies */
-  padding-left: var(--gutter);
-}
-.band__row .marquee__copy + .marquee__copy {
-  padding-left: 0;
-}
-.thumb {
-  position: relative;
-  display: block;
-  flex: none;
-  height: var(--row-h, 216px);
-  padding: 0;
-  overflow: visible;
-  border: 0;
-  border-radius: var(--radius-sm);
-  background: none;
-  color: var(--white);
-  text-align: left;
-  -webkit-user-drag: none;
-  transition:
-    transform var(--dur-base) var(--ease-out),
-    box-shadow var(--dur-base) var(--ease-out);
-}
-.thumb__media {
-  position: absolute;
-  inset: 0;
-  overflow: clip;
-  border-radius: inherit;
-  background: var(--surface);
-  box-shadow: inset 0 0 0 1px var(--line);
-}
-.thumb__media img {
-  object-fit: cover;
-  opacity: 0;
-  transition: opacity var(--dur-base) var(--ease-out);
-}
-.thumb__media[data-loaded] img {
-  opacity: 1;
-}
-html:not(.js) .thumb__media img {
-  opacity: 1;
-}
-.thumb__fail {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  color: var(--fg-muted);
-}
-.thumb__caption {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: var(--space-2) var(--space-3);
-  overflow: hidden;
-  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
-  background: color-mix(in srgb, var(--black) 70%, transparent);
-  color: var(--white);
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 1.3;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  opacity: 0;
-  transform: translateY(8px);
-  transition:
-    opacity var(--dur-base) var(--ease-out),
-    transform var(--dur-base) var(--ease-out);
-}
-.thumb__views {
-  position: absolute;
-  top: var(--space-2);
-  right: var(--space-2);
-  opacity: 0;
-  transition: opacity var(--dur-base) var(--ease-out);
-}
-.thumb__now {
-  position: absolute;
-  top: var(--space-2);
-  left: var(--space-2);
-}
-.thumb:is(:hover, :focus-visible) {
-  transform: translateY(-6px) scale(1.03);
-  box-shadow: var(--shadow-lift);
-}
-.thumb:is(:hover, :focus-visible) :is(.thumb__caption, .thumb__views) {
-  opacity: 1;
-  transform: none;
-}
-@media (hover: none) {
-  .thumb:hover {
-    transform: none;
-    box-shadow: none;
-  }
-}
-.thumb[data-selected] {
-  outline: 2px solid var(--orange-500);
-  outline-offset: 3px;
-}
-.thumb:focus-visible {
-  outline: 2px solid var(--focus);
-  outline-offset: 3px;
-}
-
 /* ── Projects / Shelf (§9.4) ────────────────────────────────── */
 .projects {
   padding: calc(var(--section-y) + 74px) 0 var(--section-y);
@@ -491,9 +380,9 @@ html.js .shelf[data-in="false"] .shelf__item {
   }
 }
 
-/* ── /work showcase (§9.5) ──────────────────────────────────── */
+/* ── /work and the tapes: All designs + a tab per tape (WorkShowcase.tsx) ── */
 .showcase {
-  padding-top: calc(var(--space-24) + var(--space-8));
+  padding: calc(var(--space-24) + var(--space-8)) 0 var(--section-y);
 }
 .showcase__head {
   display: flex;
@@ -502,198 +391,186 @@ html.js .shelf[data-in="false"] .shelf__item {
   justify-content: space-between;
   gap: var(--space-4);
 }
-.showcase__head h1 {
+.showcase__title {
   color: var(--fg-display);
 }
 .showcase__count {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
   color: var(--fg-muted);
 }
-.chips {
-  position: sticky;
-  top: 84px;
-  z-index: var(--z-sticky);
+.showcase__tabs {
   margin-top: var(--space-8);
-  padding-block: var(--space-2);
-  background: linear-gradient(to bottom, var(--black) 70%, transparent);
 }
-.chips__list {
-  display: flex;
-  gap: var(--space-2);
-  width: 100%;
-  max-width: calc(var(--content-max) + 2 * var(--gutter));
-  margin-inline: auto;
-  padding-inline: var(--gutter);
-  overflow-x: auto;
-  scrollbar-width: none;
+.showcase__grid {
+  margin-top: var(--space-8);
 }
-.chips__list::-webkit-scrollbar {
-  display: none;
-}
+/* Phones: the tabs scroll sideways in one line. */
 @media (max-width: 767px) {
-  .chips {
-    top: 44px;
+  .showcase__tabs .bento__filters,
+  .bento__head .bento__filters {
+    flex-wrap: nowrap;
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
   }
-}
-.band {
-  scroll-margin-top: 140px;
-  margin-top: clamp(96px, 9vw, 128px);
-}
-.band__head {
-  display: flex;
-  align-items: center;
-  gap: var(--space-6);
-}
-.band__title {
-  flex: none;
-  color: var(--fg-display);
-}
-.hairline {
-  flex: 1;
-  height: 1px;
-  min-width: var(--space-8);
-  background: var(--line);
-  transform-origin: left;
-}
-html.js .hairline {
-  transition: transform var(--dur-scene) var(--ease-out);
-}
-html.js .hairline[data-in="false"] {
-  transform: scaleX(0);
-}
-.band__meta {
-  display: flex;
-  flex: none;
-  align-items: center;
-  gap: var(--space-3);
-}
-.band__rows {
-  display: grid;
-  gap: 2px; /* rows sit 16 px apart once their 14 px padding is counted */
-  margin-top: var(--space-6);
-}
-@media (max-width: 1023px) {
-  .band__row {
-    --row-h: clamp(132px, 22vw, 160px);
+  .showcase__tabs .bento__filter,
+  .bento__head .bento__filter {
+    flex: none;
   }
-}
-@media (max-width: 479px) {
-  .band__head {
-    flex-wrap: wrap;
-    gap: var(--space-3);
-  }
-  .band__title {
-    flex-basis: 100%;
-  }
-  .hairline {
-    display: none;
-  }
-  .band__meta {
-    width: 100%;
-    justify-content: space-between;
-  }
-}
-.showcase__end {
-  height: var(--section-y);
 }
 
-/* ── /work/[category] (§9.6) ────────────────────────────────── */
-.expanded {
-  padding-top: calc(var(--space-24) + var(--space-4));
-  padding-bottom: var(--section-y);
-}
-.expanded__head {
+/* ── The work grid (WorkGrid.tsx), Behance-style ──────────────────
+   6 columns. Each piece spans 6, 3 or 2 (1, 2 or 3 per row) as set in /admin — 2 per row on
+   tablets, 1 on phones. Rows are packed densely, so a mix of widths never leaves holes. Every
+   piece keeps its own shape: the box takes the image's width : height, so nothing is cropped,
+   stretched or squeezed. Cards are the artwork only. */
+.wgrid {
+  --wgap: clamp(12px, 1.4vw, 24px);
   display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: var(--space-4);
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-auto-flow: row dense;
+  align-items: start;
+  gap: var(--wgap);
 }
-.expanded__head h1 {
-  color: var(--fg-display);
-  white-space: nowrap;
+/* Masonry (WorkGrid.tsx sets each piece's row span): 4 px rows; the gap is inside each span. */
+.wgrid[data-masonry] {
+  grid-auto-rows: 4px;
+  row-gap: 0;
 }
-.expanded__cats {
-  display: flex;
-  gap: var(--space-2);
-}
-.expanded__slider {
-  display: grid;
-  justify-items: center;
-  margin-top: var(--space-8);
-}
-@media (prefers-reduced-motion: no-preference) {
-  .expanded__slider {
-    animation: expanded-in var(--dur-slow) var(--ease-out) both;
-  }
-}
-@keyframes expanded-in {
-  from {
-    opacity: 0;
-    transform: translateY(24px);
-  }
-}
-.expanded__meta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
-  margin-top: var(--space-6);
-}
-.expanded__info {
-  display: grid;
-  gap: var(--space-2);
+.wgrid__cell {
+  grid-column: span 2;
   min-width: 0;
+  scroll-margin-top: 120px;
 }
-.expanded__title {
-  display: -webkit-box;
-  overflow: hidden;
-  font-size: 20px;
-  font-weight: 600;
-  line-height: 1.3;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+.wgrid__cell[data-span="half"] {
+  grid-column: span 3;
 }
-.expanded__chips {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-2);
-}
-.expanded__watch {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3em;
-  min-height: 44px;
-  color: var(--accent);
-  font-family: var(--font-osd);
-  font-size: var(--text-osd);
-  text-decoration: none;
-}
-.expanded__nav {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-}
-.expanded__counter {
-  font-variant-numeric: tabular-nums;
-}
-.expanded__more {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: var(--space-16);
-  color: var(--fg-muted);
+.wgrid__cell[data-span="full"] {
+  grid-column: 1 / -1;
 }
 @media (max-width: 1023px) {
-  .expanded__head {
-    grid-template-columns: 1fr auto;
+  .wgrid__cell {
+    grid-column: span 3;
   }
-  .expanded__head > :first-child {
+  .wgrid__cell[data-span="half"],
+  .wgrid__cell[data-span="full"] {
     grid-column: 1 / -1;
-    justify-self: start;
+  }
+}
+@media (max-width: 599px) {
+  .wgrid__cell,
+  .wgrid__cell[data-span] {
+    grid-column: 1 / -1;
+  }
+}
+/* Switching tabs: the pieces rise in, one after another. */
+@media (prefers-reduced-motion: no-preference) {
+  html.js .wgrid__cell {
+    animation: wcell-in var(--dur-slow) var(--ease-out) both;
+    animation-delay: calc(var(--i) * var(--stagger-items) * 0.6);
+  }
+}
+@keyframes wcell-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+
+/* A single image: clean rounded corners, a little lift on hover. */
+.wgrid__tile {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: none;
+  cursor: pointer;
+  transition:
+    transform var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out);
+}
+.wgrid__tile:focus-visible {
+  outline: 2px solid var(--orange-500);
+  outline-offset: 3px;
+}
+@media (hover: hover) {
+  .wgrid__tile:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lift);
+  }
+  .wgrid__tile:hover img {
+    scale: 1.03;
+  }
+}
+.wgrid__art {
+  position: relative;
+  display: block;
+  width: 100%;
+  overflow: clip;
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+.wgrid__art img {
+  object-fit: cover; /* the box already has the image's own shape: nothing is cut */
+  transition:
+    opacity var(--dur-slow) var(--ease-out),
+    scale var(--dur-slow) var(--ease-out);
+}
+/* Loading: a shimmering skeleton (or the blur-up copy), then the image fades in. */
+html.js .wgrid__art:not([data-blur]):not([data-loaded]) img {
+  opacity: 0;
+}
+.wgrid__art:not([data-loaded])::before,
+.wgrid__skeleton {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 30%, color-mix(in srgb, var(--white) 7%, transparent) 50%, transparent 70%) 0 0 / 220% 100%, var(--surface);
+  animation: wgrid-shimmer var(--dur-shimmer) linear infinite;
+}
+@keyframes wgrid-shimmer {
+  from {
+    background-position: 120% 0, 0 0;
+  }
+  to {
+    background-position: -100% 0, 0 0;
+  }
+}
+
+/* A before/after piece: the slider (or, until it is near, its After), centred, never taller than the screen. */
+.wgrid__slider {
+  display: grid;
+  justify-items: center;
+}
+.wgrid__slider > .wgrid__art,
+.wgrid__slider > .wgrid__skeleton,
+.wgrid__slider .compare {
+  width: min(100%, calc(78svh * var(--ratio))); /* full grid width, but never taller than the screen */
+}
+.wgrid__slider > .wgrid__skeleton {
+  position: relative;
+  display: block;
+  aspect-ratio: var(--ratio);
+  border-radius: var(--radius-md);
+}
+
+/* The preview's bar: WATCH (if linked), previous / next, close. */
+.preview__watch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  min-height: 44px;
+  color: var(--white);
+  font-family: var(--font-osd);
+  font-size: var(--text-osd-lg);
+  letter-spacing: 0.06em;
+  text-decoration: underline;
+  text-underline-offset: 5px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .wgrid__art:not([data-loaded])::before,
+  .wgrid__skeleton {
+    animation: none;
   }
 }
 
@@ -817,9 +694,7 @@ html:not(.js) .compare__status {
   color: var(--on-surface);
 }
 
-/* ── Selected work: the home bento ─────────────────────────────
-   Filter pills; featured before/afters full-width; then a 12-column bento, tiles in a
-   repeating 5: one big (8 × 2 rows), two small stacked beside it (4 × 1), two halves (6 × 1). */
+/* ── Selected Works, on the home page (Bento.tsx): a caption and filter pills over the work grid ── */
 .bento {
   margin-top: var(--space-24);
 }
@@ -872,193 +747,6 @@ html:not(.js) .compare__status {
   outline-offset: 2px;
 }
 
-/* Featured: wide, full-width, with the before/after slider. */
-.bento__featured {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 460px), 1fr));
-  align-items: start;
-  gap: var(--space-8) clamp(var(--space-4), 2vw, var(--space-8));
-  margin-bottom: var(--space-12);
-}
-.bento__slider {
-  display: grid;
-  justify-items: center;
-}
-.bento__slider .compare {
-  /* full column width, but never taller than 70% of the screen (a 9:16 piece stays in view) */
-  width: min(100%, calc(70svh * var(--ratio)));
-}
-.bento__slider-wait {
-  width: min(100%, calc(70svh * var(--ratio)));
-  aspect-ratio: var(--ratio);
-  border-radius: var(--radius-md);
-  background: var(--surface);
-}
-.bento__wide-meta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: var(--space-4);
-  margin-top: var(--space-4);
-}
-.bento__wide-title {
-  margin-bottom: var(--space-2);
-  font-family: var(--font-display);
-  font-size: var(--text-label);
-  line-height: 1;
-  text-transform: uppercase;
-}
-.bento__chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-}
-.bento__more {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35em;
-  min-height: 44px;
-  color: var(--fg);
-  font-family: var(--font-osd);
-  font-size: var(--text-osd-lg);
-  letter-spacing: 0.06em;
-  text-decoration: underline;
-  text-underline-offset: 5px;
-}
-
-/* The grid: justified rows (.jrows, below) — row by row, so neighbours come from different tapes. */
-.bento__link {
-  position: absolute;
-  inset: 0;
-  display: block;
-  overflow: clip;
-  border-radius: var(--radius-md);
-  background: var(--surface);
-  color: var(--white);
-  text-decoration: none;
-  box-shadow: inset 0 0 0 1px var(--line);
-}
-.bento__link:focus-visible {
-  outline: 2px solid var(--orange-500);
-  outline-offset: 3px;
-}
-.bento__media img {
-  object-fit: cover;
-  transition: scale var(--dur-slow) var(--ease-out);
-}
-.bento__shade {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, color-mix(in srgb, var(--black) 85%, transparent) 0, transparent 55%);
-}
-.bento__meta {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: grid;
-  gap: var(--space-1);
-  padding: clamp(var(--space-3), 1.4vw, var(--space-6));
-}
-.bento__title {
-  font-family: var(--font-display);
-  font-size: clamp(1.25rem, 1.8vw, 2rem);
-  line-height: 1;
-  text-transform: uppercase;
-}
-
-.bento__client {
-  color: var(--gray-400);
-  font-size: var(--text-small);
-}
-@media (max-width: 767px) {
-  .bento__chips .osd-chip + .osd-chip {
-    display: none;
-  }
-  .bento__title {
-    font-size: 1.05rem;
-  }
-}
-@media (hover: hover) {
-  .bento__link:hover .bento__media img {
-    scale: 1.04;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .bento__media img {
-    transition: none;
-  }
-}
-
-/* ── Inside a tape: the gallery (ExpandedView.tsx) ──────────────
-   Every piece at its own shape, in masonry columns. Before/after pieces load into the slider;
-   finished-only pieces open in the preview. */
-.gallery {
-  margin-top: var(--space-16);
-}
-.gallery .expanded__caption {
-  margin-bottom: var(--space-6);
-  color: var(--fg-muted);
-}
-.gallery__btn {
-  position: absolute;
-  inset: 0;
-  display: block;
-  width: 100%;
-  height: 100%;
-  padding: 0;
-  overflow: clip;
-  border: 0;
-  border-radius: var(--radius-md);
-  background: var(--surface);
-  color: var(--white);
-  text-align: left;
-  cursor: pointer;
-  box-shadow: inset 0 0 0 1px var(--line);
-  transition:
-    transform var(--dur-base) var(--ease-out),
-    box-shadow var(--dur-base) var(--ease-out);
-}
-.gallery__btn img {
-  object-fit: cover; /* the box already has the image's own shape: nothing is cut */
-}
-.gallery__btn[data-current] {
-  outline: 2px solid var(--orange-500);
-  outline-offset: 3px;
-}
-.gallery__btn:focus-visible {
-  outline: 2px solid var(--focus);
-  outline-offset: 3px;
-}
-@media (hover: hover) {
-  .gallery__btn:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-lift);
-  }
-}
-.gallery__shade {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, color-mix(in srgb, var(--black) 80%, transparent) 0, transparent 50%);
-}
-.gallery__meta {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: grid;
-  justify-items: start;
-  gap: var(--space-1);
-  padding: clamp(var(--space-3), 1.2vw, var(--space-4));
-}
-.gallery__title {
-  font-family: var(--font-display);
-  font-size: clamp(1rem, 1.5vw, 1.5rem);
-  line-height: 1;
-  text-transform: uppercase;
-}
-
 /* The preview: one finished piece, whole, over a dimmed page. */
 .preview {
   /* as wide as the image can be while it and the caption fit the screen (min 320 px for the caption) */
@@ -1086,7 +774,7 @@ html:not(.js) .compare__status {
 .preview__frame img {
   object-fit: contain;
 }
-.preview__meta {
+.preview__bar {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
@@ -1138,53 +826,7 @@ html:not(.js) .compare__status {
   padding-top: clamp(24px, 4vw, 56px); /* room for the tape rising out of its sleeve */
 }
 
-/* ── Justified rows (.jrows): Selected Works and the tape gallery ──
-   Each tile keeps its own shape (--r = width / height, inline). Tiles in a row share a height
-   and the row fills the width: flex-grow and flex-basis are proportional to the shape. Read row
-   by row. A tile never grows past 1.6 × its base size, so a lone tall piece doesn't balloon. */
-.jrows {
-  --row-h: clamp(130px, 19vw, 290px);
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  justify-content: center;
-  gap: clamp(var(--space-3), 1.4vw, var(--space-6));
-}
-.jrows > li {
-  position: relative;
-  flex: var(--r) 1 calc(var(--r) * var(--row-h));
-  min-width: 0;
-  max-width: min(100%, calc(var(--r) * var(--row-h) * 1.6));
-  aspect-ratio: var(--r);
-}
-
-/* The before/after picker under the tape's slider. */
-.expanded__picker {
-  --row-h: 84px;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--space-3);
-  margin-top: var(--space-6);
-}
-
 /* The page behind the preview doesn't scroll. */
 html:has(dialog.preview[open]) {
   overflow: hidden;
-}
-
-/* A narrow tile (a 9:16 piece on a phone) keeps just its title. */
-.bento__link,
-.gallery__btn {
-  container-type: inline-size;
-}
-@container (max-width: 150px) {
-  .bento__chips,
-  .bento__client {
-    display: none;
-  }
-  .bento__title,
-  .gallery__title {
-    font-size: 0.85rem;
-  }
 }

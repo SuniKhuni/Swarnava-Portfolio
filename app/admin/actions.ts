@@ -105,7 +105,10 @@ export async function uploadImage(formData: FormData): Promise<UploadResult> {
       await mkdir(MEDIA_DIR, { recursive: true });
       await writeFile(join(MEDIA_DIR, name), data);
     }
-    return { ok: true, image: { src: `/media/${name}`, width: info.width, height: info.height } };
+    // The blur-up placeholder: the image at 16 px across, inlined (a few hundred bytes).
+    const tiny = await sharp(data).resize(16).webp({ quality: 40 }).toBuffer();
+    const blur = `data:image/webp;base64,${tiny.toString("base64")}`;
+    return { ok: true, image: { src: `/media/${name}`, width: info.width, height: info.height, blur } };
   } catch (e) {
     const storage = e instanceof Error && e.message.startsWith("Supabase");
     return { ok: false, error: storage ? "The image could not be stored. Try again in a moment." : "That image could not be read." };
