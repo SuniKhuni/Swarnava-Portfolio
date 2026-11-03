@@ -179,6 +179,7 @@ html.js .stage:not([data-ready]) .wordmark img {
    no disco ball, books or reel. Mirrors TABLET there; cinema undoes it below. */
 @media (min-width: 768px) {
   .plate .crt {
+    --set: tab;
     left: var(--tx, var(--x));
     top: var(--ty, var(--y));
     width: var(--tw, var(--w));
@@ -458,6 +459,7 @@ html.js:not(.powered):not(.intro-landed) .hero__h1 {
     display: block;
   }
   .plate .crt {
+    --set: desk;
     left: var(--x);
     top: var(--y);
     width: var(--w);
@@ -488,8 +490,12 @@ html.js:not(.powered):not(.intro-landed) .hero__h1 {
 }
 
 /* ── CrtScreen (§7.4) ───────────────────────────────────────── */
-/* Placed from the scene map (CrtScreen sets the vars); tablets use the tablet scene's rects. */
+/* Placed from the scene map (CrtScreen sets the vars) at the glass's bounding box, then warped
+   onto the glass's four corners (CrtScreen: matrix3d from the top-left). --set tells the code
+   which scene's corners apply: desk, or tab on portrait tablets. */
 .crt {
+  --set: desk;
+  transform-origin: 0 0;
   position: absolute;
   left: var(--x);
   top: var(--y);
@@ -534,16 +540,25 @@ html.js:not(.powered):not(.intro-landed) .hero__h1 {
 }
 .crt__content {
   display: block;
+  /* a lit phosphor picture, not a flat graphic: a touch soft, a touch less saturated */
+  filter: blur(0.35px) saturate(0.88) contrast(1.04) drop-shadow(0 0 1.2cqw color-mix(in srgb, var(--white) 16%, transparent));
   font-family: var(--font-osd);
   line-height: 1;
   text-transform: uppercase;
 }
 .crt__vignette {
-  background: radial-gradient(ellipse farthest-corner at 50% 50%, transparent 45%, color-mix(in srgb, var(--black) 35%, transparent) 100%);
+  /* the glass bulges: the picture falls off toward the rim, darkest in the corners */
+  background: radial-gradient(ellipse farthest-corner at 50% 46%, transparent 52%, color-mix(in srgb, var(--black) 45%, transparent) 100%);
+  box-shadow:
+    inset 0 0 3cqw 1.2cqw color-mix(in srgb, var(--black) 70%, transparent),
+    inset 0 1.2cqh 3cqh color-mix(in srgb, var(--black) 35%, transparent);
 }
 .crt__glass {
-  background: radial-gradient(90% 70% at 18% 8%, var(--white), transparent 60%);
-  opacity: 0.06;
+  /* a soft studio reflection across the curved glass, and a faint sheen along the top */
+  background:
+    radial-gradient(70% 55% at 22% 12%, var(--white), transparent 62%),
+    linear-gradient(170deg, color-mix(in srgb, var(--white) 50%, transparent) 0, transparent 18%);
+  opacity: 0.08;
   transition: opacity var(--dur-fast) var(--ease-out);
 }
 .crt:has(> .crt__hit:is(:hover, :focus-visible)) .crt__glass {
@@ -573,8 +588,9 @@ html.js:not(.powered):not(.intro-landed) .hero__h1 {
   }
 }
 .crt__fill {
-  background: var(--orange-500);
-  transform: scaleY(0); /* the Dive opens it like a CRT warming up: a line, then the screen */
+  /* the Dive opens it like a CRT warming up: a hot line that spreads into the screen */
+  background: linear-gradient(to bottom, var(--orange-500) 0, var(--orange-400) 30%, color-mix(in srgb, var(--orange-400) 82%, var(--white)) 50%, var(--orange-400) 70%, var(--orange-500) 100%);
+  transform: scaleY(0);
 }
 
 /* OSD positions measured from the art's own PLAY / SP / 00:00:00. */

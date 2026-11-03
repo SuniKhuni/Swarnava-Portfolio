@@ -416,7 +416,7 @@ html.js .line-reveal[data-in="false"] .line-reveal__w {
   }
 }
 
-/* ?debug=screens — development only; draws every scene-map rect as 50% magenta. */
+/* ?debug=screens — development only; tints every TV screen 50% magenta (warped onto its glass, as drawn). */
 html[data-debug="screens"] .crt::after,
 html[data-debug="screens"] .glints__debug {
   content: "";
