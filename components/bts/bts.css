@@ -90,9 +90,11 @@ html.js .line-reveal[data-in="false"] .bts__pillars > li {
   }
   .bts__deck {
     position: absolute;
-    left: 48%;
+    /* large, and still wholly on screen: it starts over the tail of "BTS." and ends a gutter's
+       width short of the right edge */
+    left: 44%;
     top: 50%;
-    width: 62vw;
+    width: calc(56% - var(--gutter));
     translate: 0 -50%;
     pointer-events: auto;
   }
@@ -132,16 +134,18 @@ html.js .line-reveal[data-in="false"] .bts__pillars > li {
 }
 .monitor__screen {
   position: relative;
-  aspect-ratio: 16 / 10;
+  /* an iPad-like 4 : 3 screen: room for the main photo and even gaps below it */
+  aspect-ratio: 4 / 3;
   overflow: clip;
   border-radius: 12px;
   background: var(--cream-100);
   color: var(--black);
   container-type: inline-size;
 }
+
 @media (max-width: 767px) {
   .monitor__screen {
-    aspect-ratio: 16 / 11;
+    aspect-ratio: 5 / 4; /* phones: a little taller, so the main photo keeps its size */
   }
 }
 .monitor__osd {
@@ -240,10 +244,11 @@ html.js .line-reveal[data-in="false"] .bts__pillars > li {
 .archive {
   position: absolute;
   inset: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: clamp(10px, 2.4cqi, 18px);
+  /* header · player (takes what is left) · controls · thumbnails · hint — even gaps between */
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  row-gap: clamp(6px, 1.7cqi, 14px);
+  padding: clamp(12px, 3cqi, 26px) clamp(14px, 3.6cqi, 32px) clamp(20px, 4.6cqi, 40px);
   user-select: none;
   overflow: hidden;
   font-family: var(--font-osd);
@@ -306,9 +311,20 @@ html.js .line-reveal[data-in="false"] .bts__pillars > li {
 }
 
 /* 2. Main 16:9 Image Area */
+/* The stage is the height left over by the rows below. The player — the 16 : 9 photo with its
+   black OSD bar underneath, as designed — is as wide as fits in it: full width when there is
+   room, otherwise narrower and centred, so the even gaps between the rows are never squeezed.
+   (Width = the stage height, less the bar and the 2 px borders, at 16 : 9.) */
+.archive-stage {
+  min-height: 0;
+  container-type: size;
+  display: grid;
+  place-items: center;
+}
 .archive-main {
+  --bar-h: clamp(16px, 3.4cqw, 24px);
   position: relative;
-  width: 100%;
+  width: min(100cqw, calc((100cqh - var(--bar-h) - 4px) * 16 / 9 + 4px));
   display: flex;
   flex-direction: column;
   border: 2px solid var(--black);
@@ -375,9 +391,11 @@ html.js .line-reveal[data-in="false"] .bts__pillars > li {
 }
 .archive-main__bar {
   display: flex;
+  flex: none;
   align-items: center;
   justify-content: space-between;
-  padding: clamp(3px, 0.7cqi, 6px) clamp(8px, 1.8cqi, 14px);
+  height: var(--bar-h);
+  padding: 0 clamp(8px, 1.8cqi, 14px);
   background: var(--black);
   color: var(--white);
   font-family: var(--font-osd);
@@ -395,7 +413,7 @@ html.js .line-reveal[data-in="false"] .bts__pillars > li {
 .archive-controls {
   display: flex;
   align-items: center;
-  gap: clamp(6px, 1.6cqi, 14px);
+  gap: clamp(8px, 2cqi, 18px);
   width: 100%;
 }
 .archive-controls__transport {
@@ -473,7 +491,7 @@ html.js .line-reveal[data-in="false"] .bts__pillars > li {
 .archive-carousel {
   display: flex;
   align-items: center;
-  gap: clamp(4px, 1cqi, 8px);
+  gap: clamp(6px, 1.6cqi, 14px);
   width: 100%;
 }
 .archive-arrow-btn {
@@ -499,8 +517,9 @@ html.js .line-reveal[data-in="false"] .bts__pillars > li {
 .archive-thumbs-track {
   flex: 1;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: clamp(4px, 1.2cqi, 8px);
+  grid-template-columns: repeat(5, 1fr);
+  gap: clamp(8px, 1.8cqi, 14px);
+  padding-block: 3px; /* room for the hover lift */
   overflow: hidden;
   touch-action: pan-y;
 }
@@ -552,11 +571,13 @@ html.js .line-reveal[data-in="false"] .bts__pillars > li {
   pointer-events: none;
 }
 
-/* 5. Footer Note */
+/* 5. Footer Note — sits in the bottom margin, under the thumbnails, without taking a row */
 .archive-footer {
+  position: absolute;
+  left: clamp(14px, 3.6cqi, 32px);
+  bottom: clamp(6px, 1.5cqi, 13px);
   display: flex;
   align-items: center;
-  width: 100%;
 }
 .archive-footer__label {
   font-family: var(--font-osd);
@@ -637,3 +658,21 @@ html.js .line-reveal[data-in="false"] .bts__pillars > li {
   }
 }
 
+
+/* Small screens (the tablet on a phone): four slim thumbnails, and no long hint lines. */
+@container (max-width: 480px) {
+  .archive-thumbs-track {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .archive-thumbs-track > :nth-child(n + 5) {
+    display: none;
+  }
+  .archive-caption,
+  .archive-sep,
+  .archive-footer {
+    display: none;
+  }
+  .archive {
+    padding-bottom: clamp(12px, 3cqi, 26px);
+  }
+}

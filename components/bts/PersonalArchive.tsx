@@ -166,7 +166,7 @@ export function PersonalArchive({
   // Circular sequence of upcoming thumbnails (up to 4)
   const upcomingThumbnails = useMemo(() => {
     if (n <= 1) return [];
-    const count = Math.min(4, n - 1);
+    const count = Math.min(5, n - 1); // 5 up next (3 shown on small screens, bts.css)
     const result: ArchiveItem[] = [];
     for (let k = 1; k <= count; k++) {
       const idx = (currentIndex + k) % n;
@@ -237,6 +237,8 @@ export function PersonalArchive({
       </div>
 
       {/* ── 2. Main 16:9 Image Player ───────────────────────── */}
+      {/* The stage takes the height left over; the player fits inside it at 16:9 (bts.css). */}
+      <div className="archive-stage">
       <div className="archive-main">
         <div key={mainItem?.id || animKey} className="archive-main__viewport">
           {mainItem?.isUploaded ? (
@@ -268,6 +270,7 @@ export function PersonalArchive({
           <span className="archive-main__filename">{mainItem?.filename || "MEMORY_001.MOV"}</span>
           <span className="archive-main__timecode">{timecodeString}</span>
         </div>
+      </div>
       </div>
 
       {/* ── 3. Controls & Progress Row ──────────────────────── */}

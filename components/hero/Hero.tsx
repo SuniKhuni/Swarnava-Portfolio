@@ -130,6 +130,8 @@ export function Hero({ name, role, niches, pillars, socials }: HeroProps) {
   const side = useCycle(pillars.length, { active: loops && !reduce, offsetMs: cycle.offsetMs });
 
   const dive = useDive(section, sticky, frame, bottomTv, diveScreen, diveOn);
+  // As the lower screen powers on, its static and labels dim out under the orange.
+  const screenFade = useTransform(dive.power, (v) => 1 - Math.min(1, v * 1.6));
   const { wx, wy, gx, gy } = useParallax(section, fine && !reduce);
   const wordmark = useRef<HTMLDivElement>(null);
   const stage = useRef<HTMLDivElement>(null);
@@ -180,7 +182,6 @@ export function Hero({ name, role, niches, pillars, socials }: HeroProps) {
                   as="a"
                   href={niche.href}
                   label="See the work"
-                  cursor="OPEN"
                   onHoverChange={setTopHover}
                   hoverChip={
                     <OsdChip tone="signal">
@@ -200,10 +201,10 @@ export function Hero({ name, role, niches, pillars, socials }: HeroProps) {
                   name="bottom"
                   as="button"
                   label="Scroll to about"
-                  cursor="PLAY"
                   onClick={toBts}
                   onHoverChange={setBottomHover}
                   fill={dive.power}
+                  fade={screenFade}
                 >
                   <span className="crt__static fx-static" data-bright={bottomHover || undefined} />
                   <TvOsd tcRef={bottomTc} />

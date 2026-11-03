@@ -1,9 +1,9 @@
 "use client";
 
-import { useRef, type CSSProperties, type ReactNode } from "react";
+import { useLayoutEffect, useRef, type CSSProperties, type ReactNode } from "react";
 import type { MotionValue } from "motion/react";
 import { useMotionStyle } from "@/lib/motion-style";
-import { rectVars, type SceneRect } from "@/lib/scene-map";
+import { quadMatrix, rectVars, type SceneRect } from "@/lib/scene-map";
 import { TapeLink } from "../chrome/TapeLink";
 
 type CrtScreenProps = {
@@ -20,13 +20,41 @@ type CrtScreenProps = {
   onHoverChange?: (on: boolean) => void;
   /** Dive: the lower screen powers on to flat orange, a CRT line opening to full height (0 → 1). */
   fill?: MotionValue<number>;
+  /** Dive: the picture dims as the screen powers on (1 → 0). */
+  fade?: MotionValue<number>;
   hoverChip?: ReactNode;
   children?: ReactNode;
   ref?: React.Ref<HTMLElement>;
 };
 
 /**
- * A live screen laid over one of the TVs in the hero art (§7.4). Layers, bottom to top:
+ * Lays the box onto its glass: a projective warp from the box (the quad's bounding box) to the
+ * glass's four corners, re-fitted whenever the box changes size. The layout says which scene's
+ * corners are in use (--set: desk | tab, hero.css). Before this runs the box is simply the
+ * bounding box — the stage stays hidden until its images are ready, so that is never seen.
+ */
+function useQuadWarp(ref: React.RefObject<HTMLDivElement | null>, rect: SceneRect, tabletRect?: SceneRect) {
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const fit = () => {
+      const tab = tabletRect && getComputedStyle(el).getPropertyValue("--set").trim() === "tab";
+      const r = tab ? tabletRect : rect;
+      const W = el.offsetWidth;
+      const H = el.offsetHeight;
+      if (!W || !H) return;
+      const k = W / r.w; // plate px → screen px
+      el.style.transform = quadMatrix(W, H, r.quad.map(([x, y]) => [(x - r.x) * k, (y - r.y) * k] as const));
+    };
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [ref, rect, tabletRect]);
+}
+
+/**
+ * A live screen laid over one of the TVs in the hero art (§7.4), warped onto the TV's glass. Layers, bottom to top:
  * black base (cover) → content → scanlines → scan bar → vignette → glass → Dive fill.
  */
 export function CrtScreen({
@@ -41,13 +69,18 @@ export function CrtScreen({
   onClick,
   onHoverChange,
   fill,
+  fade,
   hoverChip,
   children,
   ref,
 }: CrtScreenProps) {
   const style = rectVars(rect, tabletRect) as CSSProperties;
+  const box = useRef<HTMLDivElement>(null);
   const fillRef = useRef<HTMLSpanElement>(null);
+  const contentRef = useRef<HTMLSpanElement>(null);
+  useQuadWarp(box, rect, tabletRect);
   useMotionStyle(fillRef, { scaleY: fill });
+  useMotionStyle(contentRef, { opacity: fade });
   // The link / button is an empty layer over the screen: its stable aria-label is the whole
   // accessible name, and the cycling OSD text never competes with it (WCAG 2.5.3).
   const hit = {
@@ -60,7 +93,7 @@ export function CrtScreen({
   };
   const layers = (
     <>
-      <span className="crt__content" aria-hidden="true">
+      <span ref={contentRef} className="crt__content" aria-hidden="true">
         {children}
       </span>
       <span className="crt__layer fx-scanlines" aria-hidden="true" />
@@ -78,7 +111,17 @@ export function CrtScreen({
   );
 
   return (
-    <div ref={ref as React.Ref<HTMLDivElement>} className="crt" data-variant={variant} data-screen={name} style={style}>
+    <div
+      ref={(el) => {
+        box.current = el;
+        if (typeof ref === "function") ref(el);
+        else if (ref) (ref as React.RefObject<HTMLElement | null>).current = el;
+      }}
+      className="crt"
+      data-variant={variant}
+      data-screen={name}
+      style={style}
+    >
       {layers}
       {as === "a" && href ? <TapeLink href={href} aria-label={label} {...hit} /> : null}
       {as === "button" ? <button type="button" aria-label={label} onClick={onClick} {...hit} /> : null}
