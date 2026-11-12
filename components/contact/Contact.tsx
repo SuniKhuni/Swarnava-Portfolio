@@ -6,7 +6,7 @@ export async function Contact() {
   const site = await getSite();
   const hasBackend = Boolean(process.env.RESEND_API_KEY && process.env.CONTACT_TO_EMAIL);
   return (
-    <section id="contact" className="contact scene" data-scene="night" data-channel="04" data-channel-label="CONTACT" aria-labelledby="contact-title">
+    <section id="contact" className="contact scene ambient" data-scene="night" data-channel="04" data-channel-label="CONTACT" aria-labelledby="contact-title">
       <div className="contact__col">
         <p className="t-osd-lg contact__caption">CH 04 — LEAVE A MESSAGE</p>
         <p className="t-lead contact__line">{site.contactLine}</p>

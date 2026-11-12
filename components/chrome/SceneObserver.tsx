@@ -8,20 +8,28 @@ const sceneOf = (el: Element) => ((el as HTMLElement).dataset.scene as Scene) ??
 
 /**
  * One observer for the whole page: the section crossing the viewport's centre line is the
- * active channel (Remote highlight, HUD channel). Thin bands at the top and bottom edges
- * colour the HUD's two rows. Sections are re-scanned whenever the DOM changes, because a
- * route can commit its loading state first and stream the real page in afterwards.
+ * active channel (Remote highlight, HUD channel). A scene with no channel of its own (the footer,
+ * "check other tapes") counts as the channel before it, so landing straight on one — the End key,
+ * a reload at the bottom of the page — still lights the right channel. Thin bands at the top and bottom edges
+ * colour the HUD's two rows — from every scene on the page, channel or not, so the HUD never
+ * keeps the last section's ink over the next one. Sections are re-scanned whenever the DOM
+ * changes, because a route can commit its loading state first and stream the real page in
+ * afterwards.
  */
 export function SceneObserver() {
   const pathname = usePathname();
 
   useEffect(() => {
+    let channels: HTMLElement[] = [];
+    // The channel a scene belongs to: itself, or the last channel section before it in the page.
+    const channelOf = (el: HTMLElement) =>
+      el.dataset.channel ? el : [...channels].reverse().find((c) => c.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING);
     const centre = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
           if (!entry.isIntersecting) continue;
-          const el = entry.target as HTMLElement;
-          setObservedChannel({ number: el.dataset.channel ?? "01", label: el.dataset.channelLabel ?? "", scene: sceneOf(el) });
+          const el = channelOf(entry.target as HTMLElement);
+          if (el) setObservedChannel({ number: el.dataset.channel ?? "01", label: el.dataset.channelLabel ?? "", scene: sceneOf(entry.target) });
         }
       },
       { rootMargin: "-50% 0px -50% 0px" },
@@ -38,16 +46,16 @@ export function SceneObserver() {
 
     let watched: Element[] = [];
     const scan = () => {
-      const sections = Array.from(document.querySelectorAll("[data-channel]"));
-      const edges = [...sections, ...Array.from(document.querySelectorAll("footer[data-scene]"))];
-      if (edges.length === watched.length && edges.every((el, i) => el === watched[i])) return;
+      const scenes = Array.from(document.querySelectorAll<HTMLElement>("[data-channel], section[data-scene], footer[data-scene]"));
+      if (scenes.length === watched.length && scenes.every((el, i) => el === watched[i])) return;
       [centre, top, bottom].forEach((io) => io.disconnect());
-      sections.forEach((s) => centre.observe(s));
-      edges.forEach((s) => {
+      channels = scenes.filter((el) => el.dataset.channel);
+      scenes.forEach((s) => {
+        centre.observe(s);
         top.observe(s);
         bottom.observe(s);
       });
-      watched = edges;
+      watched = scenes;
     };
 
     let raf = 0;

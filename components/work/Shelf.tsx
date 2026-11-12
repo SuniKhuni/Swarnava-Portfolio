@@ -5,7 +5,11 @@ import { useInView } from "motion/react";
 import { useMediaQuery } from "@/lib/hooks";
 import { Cassette, type CassetteData } from "./Cassette";
 
-/** Four tapes: 4-up ≥ 1280, 2 × 2 from 768, a snap carousel with dots below (§9.4). */
+/** Whole rows on desktop, whatever the number of tapes: up to four across; five or six stand
+ *  three across (3 + 2, 3 × 3 for nine), seven or eight four across. */
+const columns = (n: number) => (n <= 4 ? Math.max(1, n) : n % 4 === 0 ? 4 : n % 3 === 0 || n === 5 ? 3 : 4);
+
+/** The tapes on a shelf: whole rows ≥ 1024, two a row from 768, a snap carousel with dots below (§9.4). */
 export function Shelf({ categories }: { categories: CassetteData[] }) {
   const scroller = useRef<HTMLDivElement>(null);
   const list = useRef<HTMLUListElement>(null);
@@ -53,10 +57,10 @@ export function Shelf({ categories }: { categories: CassetteData[] }) {
   return (
     <div ref={root} className="shelf" data-in={inView}>
       <div ref={scroller} className="shelf__scroller" {...(carousel ? { role: "region", "aria-label": "Project categories", tabIndex: 0 } : {})}>
-        <ul ref={list} className="shelf__list">
+        <ul ref={list} className="shelf__list" style={{ "--cols": columns(categories.length) } as React.CSSProperties}>
         {categories.map((c, i) => (
           <li key={c.id} className="shelf__item" style={{ "--i": i } as React.CSSProperties}>
-            <Cassette category={c} index={i} active={carousel && active === i} restOut={carousel ? 12 : 0} />
+            <Cassette category={c} index={i} active={carousel && active === i} />
           </li>
         ))}
         </ul>

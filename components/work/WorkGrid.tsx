@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import type { Category, WorkItem } from "@/content/types";
-import { displayTitle, hasSlider, itemAspect, itemRatio, layoutOf } from "@/content/types";
+import type { Category, RowSlot, WorkItem } from "@/content/types";
+import { arrangeRows, displayTitle, hasSlider, itemAspect, itemRatio } from "@/content/types";
 import { TapeLink } from "../chrome/TapeLink";
 import { Button } from "../ui/Button";
 import { Icon } from "../ui/Icon";
@@ -34,29 +34,27 @@ function useNear<T extends Element>(margin = "600px") {
 }
 
 /**
- * Masonry packing: the grid runs on 4 px rows and each piece takes as many as its own height
- * needs (re-measured on resize), so pieces of different shapes close up under each other
- * instead of leaving holes. Without JS it is a plain grid.
+ * The rows, for desktop (up to 3 a row) or tablets (up to 2). "tapes": each tape is arranged on
+ * its own, so it reads the same in "All designs" as on its own page. "mix": the list as a whole.
  */
-function useMasonry(ref: React.RefObject<HTMLUListElement | null>) {
-  useLayoutEffect(() => {
-    const ul = ref.current;
-    if (!ul) return;
-    const fit = () => {
-      const gap = parseFloat(getComputedStyle(ul).getPropertyValue("--wgap")) || 16;
-      for (const li of Array.from(ul.children) as HTMLElement[]) {
-        const h = (li.firstElementChild as HTMLElement | null)?.getBoundingClientRect().height ?? 0;
-        li.style.gridRowEnd = `span ${Math.max(1, Math.ceil((h + gap) / 4))}`;
-      }
-      ul.dataset.masonry = "";
-    };
-    fit();
-    const ro = new ResizeObserver(fit);
-    ro.observe(ul);
-    for (const li of Array.from(ul.children)) if (li.firstElementChild) ro.observe(li.firstElementChild);
-    return () => ro.disconnect();
-  });
+function slotsFor(entries: GridEntry[], flow: "tapes" | "mix", max: 2 | 3): RowSlot[] {
+  if (flow === "mix") return arrangeRows(entries.map((e) => e.item), max);
+  const out: RowSlot[] = [];
+  for (let i = 0; i < entries.length; ) {
+    let j = i;
+    while (j < entries.length && entries[j].category.id === entries[i].category.id) j++;
+    out.push(...arrangeRows(entries.slice(i, j).map((e) => e.item), max));
+    i = j;
+  }
+  return out;
 }
+
+/** "first", "last", both or neither: where the piece sits in its row (work.css centres short rows by it). */
+const edges = (slot: RowSlot) => [slot.first && "first", slot.last && "last"].filter(Boolean).join(" ") || undefined;
+
+/** The image's rendered width, for the browser to pick a file by: its share of the row at each size. */
+const sizesFor = (lg: RowSlot, md: RowSlot) =>
+  `(min-width: 1440px) ${Math.ceil(lg.share * 1320)}px, (min-width: 1024px) ${Math.ceil(lg.share * 100)}vw, (min-width: 600px) ${Math.ceil(md.share * 100)}vw, 100vw`;
 
 /** The artwork itself: its own shape, rounded, a skeleton (or blur-up) until it has loaded. */
 function Art({ item, sizes, priority }: { item: WorkItem; sizes: string; priority: boolean }) {
@@ -89,12 +87,6 @@ function SliderCell({ entry, priority }: { entry: GridEntry; priority: boolean }
     </div>
   );
 }
-
-const SIZES = {
-  full: "(min-width: 1280px) 1320px, 100vw",
-  half: "(min-width: 1024px) 50vw, (min-width: 600px) 100vw, 100vw",
-  third: "(min-width: 1024px) 33vw, (min-width: 600px) 50vw, 100vw",
-} as const;
 
 /** One finished piece, alone and whole, over the page. */
 function Preview({ entry, count, onClose, onStep }: { entry: GridEntry; count: number; onClose: () => void; onStep: (d: -1 | 1) => void }) {
@@ -149,15 +141,19 @@ type WorkGridProps = {
   /** A piece to bring into view (and open, if it is a single image) — from ?t=slug. */
   focus?: string;
   label: string;
+  /** How rows are worked out: per tape (default), or across the whole list (the home page's mix). */
+  flow?: "tapes" | "mix";
 };
 
 /**
- * The work grid (Behance-style): 6 columns; each piece spans 6, 3 or 2 of them (1, 2 or 3 per row)
- * as set in /admin, in the order set there, and keeps its own shape. Pieces with the slider
- * switched on are interactive before/afters; everything else is the artwork alone — no titles,
- * badges or counts. Images load lazily over a skeleton or blur-up; sliders mount when near.
+ * The work grid: whole rows of 1, 2 or 3 pieces (as set in /admin, in the order set there). The
+ * pieces in a row share one height and keep their own shapes, so every row fills the line edge to
+ * edge whatever the mix — see arrangeRows(). Pieces with the slider switched on are interactive
+ * before/afters; everything else is the artwork alone — no titles, badges or counts. Images load
+ * lazily over a skeleton or blur-up; sliders mount when near. The layout is plain CSS (work.css):
+ * nothing is measured, so nothing moves after the page loads.
  */
-export function WorkGrid({ entries, mode, focus, label }: WorkGridProps) {
+export function WorkGrid({ entries, mode, focus, label, flow = "tapes" }: WorkGridProps) {
   const singles = entries.filter((e) => !hasSlider(e.item));
   // ?t=slug on a single image (in "view" mode) opens it straight away.
   const [preview, setPreview] = useState<number | null>(() => {
@@ -166,8 +162,8 @@ export function WorkGrid({ entries, mode, focus, label }: WorkGridProps) {
     return i >= 0 ? i : null;
   });
   const focused = useRef(false);
-  const list = useRef<HTMLUListElement>(null);
-  useMasonry(list);
+  const rows = slotsFor(entries, flow, 3);
+  const rowsMd = slotsFor(entries, flow, 2);
 
   const setUrl = (slug: string | null) => {
     const url = new URL(window.location.href);
@@ -190,23 +186,41 @@ export function WorkGrid({ entries, mode, focus, label }: WorkGridProps) {
 
   return (
     <>
-      <ul ref={list} className="wgrid" aria-label={label}>
+      <ul className="wgrid" aria-label={label}>
         {entries.map((entry, i) => {
           const { item, category } = entry;
-          const span = layoutOf(item);
           const slider = hasSlider(item);
           const priority = i < 2;
+          const sizes = sizesFor(rows[i], rowsMd[i]);
+          const place = {
+            "--i": Math.min(i, 12),
+            "--ratio": itemRatio(item).toFixed(4),
+            "--k": rows[i].k,
+            "--s": rows[i].share.toFixed(5),
+            "--sum": rows[i].sum.toFixed(4),
+            "--k-md": rowsMd[i].k,
+            "--s-md": rowsMd[i].share.toFixed(5),
+            "--sum-md": rowsMd[i].sum.toFixed(4),
+          } as CSSProperties;
           return (
-            <li key={`${category.id}/${item.slug}`} id={`piece-${item.slug}`} className="wgrid__cell" data-span={span} data-slider={slider || undefined} style={{ "--i": Math.min(i, 12) } as CSSProperties}>
+            <li
+              key={`${category.id}/${item.slug}`}
+              id={`piece-${item.slug}`}
+              className="wgrid__cell"
+              data-slider={slider || undefined}
+              data-row={edges(rows[i])}
+              data-row-md={edges(rowsMd[i])}
+              style={place}
+            >
               {slider ? (
                 <SliderCell entry={entry} priority={priority} />
               ) : mode === "link" ? (
                 <TapeLink href={`/work/${category.id}?t=${item.slug}`} osd={category.label} className="wgrid__tile" aria-label={nameOf(entry)} data-cursor="OPEN">
-                  <Art item={item} sizes={SIZES[span]} priority={priority} />
+                  <Art item={item} sizes={sizes} priority={priority} />
                 </TapeLink>
               ) : (
                 <button type="button" className="wgrid__tile" aria-label={nameOf(entry)} aria-haspopup="dialog" data-cursor="VIEW" onClick={() => open(singles.indexOf(entry))}>
-                  <Art item={item} sizes={SIZES[span]} priority={priority} />
+                  <Art item={item} sizes={sizes} priority={priority} />
                 </button>
               )}
             </li>

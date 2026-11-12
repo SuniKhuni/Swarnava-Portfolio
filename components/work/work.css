@@ -34,7 +34,10 @@
 
 /* ── Projects / Shelf (§9.4) ────────────────────────────────── */
 .projects {
-  padding: calc(var(--section-y) + 74px) 0 var(--section-y);
+  --ambient:
+    radial-gradient(760px 420px at 100% 330px, var(--glow-red), transparent 72%),
+    radial-gradient(680px 520px at 0 980px, var(--glow-orange-soft), transparent 72%);
+  padding: var(--section-y) 0;
 }
 .projects__head {
   display: flex;
@@ -50,14 +53,16 @@
 .projects__foot {
   display: flex;
   justify-content: center;
-  margin-top: var(--space-12);
+  margin-top: var(--space-16);
 }
 .shelf {
-  margin-top: var(--space-16);
+  margin-top: var(--space-8);
 }
 .shelf__scroller {
   position: relative;
 }
+/* Tablets: two a row. Each tape stands under its own headroom (27% of its width): at rest the
+   cassette shows its label over the sleeve's mouth, and rises into the rest of it on hover. */
 .shelf__list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -66,23 +71,19 @@
   max-width: calc(var(--content-max) + 2 * var(--gutter));
   margin-inline: auto;
   padding-inline: var(--gutter);
-  padding-top: 22%; /* headroom for a risen tape */
 }
-@media (min-width: 768px) {
-  .shelf__list {
-    padding-top: 0;
-    row-gap: calc(24px + 5vw);
-  }
-  .shelf__item {
-    padding-top: 5vw;
-  }
+.shelf__item {
+  display: flex;
+  padding-top: 27%;
 }
-@media (min-width: 1280px) {
+.shelf__item > .cassette {
+  flex: 1;
+  min-width: 0;
+}
+/* Desktop: whole rows — Shelf.tsx picks the columns from the number of tapes (six → 3 × 2). */
+@media (min-width: 1024px) {
   .shelf__list {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-  .shelf__item {
-    padding-top: 4.5vw;
+    grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr));
   }
 }
 html.js .shelf__item {
@@ -119,6 +120,7 @@ html.js .shelf[data-in="false"] .shelf__item {
   }
   .shelf__item {
     width: 72vw;
+    padding-top: 0;
     scroll-snap-align: center;
   }
   .shelf__item:first-child {
@@ -157,11 +159,12 @@ html.js .shelf[data-in="false"] .shelf__item {
   transform: scale(1.3);
 }
 
-/* ── Cassette (§7.9) ────────────────────────────────────────── */
+/* ── Cassette (§7.9) ──────────────────────────────────────────
+   A tape in its card sleeve. The sleeve is as tall as what is printed on it (cover, stripes,
+   name, count), so tapes in a row stand the same height whatever their names. */
 .cassette {
   position: relative;
   display: block;
-  aspect-ratio: 4 / 5;
   container-type: inline-size;
   color: var(--on-surface);
   text-decoration: none;
@@ -178,8 +181,12 @@ html.js .shelf[data-in="false"] .shelf__item {
   height: 100%;
   padding: var(--space-4);
   border-radius: var(--radius-md);
-  background: var(--surface);
-  box-shadow: inset 0 0 0 1px var(--line);
+  /* card stock: lit from the top, darker at the foot; the top edge is the sleeve's mouth */
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--white) 7%, var(--gray-900)) 0, var(--gray-900) 28%, color-mix(in srgb, var(--black) 38%, var(--gray-900)) 100%);
+  box-shadow:
+    inset 0 0 0 1px var(--line),
+    inset 0 1px 0 color-mix(in srgb, var(--white) 22%, transparent),
+    0 -10px 14px -12px var(--black);
   transition:
     transform var(--dur-base) var(--ease-out),
     box-shadow var(--dur-base) var(--ease-out);
@@ -187,22 +194,27 @@ html.js .shelf[data-in="false"] .shelf__item {
 .cassette[data-up] .cassette__sleeve {
   transform: translateY(-8px);
   box-shadow:
-    inset 0 0 0 1px var(--line),
-    var(--shadow-lift);
+    inset 0 0 0 1.5px var(--orange-500),
+    inset 0 1px 0 color-mix(in srgb, var(--white) 22%, transparent),
+    0 -10px 14px -12px var(--black),
+    var(--shadow-lift),
+    0 30px 60px -30px color-mix(in srgb, var(--orange-500) 55%, transparent);
 }
 .cassette__cover {
   position: relative;
+  flex: none;
   aspect-ratio: 16 / 9;
   overflow: clip;
   border-radius: var(--radius-sm);
-  background: var(--gray-900);
+  background: var(--black);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--white) 10%, transparent);
 }
 .cassette__cover img {
   object-fit: cover;
-  transition: transform var(--dur-base) var(--ease-out);
+  transition: transform var(--dur-slow) var(--ease-out);
 }
 .cassette[data-up] .cassette__cover img {
-  transform: scale(1.03);
+  transform: scale(1.04);
 }
 .cassette__soon,
 .cassette__missing {
@@ -213,33 +225,55 @@ html.js .shelf[data-in="false"] .shelf__item {
   color: var(--fg-muted);
   text-align: center;
 }
+/* The label's speed stripes: stepped at rest, running out to full length on hover. */
 .cassette__stripes {
   display: grid;
-  gap: 3px;
+  gap: 4px;
   margin-top: var(--space-4);
 }
 .cassette__stripes span {
-  height: 5px;
-  border-radius: 2px;
+  height: 6px;
+  border-radius: 3px;
+  transform-origin: left center;
+  transition: transform var(--dur-slow) var(--ease-out);
 }
 .cassette__stripes span:nth-child(1) {
   background: var(--stripe);
 }
 .cassette__stripes span:nth-child(2) {
   background: var(--orange-500);
+  transform: scaleX(0.76);
+  transition-delay: calc(var(--stagger-items) * 0.5);
 }
 .cassette__stripes span:nth-child(3) {
   background: var(--cream-200);
+  transform: scaleX(0.52);
+  transition-delay: var(--stagger-items);
 }
-/* --text-title, capped by the card's own width so two lines fit inside the 4 : 5 sleeve. */
+.cassette[data-up] .cassette__stripes span {
+  transform: none;
+}
+.cassette__meta {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+  color: var(--gray-400);
+  font-family: var(--font-osd);
+  font-size: var(--text-osd);
+  letter-spacing: 0.08em;
+  line-height: 1;
+  white-space: nowrap;
+}
+/* --text-title, capped by the card's own width; pushed to the foot, so one- and two-line names
+   in a row share a baseline. */
 .cassette .cassette__title {
   display: flex;
+  flex: 1;
   align-items: flex-end;
-  min-height: 1.8em; /* two lines — all four titles share a baseline grid */
-  margin-top: auto;
-  padding-top: var(--space-3);
+  padding-top: var(--space-4);
   color: var(--on-surface);
-  font-size: min(var(--text-title), 17cqi);
+  font-size: min(var(--text-title), 16cqi);
 }
 .cassette__row {
   display: flex;
@@ -259,21 +293,33 @@ html.js .shelf[data-in="false"] .shelf__item {
   --btn-fg: var(--black);
   --btn-border: var(--orange-500);
 }
-.cassette__index {
-  position: absolute;
-  top: calc(var(--space-4) + var(--space-2));
-  right: calc(var(--space-4) + var(--space-2));
-  padding: 0 6px;
-  border-radius: var(--radius-xs);
-  background: var(--black);
-  color: var(--white);
-  font-family: var(--font-osd);
-  font-size: var(--text-osd);
-}
 .cassette[data-empty] {
   cursor: not-allowed;
 }
-/* The tape behind the sleeve: a dark cassette, inset 6% each side, full card height. */
+/* Narrow sleeves (two a row on a phone): tighter padding, the tape number alone, a smaller
+   arrow — and none at all where the count needs the whole line. Nothing spills out of the card. */
+@container (max-width: 230px) {
+  .cassette__sleeve {
+    padding: var(--space-3);
+  }
+  .cassette__meta > :last-child,
+  .cassette__spine-meta {
+    display: none;
+  }
+  .cassette .cassette__arrow {
+    width: 40px;
+    min-width: 40px;
+    height: 40px;
+    min-height: 40px;
+  }
+}
+@container (max-width: 168px) {
+  .cassette .cassette__arrow {
+    display: none;
+  }
+}
+/* The tape in the sleeve: a dark cassette, inset 6% each side, as tall as the card. It rests
+   with its label showing over the sleeve's mouth (--rest) and rises on hover. */
 .cassette__tape {
   position: absolute;
   z-index: 0;
@@ -281,14 +327,16 @@ html.js .shelf[data-in="false"] .shelf__item {
   overflow: clip;
   border-radius: 10px;
   background: linear-gradient(to bottom, var(--gray-900), var(--black) 40%);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--white) 10%, transparent);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--white) 10%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--white) 26%, transparent);
   transform: translateY(var(--rest, 0%));
   transition:
     transform var(--dur-slow) var(--ease-object),
     opacity var(--dur-eject) var(--ease-in);
 }
 .cassette__tape[data-state="up"] {
-  transform: translateY(-22%);
+  transform: translateY(-23%);
 }
 .cassette__tape[data-state="eject"] {
   transform: translateY(-130%);
@@ -309,12 +357,12 @@ html.js .shelf[data-in="false"] .shelf__item {
   }
   .cassette[data-up] .cassette__sleeve {
     transform: none;
-    box-shadow:
-      inset 0 0 0 2px var(--orange-500),
-      var(--shadow-lift);
   }
   .cassette[data-up] .cassette__cover img {
     transform: none;
+  }
+  .cassette__stripes span {
+    transition: none;
   }
 }
 .cassette__spine {
@@ -326,6 +374,7 @@ html.js .shelf[data-in="false"] .shelf__item {
   align-items: center;
   gap: var(--space-2);
   height: 9%;
+  min-height: 22px;
   padding: 0 var(--space-2);
   border-radius: 3px;
   background: var(--cream-200);
@@ -382,6 +431,9 @@ html.js .shelf[data-in="false"] .shelf__item {
 
 /* ── /work and the tapes: All designs + a tab per tape (WorkShowcase.tsx) ── */
 .showcase {
+  --ambient:
+    radial-gradient(760px 420px at 100% 330px, var(--glow-red), transparent 72%),
+    radial-gradient(680px 520px at 0 980px, var(--glow-orange-soft), transparent 72%);
   padding: calc(var(--space-24) + var(--space-8)) 0 var(--section-y);
 }
 .showcase__head {
@@ -391,11 +443,16 @@ html.js .shelf[data-in="false"] .shelf__item {
   justify-content: space-between;
   gap: var(--space-4);
 }
-.showcase__title {
-  color: var(--fg-display);
+.showcase__heading {
+  display: grid;
+  gap: var(--space-3);
 }
+.showcase__caption,
 .showcase__count {
   color: var(--fg-muted);
+}
+.showcase__title {
+  color: var(--fg-display);
 }
 .showcase__tabs {
   margin-top: var(--space-8);
@@ -418,48 +475,58 @@ html.js .shelf[data-in="false"] .shelf__item {
   }
 }
 
-/* ── The work grid (WorkGrid.tsx), Behance-style ──────────────────
-   6 columns. Each piece spans 6, 3 or 2 (1, 2 or 3 per row) as set in /admin — 2 per row on
-   tablets, 1 on phones. Rows are packed densely, so a mix of widths never leaves holes. Every
-   piece keeps its own shape: the box takes the image's width : height, so nothing is cropped,
-   stretched or squeezed. Cards are the artwork only. */
+/* ── The work grid (WorkGrid.tsx) ─────────────────────────────────
+   Whole rows of 1, 2 or 3 pieces, as set in /admin (2 a row at most on tablets, 1 on phones).
+   The pieces in a row share one height and keep their own shapes, so their widths follow their
+   shapes and every row fills the line edge to edge: no holes, nothing cropped, stretched or
+   squeezed. WorkGrid.tsx gives each piece its row size (--k) and its share of the row (--s);
+   the rest is this flex wrap. A row that would stand taller than the screen (a lone portrait)
+   is capped to it and centred. Cards are the artwork only. */
 .wgrid {
   --wgap: clamp(12px, 1.4vw, 24px);
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  grid-auto-flow: row dense;
-  align-items: start;
+  --cap: 78svh;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
   gap: var(--wgap);
 }
-/* Masonry (WorkGrid.tsx sets each piece's row span): 4 px rows; the gap is inside each span. */
-.wgrid[data-masonry] {
-  grid-auto-rows: 4px;
-  row-gap: 0;
-}
+/* Phones: one piece per row. --pad is what is left either side of a row capped to the screen's
+   height (zero for a row that fills the line); the row's first and last pieces take it as margin,
+   so a short row still claims the whole line and the next row can never slide up beside it. */
 .wgrid__cell {
-  grid-column: span 2;
+  --pad: max(0px, calc((100% - var(--cap) * var(--ratio)) / 2));
+  flex: none;
   min-width: 0;
+  width: min(100%, calc(var(--cap) * var(--ratio)));
+  margin-inline: var(--pad);
   scroll-margin-top: 120px;
 }
-.wgrid__cell[data-span="half"] {
-  grid-column: span 3;
-}
-.wgrid__cell[data-span="full"] {
-  grid-column: 1 / -1;
-}
-@media (max-width: 1023px) {
+/* (The 0.1 px keeps a row of exact shares from tipping onto the next line by a rounding hair.) */
+@media (min-width: 600px) and (max-width: 1023px) {
   .wgrid__cell {
-    grid-column: span 3;
+    --pad: max(0px, calc((100% - (var(--k-md) - 1) * var(--wgap) - var(--cap) * var(--sum-md)) / 2));
+    width: min(calc((100% - (var(--k-md) - 1) * var(--wgap)) * var(--s-md) - 0.1px), calc(var(--cap) * var(--ratio)));
+    margin-inline: 0;
   }
-  .wgrid__cell[data-span="half"],
-  .wgrid__cell[data-span="full"] {
-    grid-column: 1 / -1;
+  .wgrid__cell[data-row-md~="first"] {
+    margin-left: var(--pad);
+  }
+  .wgrid__cell[data-row-md~="last"] {
+    margin-right: var(--pad);
   }
 }
-@media (max-width: 599px) {
-  .wgrid__cell,
-  .wgrid__cell[data-span] {
-    grid-column: 1 / -1;
+@media (min-width: 1024px) {
+  .wgrid__cell {
+    --pad: max(0px, calc((100% - (var(--k) - 1) * var(--wgap) - var(--cap) * var(--sum)) / 2));
+    width: min(calc((100% - (var(--k) - 1) * var(--wgap)) * var(--s) - 0.1px), calc(var(--cap) * var(--ratio)));
+    margin-inline: 0;
+  }
+  .wgrid__cell[data-row~="first"] {
+    margin-left: var(--pad);
+  }
+  .wgrid__cell[data-row~="last"] {
+    margin-right: var(--pad);
   }
 }
 /* Switching tabs: the pieces rise in, one after another. */
@@ -496,7 +563,9 @@ html.js .shelf[data-in="false"] .shelf__item {
 @media (hover: hover) {
   .wgrid__tile:hover {
     transform: translateY(-4px);
-    box-shadow: var(--shadow-lift);
+    box-shadow:
+      0 0 0 1.5px var(--orange-500),
+      var(--shadow-lift);
   }
   .wgrid__tile:hover img {
     scale: 1.03;
@@ -537,15 +606,11 @@ html.js .wgrid__art:not([data-blur]):not([data-loaded]) img {
   }
 }
 
-/* A before/after piece: the slider (or, until it is near, its After), centred, never taller than the screen. */
-.wgrid__slider {
-  display: grid;
-  justify-items: center;
-}
+/* A before/after piece: the slider (or, until it is near, its After) fills its cell. */
 .wgrid__slider > .wgrid__art,
 .wgrid__slider > .wgrid__skeleton,
 .wgrid__slider .compare {
-  width: min(100%, calc(78svh * var(--ratio))); /* full grid width, but never taller than the screen */
+  width: 100%;
 }
 .wgrid__slider > .wgrid__skeleton {
   position: relative;
@@ -696,27 +761,39 @@ html:not(.js) .compare__status {
 
 /* ── Selected Works, on the home page (Bento.tsx): a caption and filter pills over the work grid ── */
 .bento {
-  margin-top: var(--space-24);
+  margin-top: calc(var(--section-y) * 0.75);
+  padding-top: calc(var(--section-y) * 0.5);
+  border-top: 1px solid var(--line);
 }
 .bento__head {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
-  gap: var(--space-4);
+  gap: var(--space-6);
   margin-bottom: var(--space-8);
+}
+.bento__heading {
+  display: grid;
+  gap: var(--space-2);
 }
 .bento__caption {
   color: var(--fg-muted);
 }
+.bento__title {
+  color: var(--fg-display);
+}
+/* The pill bar is only as wide as its pills (and scrolls sideways on phones, below). */
 .bento__filters {
   display: flex;
   flex-wrap: wrap;
   gap: 2px;
+  width: fit-content;
+  max-width: 100%;
   padding: 5px;
   border: 1px solid color-mix(in srgb, var(--white) 14%, transparent);
   border-radius: var(--radius-pill);
-  background: var(--gray-900);
+  background: color-mix(in srgb, var(--gray-900) 82%, transparent);
 }
 .bento__filter {
   min-height: 40px;
@@ -823,7 +900,12 @@ html:not(.js) .compare__status {
   }
 }
 .other-tapes__list > li {
-  padding-top: clamp(24px, 4vw, 56px); /* room for the tape rising out of its sleeve */
+  display: flex;
+  padding-top: 27%; /* room for the tape resting in, and rising out of, its sleeve */
+}
+.other-tapes__list > li > .cassette {
+  flex: 1;
+  min-width: 0;
 }
 
 /* The page behind the preview doesn't scroll. */

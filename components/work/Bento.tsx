@@ -35,11 +35,18 @@ export function Bento({ categories }: { categories: Category[] }) {
     shown = [...tape.filter((e) => e.item.selected), ...tape.filter((e) => !e.item.selected)].slice(0, MAX);
   }
   const filters = [{ id: "all", label: "ALL" }, ...live.map((c) => ({ id: c.id, label: c.label }))];
+  const total = live.reduce((n, c) => n + c.items.length, 0);
+  const pad = (n: number) => String(n).padStart(2, "0");
 
   return (
     <div className="bento">
       <div className="wrap bento__head">
-        <p className="t-osd-lg bento__caption">SELECTED WORKS</p>
+        <div className="bento__heading">
+          <p className="t-osd-lg bento__caption">
+            SIDE B — {pad(shown.length)} OF {pad(total)} DESIGNS
+          </p>
+          <h3 className="t-title bento__title">SELECTED WORKS</h3>
+        </div>
         <div className="bento__filters" role="group" aria-label="Filter the work">
           {filters.map((f) => (
             <button key={f.id} type="button" className="bento__filter" aria-pressed={filter === f.id} onClick={() => setFilter(f.id)}>
@@ -49,7 +56,7 @@ export function Bento({ categories }: { categories: Category[] }) {
         </div>
       </div>
       <div key={filter} className="wrap showcase__grid">
-        <WorkGrid entries={shown} mode="link" label="Selected works" />
+        <WorkGrid entries={shown} mode="link" label="Selected works" flow="mix" />
       </div>
     </div>
   );

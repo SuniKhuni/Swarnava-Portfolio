@@ -16,7 +16,7 @@ export interface ImageRef {
   blur?: string;
 }
 
-/** How wide a piece sits in the 6-column work grid (desktop): 1, 2 or 3 per row. */
+/** How wide a piece sits in the work grid (desktop): 1, 2 or 3 per row. */
 export const LAYOUTS = ["full", "half", "third"] as const;
 export type Layout = (typeof LAYOUTS)[number];
 export const LAYOUT_LABELS: Record<Layout, string> = {
@@ -24,6 +24,8 @@ export const LAYOUT_LABELS: Record<Layout, string> = {
   half: "Featured — 2 per row",
   third: "Standard — 3 per row",
 };
+/** Pieces per row at each width. */
+export const PER_ROW: Record<Layout, 1 | 2 | 3> = { full: 1, half: 2, third: 3 };
 
 export interface WorkItem {
   slug: string;
@@ -110,6 +112,64 @@ export const itemRatio = (item: Pick<WorkItem, "after" | "aspect">) =>
 /** For CSS aspect-ratio: "1280 / 720". */
 export const itemAspect = (item: Pick<WorkItem, "after" | "aspect">) =>
   item.after?.width && item.after?.height ? `${item.after.width} / ${item.after.height}` : item.aspect;
+
+/** Where a piece sits in the work grid: how many pieces share its row (k), its share of the row's
+ *  width, the row's summed width : height (the row's height is its width over this), and whether
+ *  the piece starts or ends the row. */
+export type RowSlot = { k: number; share: number; sum: number; first: boolean; last: boolean };
+
+// What it costs to show a piece that asked for `want` per row in a row of `k`: growing a little is
+// cheap; a standard piece alone on a row (blown up to full width) is dear — dearer than pairing it
+// with a full-width neighbour as two halves; squeezing a full-width piece three to a row, dearest.
+const FIT_COST: Record<number, Record<number, number>> = {
+  3: { 3: 0, 2: 1, 1: 5 },
+  2: { 2: 0, 3: 1.5, 1: 2 },
+  1: { 1: 0, 2: 3.5, 3: 9 },
+};
+/** A row taller than this share of its own width is capped to the screen and no longer fills the line. */
+const TALL_ROW = 0.62;
+
+/**
+ * Lays pieces out in whole rows, in order. Every row holds 1, 2 or 3 pieces (2 at most on
+ * tablets) that share one height, so their widths follow their shapes and each row fills the line
+ * edge to edge — no holes, no orphan beside empty space, nothing cropped. Each piece asks for a
+ * row size (its width in /admin); where the asks don't add up to whole rows (a lone "3 per row"
+ * piece before a full-width one, say), the cheapest regrouping wins, and rows that already add up
+ * are never touched.
+ */
+export function arrangeRows(items: Array<Pick<WorkItem, "slider" | "before" | "layout" | "after" | "aspect">>, maxPerRow: 2 | 3 = 3): RowSlot[] {
+  const n = items.length;
+  const ratio = items.map(itemRatio);
+  // Tablets show one fewer per row: 3 → 2, 2 → 1.
+  const want = items.map((it) => (maxPerRow === 3 ? PER_ROW[layoutOf(it)] : Math.max(1, PER_ROW[layoutOf(it)] - 1)));
+  const best = new Array<number>(n + 1).fill(0);
+  const take = new Array<number>(n).fill(1);
+  for (let i = n - 1; i >= 0; i--) {
+    best[i] = Infinity;
+    // The row size this piece asked for is tried first, so a tie keeps the choice made in /admin.
+    for (const k of [want[i], 1, 2, 3]) {
+      if (k > maxPerRow || i + k > n) continue;
+      let cost = best[i + k];
+      let sum = 0;
+      for (let j = i; j < i + k; j++) {
+        cost += FIT_COST[want[j]][k];
+        sum += ratio[j];
+      }
+      cost += 3 * Math.max(0, 1 / sum - TALL_ROW);
+      if (cost < best[i] - 1e-9) {
+        best[i] = cost;
+        take[i] = k;
+      }
+    }
+  }
+  const slots: RowSlot[] = [];
+  for (let i = 0; i < n; i += take[i]) {
+    const k = take[i];
+    const sum = ratio.slice(i, i + k).reduce((a, b) => a + b, 0);
+    for (let j = i; j < i + k; j++) slots.push({ k, share: ratio[j] / sum, sum, first: j === i, last: j === i + k - 1 });
+  }
+  return slots;
+}
 
 /** Running numbers off card titles: "Gaming 01" → "Gaming", "[GAMING 03 — TITLE]" → "[GAMING — TITLE]".
  *  Zero-padded numbers (01, 02…) anywhere, and any number straight after the tape's own name

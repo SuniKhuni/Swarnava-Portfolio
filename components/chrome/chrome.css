@@ -12,7 +12,11 @@
   padding: 6px;
   border: 1px solid color-mix(in srgb, var(--white) 14%, transparent);
   border-radius: var(--radius-pill);
-  background: color-mix(in srgb, var(--black) 86%, transparent);
+  /* smoked glass: readable over photos, the orange screen and the white letter alike */
+  background: color-mix(in srgb, var(--black) 78%, transparent);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  backdrop-filter: blur(14px) saturate(1.4);
+  box-shadow: 0 10px 30px -14px color-mix(in srgb, var(--black) 80%, transparent);
 }
 .remote__list {
   display: flex;
@@ -252,27 +256,102 @@
   transform: scale(1);
 }
 
-/* ── Footer (§8.5) ────────────────────────────────────────── */
+/* ── Footer (§8.5) ──────────────────────────────────────────
+   The end of the tape: a strip of test bars, the transport and the four channels, END OF TAPE
+   across the full width (filling in as it scrolls into view), and a glow coming up from the
+   bottom of the page. */
 .footer {
-  padding: var(--section-y) 0 calc(var(--space-12) + env(safe-area-inset-bottom));
-  border-top: 1px solid var(--line);
+  --ambient:
+    radial-gradient(80% 300px at 50% 100%, var(--glow-red), transparent 72%),
+    radial-gradient(110% 460px at 50% 100%, var(--glow-orange), transparent 72%);
+  padding-bottom: calc(var(--space-12) + env(safe-area-inset-bottom));
+  overflow-x: clip;
 }
-.footer__end {
-  color: transparent;
-  -webkit-text-stroke: 1.5px var(--white);
-  paint-order: stroke fill;
-  white-space: nowrap;
+.footer__bars {
+  display: flex;
+  height: 10px;
+}
+.footer__bars span {
+  flex: 1;
+}
+.footer__inner {
+  padding-top: calc(var(--section-y) * 0.6);
+  container-type: inline-size;
 }
 .footer__row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4) var(--space-8);
+}
+.footer__transport {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   gap: var(--space-4);
-  margin-top: var(--space-8);
+}
+.footer__nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--space-8);
+}
+.footer__nav a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  min-height: 44px;
+  color: var(--fg);
+  font-family: var(--font-osd);
+  font-size: var(--text-osd-lg);
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+.footer__nav-ch {
+  color: var(--fg-muted);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+@media (hover: hover) {
+  .footer__nav a:hover,
+  .footer__nav a:hover .footer__nav-ch {
+    color: var(--orange-500);
+  }
+}
+/* "END OF TAPE" is 3.73 em wide: at 26.5% of the content width per em it fills the line at
+   every screen size. Outlined; the fill is a white ground clipped to the letters. */
+.footer__end {
+  margin-top: var(--space-6);
+  background: linear-gradient(var(--white), var(--white)) left center / 0 100% no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-family: var(--font-display);
+  font-size: 26.5cqi;
+  line-height: 0.86;
+  text-transform: uppercase;
+  white-space: nowrap;
+  -webkit-text-stroke: clamp(1px, 0.14cqi, 2px) var(--white);
+  paint-order: stroke fill;
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .footer__end {
+      animation: footer-fill linear both;
+      animation-timeline: view();
+      animation-range: entry 10% entry 110%;
+    }
+  }
+}
+@keyframes footer-fill {
+  to {
+    background-size: 100% 100%;
+  }
 }
 .footer__row--meta {
-  justify-content: space-between;
-  padding-top: var(--space-6);
+  margin-top: var(--space-8);
+  padding-top: var(--space-4);
   border-top: 1px solid var(--line);
   color: var(--fg-muted);
 }
@@ -294,6 +373,9 @@
 @media (max-width: 767px) {
   .footer {
     padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  }
+  .footer__nav ul {
+    gap: 0 var(--space-6);
   }
 }
 

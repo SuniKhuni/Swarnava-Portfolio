@@ -35,12 +35,12 @@ type CassetteProps = {
   index: number;
   /** Centred card in the mobile carousel takes the hover state. */
   active?: boolean;
-  /** How far the tape rests out of its sleeve: 0 on hover devices, 12% in the carousel. */
+  /** How far the tape rests out of its sleeve, in % of its height: enough to show its label. */
   restOut?: number;
 };
 
 /** A category as a VHS tape in its sleeve (§7.9). The whole card is one link. */
-export function Cassette({ category, index, active = false, restOut = 0 }: CassetteProps) {
+export function Cassette({ category, index, active = false, restOut = 13.5 }: CassetteProps) {
   const [hover, setHover] = useState(false);
   const [focus, setFocus] = useState(false);
   const [ejecting, setEjecting] = useState(false);
@@ -83,17 +83,18 @@ export function Cassette({ category, index, active = false, restOut = 0 }: Casse
         <span />
         <span />
       </span>
+      <span className="cassette__meta" aria-hidden="true">
+        <span>TAPE {pad(index + 1)}</span>
+        <span>VHS · E-180</span>
+      </span>
       <span className="cassette__title t-title">{category.label}</span>
       <span className="cassette__row">
-        <OsdChip tone="paper">{empty ? "NO TAPES" : `${pad(category.count)} TAPES`}</OsdChip>
+        <OsdChip tone="paper">{empty ? "NO DESIGNS YET" : `${pad(category.count)} DESIGNS`}</OsdChip>
         {empty ? null : (
           <span className="btn cassette__arrow" data-variant="icon" aria-hidden="true">
             <Icon name="arrow-up-right" className="btn__icon" />
           </span>
         )}
-      </span>
-      <span className="cassette__index" aria-hidden="true">
-        {pad(index + 1)}
       </span>
     </div>
   );

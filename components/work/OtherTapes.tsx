@@ -6,16 +6,17 @@ export function OtherTapes({ categories, current }: { categories: Category[]; cu
   const others = categories.filter((c) => c.id !== current && c.items.length > 0);
   if (others.length === 0) return null;
   return (
-    <section className="other-tapes scene" data-scene="night" aria-labelledby="other-tapes-title">
+    <section className="other-tapes scene ambient" data-scene="night" aria-labelledby="other-tapes-title">
       <div className="wrap">
         <p className="t-osd-lg other-tapes__caption">END OF THIS TAPE</p>
         <h2 id="other-tapes-title" className="t-title other-tapes__title">
           CHECK OTHER TAPES
         </h2>
         <ul className="other-tapes__list">
-          {others.map((c, i) => (
+          {others.map((c) => (
             <li key={c.id}>
-              <Cassette category={{ id: c.id, label: c.label, stripe: c.stripe, cover: c.cover, count: c.items.length }} index={i} />
+              {/* numbered as on the shelf, not by its place in this list */}
+              <Cassette category={{ id: c.id, label: c.label, stripe: c.stripe, cover: c.cover, count: c.items.length }} index={categories.indexOf(c)} />
             </li>
           ))}
         </ul>

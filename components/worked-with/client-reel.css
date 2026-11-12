@@ -1,8 +1,11 @@
 /* ── Worked with — the current design (ClientReel.tsx; swappable, see WorkedWith.tsx) (§9.3) ─────────────────────────────────────────
    Night scene, raw: halftone portraits in torn orange frames, on VHS sleeves. */
 .clients {
-  position: relative;
-  padding: var(--section-y) 0 calc(var(--section-y) * 0.8);
+  /* Both glows die out inside the section: nothing is cut off at its top or bottom edge. */
+  --ambient:
+    radial-gradient(720px 420px at 86% 310px, var(--glow-orange), transparent 72%),
+    radial-gradient(640px 400px at 0 calc(100% - 300px), var(--glow-red), transparent 72%);
+  padding: var(--section-y) 0 0;
   overflow-x: clip;
 }
 .clients__head {
@@ -35,9 +38,11 @@
   max-width: 44ch;
   color: var(--fg-muted);
 }
+/* On the heading's last line, at the content's right edge (the head is a .wrap: its padding
+   box runs to the screen's edge, so the gutter is added back). */
 .clients__pause {
   position: absolute;
-  right: 0;
+  right: var(--gutter);
   bottom: 0;
 }
 @media (max-width: 767px) {
@@ -49,7 +54,14 @@
 
 /* The reel: generous padding so tilted sleeves and torn frames never clip. */
 .clients__reel {
-  padding-block: var(--space-8) var(--space-12);
+  padding-block: var(--space-8);
+}
+/* Wide screens: the sleeves fade in and out at the screen's edges instead of being cut by them. */
+@media (min-width: 1024px) {
+  .clients__reel:not(.clients__reel--static) {
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, var(--black) 7%, var(--black) 93%, transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 0, var(--black) 7%, var(--black) 93%, transparent 100%);
+  }
 }
 .clients__reel .marquee__copy,
 .clients__reel--static {

@@ -705,11 +705,25 @@ html.js .env-scene[data-scrub]::after {
   display: block;
   height: 160svh;
 }
+/* The pin is as tall as what is in it, not the screen: on a tall screen the links below follow
+   straight after the envelope instead of after a band of empty black. */
 html.js .env-scene[data-scrub] .env-pin {
   position: sticky;
   top: 0;
-  min-height: 100svh;
   padding-top: 84px; /* the letter lands clear of the Remote bar on top */
+}
+/* A low glow behind the envelope, held with it. */
+html.js .env-scene[data-scrub] .env-pin::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: -1;
+  width: 100vw;
+  height: 100svh;
+  margin-left: -50vw;
+  background: radial-gradient(min(46vw, 620px) 44svh at 50% 54%, var(--glow-orange), transparent 72%);
+  pointer-events: none;
 }
 @media (max-width: 767px) {
   html.js .env-scene[data-scrub] .env-pin {

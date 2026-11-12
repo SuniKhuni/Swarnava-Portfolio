@@ -74,12 +74,30 @@ html.js .line-reveal[data-in="false"] .bts__pillars > li {
   }
   html.js .bts__deck {
     position: sticky;
-    top: max(var(--space-16), calc(50svh - (100vw - 2 * var(--gutter)) * 0.4));
+    /* centred: the Monitor is about 0.8 of its width tall, plus the two OSD lines */
+    top: max(var(--space-16), calc(50svh - (100vw - 2 * var(--gutter)) * 0.4 - var(--space-8)));
   }
 }
 @media (min-width: 1024px) {
+  .bts {
+    /* The Monitor's width: large; on a short, wide window held to the height (it is about 1.29
+       times as wide as it is tall), so it is never cut off; and on a very wide one held back so
+       it covers the full stop of "BTS." (the title is 1.33 em wide, its S ends at 1.13 em) and
+       never bites into the S. --text-room is what is left beside it for the paragraphs, from the
+       content's left edge to a step short of the Monitor. */
+    --copy-left: max(var(--gutter), (100vw - var(--content-max)) / 2);
+    --deck-w: min(
+      calc(56vw - var(--gutter)),
+      calc((100svh - 2 * var(--space-24)) * 1.29),
+      calc(100vw - var(--gutter) - var(--copy-left) - var(--text-mega) * 1.17)
+    );
+    --text-room: calc(100vw - var(--gutter) - var(--deck-w) - var(--copy-left) - var(--space-8));
+  }
   .bts__copy {
     width: 50%; /* BTS. spans columns 1–6; paragraphs stop at 46ch, inside columns 1–5 */
+  }
+  .bts__para {
+    max-width: min(46ch, var(--text-room)); /* never under the Monitor */
   }
   .bts__track {
     position: absolute;
@@ -92,28 +110,66 @@ html.js .line-reveal[data-in="false"] .bts__pillars > li {
     position: absolute;
     /* large, and still wholly on screen: it starts over the tail of "BTS." and ends a gutter's
        width short of the right edge */
-    left: 44%;
+    right: var(--gutter);
     top: 50%;
-    width: calc(56% - var(--gutter));
+    width: var(--deck-w);
     translate: 0 -50%;
     pointer-events: auto;
   }
 }
 /* Desktop: the whole screen — copy and Monitor — holds still for one step of scroll per photo,
-   then BTS scrolls on. Without JS or with reduced motion it is one ordinary screen. */
+   then BTS scrolls on. Without JS or with reduced motion it is one ordinary screen.
+
+   A held screen cannot scroll, so everything on it has to fit the window, whatever its height
+   and however long the about text is. The copy is a column exactly as tall as the room there is;
+   the text, the pillars and the button keep their size, and "BTS." takes what is left: full size
+   (--text-mega) when there is room, smaller on a short laptop screen or under a long text —
+   its letters are sized from the height of its own box (125cqh: the line is 0.8 of the type size).
+   Spacing and the text size ease down with the window's height too. If even the smallest title
+   cannot make room (a very long text in a very short window), BtsDeck.tsx marks the section
+   data-fit="no" and it falls back to the ordinary, scrolling screen: nothing is ever cut off. */
 @media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
-  html.js .bts {
+  html.js .bts:not([data-fit="no"]) {
     height: calc(100svh + var(--photos) * var(--step));
     padding: 0;
   }
-  html.js .bts__pin {
+  html.js .bts:not([data-fit="no"]) .bts__pin {
+    --pin-top: clamp(88px, 12svh, var(--section-y)); /* clear of the Remote bar */
+    --pin-foot: clamp(40px, 7svh, var(--section-y));
     position: sticky;
     top: 0;
     display: grid;
     align-content: center;
     height: 100svh;
-    padding-block: var(--section-y);
+    padding-block: var(--pin-top) var(--pin-foot);
     overflow: clip;
+  }
+  html.js .bts:not([data-fit="no"]) .bts__copy {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(var(--space-4), 3svh, var(--space-8));
+    max-height: calc(100svh - var(--pin-top) - var(--pin-foot));
+  }
+  html.js .bts:not([data-fit="no"]) .bts__title {
+    display: flex; /* the letters sit at the top of the box, not on a full-size line */
+    align-items: flex-start;
+    flex: 0 1 calc(var(--text-mega) * 0.8);
+    min-height: 96px;
+    container-type: size;
+  }
+  html.js .bts:not([data-fit="no"]) .bts__title .rise {
+    font-size: min(var(--text-mega), 125cqh);
+  }
+  html.js .bts:not([data-fit="no"]) .line-reveal {
+    flex: none;
+  }
+  html.js .bts:not([data-fit="no"]) .bts__para {
+    max-width: min(56ch, var(--text-room)); /* a longer line where there is room: fewer lines to fit */
+    font-size: clamp(1rem, 2.6svh, var(--text-lead));
+  }
+  html.js .bts:not([data-fit="no"]) .line-reveal__after {
+    gap: clamp(var(--space-3), 2.4svh, var(--space-6));
+    margin-top: clamp(var(--space-4), 3svh, var(--space-8));
   }
 }
 @media (max-width: 1023px) {
@@ -122,15 +178,130 @@ html.js .line-reveal[data-in="false"] .bts__pillars > li {
   }
 }
 
+/* ── The deck's own OSD (BtsDeck.tsx), around the Monitor ─────────
+   Under it, on every screen: one tick per photo, filling as the held screen is scrolled through —
+   the only sign that scrolling is what deals the photos. Phones and tablets, where the Monitor
+   holds alone in the middle of the screen, also get a REC line over it and viewfinder corners. */
+.bts__osd {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  color: var(--black);
+  font-family: var(--font-osd);
+  font-size: var(--text-osd);
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+.bts__osd > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  white-space: nowrap;
+}
+.bts__osd--top {
+  margin-bottom: var(--space-3);
+}
+/* The ticks and SCROLL only mean something where scrolling deals the photos: not without JS,
+   with reduced motion, or on the ordinary screen a too-long text falls back to. */
+.bts__osd.bts__osd--foot {
+  display: none;
+  margin-top: var(--space-4);
+}
+@media (prefers-reduced-motion: no-preference) {
+  html.js .bts:not([data-fit="no"]) .bts__osd--foot {
+    display: flex;
+  }
+}
+.bts__osd-rec {
+  animation: blink var(--dur-blink) steps(1) infinite;
+}
+.bts__osd > .bts__ticks {
+  flex: 1;
+  gap: 4px;
+  max-width: 60%;
+}
+.bts__ticks i {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--black) 22%, transparent);
+  transition: background-color var(--dur-fast) var(--ease-out);
+}
+.bts__ticks i[data-on] {
+  background: var(--black);
+}
+.bts__finder {
+  --arm: 22px;
+  --ink: linear-gradient(var(--black), var(--black));
+  position: absolute;
+  inset: calc(var(--space-4) * -1) 0;
+  pointer-events: none;
+  background:
+    var(--ink) left top / var(--arm) 2px no-repeat,
+    var(--ink) left top / 2px var(--arm) no-repeat,
+    var(--ink) right top / var(--arm) 2px no-repeat,
+    var(--ink) right top / 2px var(--arm) no-repeat,
+    var(--ink) left bottom / var(--arm) 2px no-repeat,
+    var(--ink) left bottom / 2px var(--arm) no-repeat,
+    var(--ink) right bottom / var(--arm) 2px no-repeat,
+    var(--ink) right bottom / 2px var(--arm) no-repeat;
+}
+.bts__osd--top,
+.bts__osd--foot {
+  padding-inline: var(--space-3);
+}
+@media (min-width: 1024px) {
+  .bts__finder,
+  .bts__osd--top {
+    display: none;
+  }
+  .bts__osd--foot {
+    padding-inline: var(--space-6);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bts__osd-rec {
+    animation: none;
+  }
+}
+
 /* ── Monitor (§7.5) ─────────────────────────────────────────── */
 .monitor {
   --bezel: clamp(18px, 2.4vw, 44px);
+  position: relative;
   padding: var(--bezel);
   border-radius: clamp(var(--radius-lg), 3vw, 44px);
-  background: var(--black);
+  /* a black glass slab: a lit edge top-left, a long soft shadow under it */
+  background: linear-gradient(140deg, color-mix(in srgb, var(--white) 12%, var(--black)) 0, var(--black) 34%);
   box-shadow:
     var(--shadow-prop),
-    inset 0 0 0 1px color-mix(in srgb, var(--white) 10%, transparent);
+    0 60px 90px -50px color-mix(in srgb, var(--black) 75%, transparent),
+    inset 0 0 0 1px color-mix(in srgb, var(--white) 14%, transparent),
+    inset 0 0 0 3px var(--black);
+}
+/* the front camera, in the top bezel */
+.monitor::before {
+  content: "";
+  position: absolute;
+  top: calc(var(--bezel) / 2);
+  left: 50%;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, var(--gray-600), var(--black) 70%);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--white) 14%, transparent);
+  translate: -50% -50%;
+}
+/* a sheen across the glass, top-left */
+.monitor__screen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  background: linear-gradient(118deg, color-mix(in srgb, var(--white) 26%, transparent) 0, transparent 26%);
+  pointer-events: none;
 }
 .monitor__screen {
   position: relative;
@@ -286,7 +457,7 @@ html.js .line-reveal[data-in="false"] .bts__pillars > li {
 }
 .archive-header__title {
   font-family: var(--font-osd);
-  font-size: clamp(10px, 1.6cqi, 14px);
+  font-size: clamp(11px, 2cqi, 15px);
   font-weight: 700;
   letter-spacing: 0.08em;
   color: var(--black);
@@ -296,7 +467,7 @@ html.js .line-reveal[data-in="false"] .bts__pillars > li {
   align-items: center;
   gap: clamp(4px, 0.8cqi, 6px);
   font-family: var(--font-osd);
-  font-size: clamp(10px, 1.6cqi, 13px);
+  font-size: clamp(11px, 2cqi, 15px);
   font-weight: 700;
   letter-spacing: 0.06em;
   color: var(--black);
@@ -385,7 +556,7 @@ html.js .line-reveal[data-in="false"] .bts__pillars > li {
 }
 .archive-main__sub {
   font-family: var(--font-osd);
-  font-size: clamp(8px, 1.3cqi, 11px);
+  font-size: clamp(9px, 1.6cqi, 13px);
   letter-spacing: 0.1em;
   color: color-mix(in srgb, var(--black) 70%, transparent);
 }
@@ -399,7 +570,7 @@ html.js .line-reveal[data-in="false"] .bts__pillars > li {
   background: var(--black);
   color: var(--white);
   font-family: var(--font-osd);
-  font-size: clamp(9px, 1.4cqi, 12px);
+  font-size: clamp(10px, 1.8cqi, 14px);
   letter-spacing: 0.06em;
   line-height: 1;
 }
@@ -467,7 +638,7 @@ html.js .line-reveal[data-in="false"] .bts__pillars > li {
   align-items: center;
   gap: 6px;
   font-family: var(--font-osd);
-  font-size: clamp(9px, 1.5cqi, 12px);
+  font-size: clamp(10px, 1.9cqi, 14px);
   font-weight: 700;
   letter-spacing: 0.06em;
   white-space: nowrap;
@@ -581,7 +752,7 @@ html.js .line-reveal[data-in="false"] .bts__pillars > li {
 }
 .archive-footer__label {
   font-family: var(--font-osd);
-  font-size: clamp(8px, 1.3cqi, 11px);
+  font-size: clamp(9px, 1.6cqi, 12px);
   letter-spacing: 0.08em;
   color: var(--black);
 }
