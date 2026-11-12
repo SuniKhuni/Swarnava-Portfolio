@@ -40,6 +40,11 @@
   --fx-split-red: rgb(255 42 42 / 0.6);
   --fx-split-cyan: rgb(25 227 255 / 0.6);
   --debug: rgb(255 0 255 / 0.5);
+  --grain: 0.035; /* tape grain on the night ground (.ambient) */
+  /* the night glows: brand orange and red, thinned */
+  --glow-orange: color-mix(in srgb, var(--orange-500) 20%, transparent);
+  --glow-orange-soft: color-mix(in srgb, var(--orange-500) 11%, transparent);
+  --glow-red: color-mix(in srgb, var(--red-600) 22%, transparent);
 
   /* TV pictures (components/hero/TvPictures.tsx): 75% SMPTE bars and a synthwave sunset. */
   --tv-bar-grey: #c0c0c0;
@@ -107,6 +112,27 @@
 .scene {
   background: var(--scene-bg);
   color: var(--fg);
+}
+/* Night sections are never flat black: a low glow of the signal colours (--ambient, set per
+   section) and fine tape grain lie on the ground, under the content — never over the work (§6.5). */
+.ambient {
+  position: relative;
+  isolation: isolate;
+}
+.ambient::before,
+.ambient::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+.ambient::before {
+  background: var(--ambient, none);
+}
+.ambient::after {
+  background: url("/fx/noise.png") 0 0 / 128px;
+  opacity: var(--grain);
 }
 
 /* ─────────────────────────────────────────────────────────────

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
-import { ASPECTS, LAYOUTS, LAYOUT_LABELS, STRIPES, hasSlider, layoutOf, type Category, type Client, type Content, type ImageRef, type WorkItem } from "@/content/types";
+import { ASPECTS, LAYOUTS, LAYOUT_LABELS, PER_ROW, STRIPES, arrangeRows, hasSlider, layoutOf, type Category, type Client, type Content, type ImageRef, type WorkItem } from "@/content/types";
 import { logout, saveContent, uploadImage } from "@/app/admin/actions";
 import "./admin.css";
 
@@ -407,15 +407,26 @@ function TapesTab({ doc, edit }: { doc: Content; edit: Edit }) {
               <h3 className="admin-sub">HOW THIS TAPE READS ON THE SITE</h3>
               <small className="admin-hint">
                 The grid is laid out in this order, row by row: full width = 1 per row, featured = 2, standard = 3 (2 per row on tablets, 1 on phones).
-                Orange = before/after slider. Drag pieces below (⠿) or use ▲ ▼ to reorder.
+                The pieces in a row share one height, so each row fills the line whatever their shapes. Orange = before/after slider.
+                Dashed = shown in a different row size than chosen, because the pieces around it did not add up to a whole row — reorder or change a
+                width to fix it. Drag pieces below (⠿) or use ▲ ▼ to reorder.
               </small>
               <div className="admin-rhythm" aria-hidden="true">
-                {cat.items.map((it, i) => (
-                  <span key={i} data-span={layoutOf(it)} data-slider={hasSlider(it) || undefined}>
-                    {pad(i + 1)}
-                    {hasSlider(it) ? " ◀▶" : ""}
-                  </span>
-                ))}
+                {arrangeRows(cat.items).map((slot, i) => {
+                  const it = cat.items[i];
+                  return (
+                    <span
+                      key={i}
+                      style={{ "--k": slot.k, "--s": slot.share } as React.CSSProperties}
+                      data-full={slot.k === 1 || undefined}
+                      data-slider={hasSlider(it) || undefined}
+                      data-moved={slot.k !== PER_ROW[layoutOf(it)] || undefined}
+                    >
+                      {pad(i + 1)}
+                      {hasSlider(it) ? " ◀▶" : ""}
+                    </span>
+                  );
+                })}
               </div>
             </section>
           ) : null}

@@ -21,6 +21,8 @@ export function WorkShowcase({ categories, initial, focus }: { categories: Categ
 
   const entries: GridEntry[] = (tape ? [tape] : live).flatMap((c) => c.items.map((item) => ({ item, category: { id: c.id, label: c.label } })));
   const title = tape ? tape.label : "ALL DESIGNS";
+  // The tape's number on the shelf (the home page counts every tape, in the same order).
+  const caption = tape ? `CH 03 — TAPE ${pad(categories.indexOf(tape) + 1)} OF ${pad(categories.length)}` : "CH 03 — THE WHOLE SHELF";
 
   // Phones: the tab row scrolls sideways — keep the active tab in view.
   const tabs = useRef<HTMLDivElement>(null);
@@ -37,11 +39,14 @@ export function WorkShowcase({ categories, initial, focus }: { categories: Categ
 
   return (
     <>
-      <section className="showcase scene" data-scene="night" data-channel="03" data-channel-label={tape ? tape.label : "WORK"} aria-labelledby="showcase-title">
+      <section className="showcase scene ambient" data-scene="night" data-channel="03" data-channel-label={tape ? tape.label : "WORK"} aria-labelledby="showcase-title">
         <header className="wrap showcase__head">
-          <h1 id="showcase-title" className="t-section showcase__title">
-            {title}
-          </h1>
+          <div className="showcase__heading">
+            <p className="t-osd-lg showcase__caption">{caption}</p>
+            <h1 id="showcase-title" className="t-section showcase__title">
+              {title}
+            </h1>
+          </div>
           <p className="t-osd-lg showcase__count">{pad(entries.length)} DESIGNS</p>
         </header>
         <nav className="wrap showcase__tabs" aria-label="Filter the work">

@@ -54,8 +54,13 @@ Uploads are shrunk in the browser to under 4 MB first (Vercel's request limit is
 ## The work grid (Behance-style)
 
 Every tape page, `/work` ("All designs" + a tab per tape) and the home page's Selected Works use one grid
-(`components/work/WorkGrid.tsx`): 6 columns; each piece spans 6, 3 or 2 (1, 2 or 3 per row; 2 on tablets, 1 on
-phones), masonry-packed so different shapes never leave holes, in the order set in /admin (drag ⠿ or ▲ ▼).
+(`components/work/WorkGrid.tsx`): whole rows of 1, 2 or 3 pieces (2 at most on tablets, 1 on phones), in the
+order set in /admin (drag ⠿ or ▲ ▼). The pieces in a row share one height and keep their own shapes, so every
+row fills the line edge to edge whatever the mix of 16:9, 4:5, 1:1 and 9:16 — no holes, nothing cropped.
+`arrangeRows()` in `content/types.ts` works the rows out: each piece asks for a row size (its width in
+/admin); where the asks don't add up to whole rows (a lone "3 per row" piece next to a full-width one), the
+nearest regrouping is used, and /admin's layout map shows exactly what the site will show (dashed = regrouped).
+The layout itself is plain CSS — nothing is measured in the browser, so nothing shifts after load.
 Per piece in /admin → Tapes: **Enable Before/After slider?** (off = one static image; on = Before required),
 **Width in the grid**, Show in Selected Works. Cards are the artwork only — no titles, badges or counts.
 Images lazy-load over a skeleton or a blur-up copy made on upload; sliders mount only when scrolled near.

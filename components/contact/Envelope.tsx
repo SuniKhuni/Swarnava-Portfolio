@@ -144,7 +144,8 @@ export default function Envelope({ hasBackend, email }: EnvelopeProps) {
   const toEnd = (focusName: boolean) => {
     const sc = scene.current;
     if (!sc) return;
-    const top = sc.getBoundingClientRect().top + window.scrollY + sc.offsetHeight - window.innerHeight;
+    // The hold ends when the scene's foot meets the pin's (the pin may be shorter than the screen).
+    const top = sc.getBoundingClientRect().top + window.scrollY + sc.offsetHeight - (pin.current?.offsetHeight ?? window.innerHeight);
     window.scrollTo({ top, behavior: reduce ? "auto" : "smooth" });
     if (focusName) setTimeout(() => form.current?.querySelector<HTMLElement>("input[name='name']")?.focus({ preventScroll: true }), 900);
   };

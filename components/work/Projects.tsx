@@ -12,7 +12,7 @@ const pad = (n: number) => String(n).padStart(2, "0");
 export function Projects({ categories }: { categories: Category[] }) {
   const tapes = categories.map((c) => ({ id: c.id, label: c.label, stripe: c.stripe, cover: c.cover, count: c.items.length }));
   return (
-    <section id="work" className="projects scene" data-scene="night" data-channel="03" data-channel-label="WORK" aria-labelledby="projects-title">
+    <section id="work" className="projects scene ambient" data-scene="night" data-channel="03" data-channel-label="WORK" aria-labelledby="projects-title">
       <div className="wrap">
         <div className="projects__head">
           <p className="t-osd-lg projects__caption">CH 03 — PICK A TAPE</p>

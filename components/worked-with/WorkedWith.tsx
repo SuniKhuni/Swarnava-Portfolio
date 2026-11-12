@@ -15,7 +15,7 @@ export async function WorkedWith({ clients }: { clients: Client[] }) {
   if (clients.length === 0) return null;
   const counts = await subscriberCounts(clients.flatMap((c) => (c.channel ? [c.channel] : [])));
   return (
-    <section id="clients" className="clients scene" data-scene="night" aria-labelledby="worked-with">
+    <section id="clients" className="clients scene ambient" data-scene="night" data-channel="02" data-channel-label="CLIENTS" aria-labelledby="worked-with">
       <ClientReel clients={clients} counts={counts} />
     </section>
   );

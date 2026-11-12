@@ -544,16 +544,17 @@ body:has(.admin) :is(.remote-wrap, .hud, .cursor-chip, .skip-link, .transition) 
   box-shadow: inset 0 -3px 0 var(--orange-500);
 }
 .admin-rhythm {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  grid-auto-flow: row dense;
+  display: flex;
+  flex-wrap: wrap;
   gap: 4px;
   max-width: 520px;
 }
+/* The same rows as the site (arrangeRows): each piece takes its share of its row. */
 .admin-rhythm > span {
   display: grid;
   place-items: center;
-  grid-column: span 2;
+  flex: none;
+  width: calc((100% - (var(--k) - 1) * 4px) * var(--s) - 0.1px);
   height: 34px;
   border-radius: var(--radius-xs);
   background: var(--gray-600);
@@ -561,12 +562,12 @@ body:has(.admin) :is(.remote-wrap, .hud, .cursor-chip, .skip-link, .transition) 
   font-family: var(--font-osd);
   font-size: var(--text-osd);
 }
-.admin-rhythm > [data-span="half"] {
-  grid-column: span 3;
-}
-.admin-rhythm > [data-span="full"] {
-  grid-column: 1 / -1;
+.admin-rhythm > [data-full] {
   height: 48px;
+}
+.admin-rhythm > [data-moved] {
+  outline: 1.5px dashed var(--white);
+  outline-offset: -3px;
 }
 .admin-rhythm > [data-slider] {
   background: var(--orange-500);
